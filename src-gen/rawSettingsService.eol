@@ -1,0 +1,11 @@
+operation ConfigurationProperty typescriptType(): String {
+  return self.type.concat(" | ");
+}
+
+operation ConfigurationProperty settingName(): String {
+  return "setting" + self.name.firstToUpperCase();
+}
+
+operation ConfigurationProperty getterName(): String {
+  return "get" + self.name.firstToUpperCase();
+}

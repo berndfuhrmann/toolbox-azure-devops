@@ -1,0 +1,216 @@
+// #MARK: common
+operation combineImports(imports: Sequence(Map(String, Set(String)))) {
+  var result = Map{};
+  for(importEntry: Map(String, Set(String)) in imports) {
+    for(key: String in importEntry.keySet()) {
+      var entry = importEntry.get(key);
+      if (not result.containsKey(key)) {
+        result.put(key, Set{});
+      } 
+      result.get(key).addAll(entry);
+    }
+  }
+
+  return result;
+}
+
+operation importStatement(imports : Collection(String), file : String) : String {
+  return "import { " + imports.concat(', ') + " } from \"" + file + "\";";
+}
+
+// #MARK: TreeProvider
+operation TreeProvider imports() {
+  var importPath = self.importPath != null ? 
+      (".." + self.importPath)
+    : ("../modules/" + self.module + "/" + self.name);
+  var result = Map{};
+  result.put(importPath, Set{self.name});
+  return result;
+}
+
+operation TreeProvider importedNames() {
+  return Sequence {self.name};
+}
+
+// #MARK: TreePartProvider
+operation TreePartProvider imports() {
+  var importPath = self.importPath != null ? 
+      (".." + self.importPath + "TreePartProvider")
+    : ("../modules/" + self.module + "/treePartProviders/" + self.name);
+  var result = Map{};
+  result.put(importPath, Set{self.name});
+  return result;
+}
+
+operation TreePartProvider importedNames() {
+  return Sequence {self.name};
+}
+
+// #MARK: TreeItem
+operation TreeItem itemName() {
+  if (self.item != null) {
+    return self.item;
+  } else {
+    return self.name.replaceAll("TreeItem$", "Item");
+  }
+}
+
+operation TreeItem itemImportPath() {
+  if (self.itemImport != null) {
+    return ".." + self.itemImport;
+  } else {
+    return "../modules/" + self.module + "/items/" + self.itemName();
+  }
+}
+
+operation TreeItem imports() {
+  var results = Map{};
+
+  var treeItemPath = self.importPath != null ? 
+    (".." + self.importPath)
+    : ("../modules/" + self.module + "/treeItems/" + self.name);
+  results.put(treeItemPath, Set{self.name});
+
+  if (self.inWeb) {
+    var webPath = "../modules/" + self.module + "/items/" + self.itemName();
+    results.put(webPath, Set{"openInWebGetUrl as openInWebGetUrl" + self.name.replaceAll("TreeItem$", "")});
+  }
+
+  return results;
+}
+
+operation TreeItem itemImports() {
+  var results = Map{};
+  var itemName = self.itemName();
+  results.put(self.itemImportPath(), Set{itemName});
+  return results;
+}
+
+operation TreeItem importedNames() {
+  return Sequence {self.name};
+}
+
+operation TreeItem name() {
+  return self.name;
+}
+
+operation TreeItem withExtensionContext(inner: Sequence(String)) {
+  return inner.applyReplacements(Map{"injectable" = Sequence{"LExtensionContextTreeItemMixin(", "Vinjectable","L, context.get<IconService>(types.IconService))"}});
+}
+
+operation TreeItem refreshable(inner: Sequence(String)) {
+  return self.refreshable ? inner.applyReplacements(Map{"injectable" = Sequence{"LRefreshableTreeItemMixin(", "Vinjectable","L)"}}) : inner;
+}
+
+operation TreeItem openInWeb(inner: Sequence(String)) {
+  return self.inWeb ? inner.applyReplacements(Map{
+    "injectable" = Sequence{
+      "LOpenInWebTreeItemMixin(", 
+      "Vinjectable",
+      "L, openInWebGetUrl",
+      "Vname","L)"}}) : inner;
+}
+
+operation TreeItem pinnable(inner: Sequence(String)) {
+  if (self.pinnable) {
+    var output = Sequence{};
+    output.addAll(inner);
+    output.add("L\n  ");
+    output.addAll(
+      inner.applyReplacements(Map{
+        "injectable" = Sequence{
+          "LPinnedTreeItemMixin(", 
+          "Vinjectable", 
+          "L, (data: ", 
+          "VitemType", 
+          "L & PinnedItem) => 
+            context.get<Pinned", 
+          "VtreePartProviderName", 
+          "L>(types.Pinned", 
+          "VtreePartProviderName", 
+          "L).getPinInfo(data), context.get<any>(types.StorageService))"
+        }, "typeName" = Sequence{
+          "LPinnable",
+          "VtypeName"
+        }, "itemType" = Sequence{
+          "VitemType",
+          "L & PinnedItem"
+        }
+      }));
+    
+    return output;
+
+  } else {
+    return inner;
+  }
+  
+}
+
+
+operation TreePartProvider name() {
+  return self.name;
+}
+
+operation TreePartProvider pinnedName() {
+  if (self.pinnableTreePartProvider == null) {
+    return "Pinned" + self.name();
+  } else {
+    return self.pinnableTreePartProvider;
+  }
+}
+
+operation TreePartProvider pinnable(inner: String) {
+  if (self.pinnable) {
+    return "PinnableTreePartProviderMixin(" + inner + ", types." + self.pinnedName() + "),";
+  } else {
+    return inner;
+  }
+}
+
+operation Sequence(String) applyReplacements(replacements:Map(String, Sequence(String))) {
+  var output = Sequence{};
+  var replaced = false;
+  var input = self.asSequence();
+  var i = 0;
+  while(i < input.size()) {
+    var kindIdentifier = input[i].substring(0, 1);
+    var value = input[i].substring(1);
+    switch(input[i].substring(0, 1)) {
+      case "V": 
+        if (replacements.containsKey(value)) {
+          input.removeAt(i);
+          var replacement = replacements.get(value);
+          input.addAll(i, replacement);
+          i+=replacement.size();
+        } else {
+          i++;
+        }
+      default:
+        i++;
+    }
+  }
+  return input;
+}
+
+operation Sequence(String) render(replacements:Map(String, Sequence(String))) {
+  var output = "";
+  var replaced = false;
+  var input = self.asSequence();
+  var i=0;
+  while(i<input.size()) {
+    var kindIdentifier = input[i].substring(0, 1);
+    var value = input[i].substring(1);
+    switch(input[i].substring(0, 1)) {
+      case "L": 
+        output += value; 
+        i++;
+      case "V": 
+        input.removeAt(i);
+        input.addAll(i, replacements.get(value));
+      default:
+        throw ("Error" + value);
+    }
+  }
+  return output;
+}
+

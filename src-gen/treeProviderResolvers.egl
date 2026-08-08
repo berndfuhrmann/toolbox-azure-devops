@@ -1,0 +1,157 @@
+[%
+import "common.eol";
+import "treeProviderResolvers.eol";
+%]
+// generated
+
+import { inject, injectable, postConstruct } from "inversify";
+import { TreePartProvider } from "../common/treePartProvider/TreePartProvider";
+import { AbstractTreeItem } from "../common/treeItems/AbstractTreeItem";
+import { types } from "./types";
+import { SettingsService } from "../common/SettingsService";
+
+[% 
+var allTreeItems = TreeProvider.all.collect(tp | tp.ruleTreeItems()).flatten().asSet();
+var allLeafProviders = TreeProvider.all.collect(tp | tp.leafProviders()).flatten().asSet();
+var allStaticTreeItems = TreeProvider.all.collect(tp | tp.staticTreeItemEntries()).flatten().asSet();
+
+var allImports = Map{};
+for (treeItem in allTreeItems) {
+  var itemImport = treeItem.resolverImport();
+  for (key in itemImport.keySet()) {
+    if (not allImports.containsKey(key)) {
+      allImports.put(key, Set{});
+    }
+    allImports.get(key).addAll(itemImport.get(key));
+  }
+}
+
+for (treeItem in allStaticTreeItems) {
+  var itemImport = treeItem.resolverImport();
+  for (key in itemImport.keySet()) {
+    if (not allImports.containsKey(key)) {
+      allImports.put(key, Set{});
+    }
+    allImports.get(key).addAll(itemImport.get(key));
+  }
+}
+
+for (provider in allLeafProviders) {
+  var providerImport = provider.resolverImport();
+  for (key in providerImport.keySet()) {
+    if (not allImports.containsKey(key)) {
+      allImports.put(key, Set{});
+    }
+    allImports.get(key).addAll(providerImport.get(key));
+  }
+}
+
+if (UnwrappingTreePartProvider.all.size() > 0) {
+  allImports.put("../common/treePartProvider/UnwrappingTreePartProvider", Set{"UnwrappingTreePartProvider"});
+}
+if (CombiningTreePartProvider.all.size() > 0) {
+  allImports.put("../common/treePartProvider/CombiningTreePartProvider", Set{"CombiningTreePartProvider"});
+}
+if (StaticTreePartProvider.all.size() > 0) {
+  allImports.put("../common/treePartProvider/StaticTreePartProvider", Set{"StaticTreePartProvider"});
+}
+if (DeduplicatingTreePartProvider.all.size() > 0) {
+  allImports.put("../common/treePartProvider/DeduplicatingTreePartProvider", Set{"DeduplicatingTreePartProvider"});
+}
+
+if (UnwrappingTreePartProvider.all.select(u | u.unwrapPredicate.isDefined()).size() > 0) {
+  allImports.put("../common/shouldUnwrapAccountOrProject", Set{"shouldUnwrapAccountOrProject"});
+}
+
+if (DeduplicatingTreePartProvider.all.select(d | d.dedupePredicate == "dedupePinnedRepositories").size() > 0) {
+  allImports.put("../modules/repository/dedupePinnedRepositories", Set{"dedupePinnedRepositories"});
+}
+if (DeduplicatingTreePartProvider.all.select(d | d.dedupePredicate == "dedupePinnedPipelines").size() > 0) {
+  allImports.put("../modules/pipeline/dedupePinnedPipelines", Set{"dedupePinnedPipelines"});
+}
+
+var needsOf = UnwrappingTreePartProvider.all.select(u | u.unwrapPredicate.isDefined() and u.unwrapPredicate.contains("of(")).size() > 0
+  or DeduplicatingTreePartProvider.all.select(d | d.dedupePredicate.isDefined() and d.dedupePredicate.contains("of(")).size() > 0;
+var needsMap = StaticTreePartProvider.all.collect(s | s.entry).flatten().select(e | e.condition.isDefined()).size() > 0;
+if (needsOf or needsMap) {
+  var rxjsImports = Set{};
+  if (needsOf) { rxjsImports.add("of"); }
+  if (needsMap) { rxjsImports.add("map"); }
+  allImports.put("rxjs", rxjsImports);
+}
+
+if (allStaticTreeItems.size() > 0) {
+  allImports.put("../common/constructor", Set{"Constructor"});
+}
+
+for (key in allImports.keySet()) {
+%]
+import { [%=allImports.get(key).concat(', ')%] } from "[%=key%]";
+[%
+}
+%]
+
+[%for (treeProvider in TreeProvider.all) {%]
+
+@injectable()
+export class [%=treeProvider.resolverName()%] {
+  #settingsService: SettingsService;
+
+  [%for (provider in treeProvider.leafProviders()) {%]
+  #[%=provider.name.toCamelCase()%]: [%=provider.name%];
+  [%}%]
+
+  [%for (treeItem in treeProvider.staticTreeItemEntries()) {%]
+  #[%=treeItem.name.toCamelCase()%]: Constructor<[%=treeItem.name%]>;
+  [%}%]
+
+  [%for (provider in treeProvider.derivedProviders()) {%]
+  [%=provider.name.toCamelCase()%]: TreePartProvider<any, any> | undefined;
+  [%}%]
+
+  constructor(
+    @inject(types.SettingsService) settingsService: SettingsService,
+    [%for (provider in treeProvider.leafProviders()) {%]
+    @inject(types.[%=provider.name%]) [%=provider.name.toCamelCase()%]: [%=provider.name%],
+    [%}%]
+    [%for (treeItem in treeProvider.staticTreeItemEntries()) {%]
+    @inject(types.[%=treeItem.name%]) [%=treeItem.name.toCamelCase()%]: Constructor<[%=treeItem.name%]>,
+    [%}%]
+  ) {
+    this.#settingsService = settingsService;
+    [%for (provider in treeProvider.leafProviders()) {%]
+    this.#[%=provider.name.toCamelCase()%] = [%=provider.name.toCamelCase()%];
+    [%}%]
+    [%for (treeItem in treeProvider.staticTreeItemEntries()) {%]
+    this.#[%=treeItem.name.toCamelCase()%] = [%=treeItem.name.toCamelCase()%];
+    [%}%]
+  }
+
+  [%if (treeProvider.needsPostConstruct()) {%]
+
+  @postConstruct()
+  private initialize[%=treeProvider.name%]() {
+    [%for (provider in treeProvider.derivedProviderCreationOrder()) {%]
+[%=provider.initializationCode()%]
+    [%}%]
+  }
+  [%}%]
+
+  public getTreePartProvider(
+    element: AbstractTreeItem<any> | undefined,
+  ): TreePartProvider<any, any> | undefined {
+    [%for (rule in treeProvider.rules) {%]
+    [%if (rule.treeitem.isUndefined()) {%]
+    if (element === undefined) {
+      return [%=rule.treePartProvider.fieldReference()%];
+    }
+    [%} else {%]
+    if (element instanceof [%=rule.treeitem.name%]) {
+      return [%=rule.treePartProvider.fieldReference()%];
+    }
+    [%}%]
+    [%}%]
+    return undefined;
+  }
+}
+[%}%]

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>de.netzquantum.toolboxazuredevopsbybf</groupId>
+    <artifactId>parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>generator</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <name>Code Generator</name>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+  </properties>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>Sonatype</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.epsilon</groupId>
+      <artifactId>org.eclipse.epsilon.workflow</artifactId>
+      <version>2.8.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.epsilon</groupId>
+      <artifactId>org.eclipse.epsilon.workflow.emf</artifactId>
+      <version>2.8.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.epsilon</groupId>
+      <artifactId>org.eclipse.epsilon.emc.json</artifactId>
+      <version>2.8.0</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <pluginManagement
+    ><!-- lock down plugins versions to avoid using Maven defaults (may be moved to
+      parent pom) -->
+      <plugins>
+          <!-- clean lifecycle, see
+        https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+          <!-- default lifecycle, jar packaging: see
+        https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.0.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.22.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.0.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>2.5.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.8.2</version>
+        </plugin>
+          <!-- site lifecycle, see
+        https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.7.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>3.0.0</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <?m2e execute onConfiguration,onIncremental?>
+            <phase>compile</phase>
+            <configuration>
+              <target>
+                  <!-- Set up the core Epsilon tasks -->
+                <taskdef resource="org/eclipse/epsilon/workflow/tasks/tasks.xml" />
+
+                  <!-- Set up the Epsilon EMF tasks -->
+                <taskdef resource="org/eclipse/epsilon/workflow/tasks/emf/tasks.xml" />
+
+                  <!-- Load the source.flexmi EMF model -->
+                <epsilon.emf.loadModel name="Source" modelfile="../model.flexmi" metamodelfile="../meta-model.emf" />
+
+                  <!-- Transform -->
+                <epsilon.egl src="../services.egl" target="../../src/generated/services.ts">
+                  <model ref="Source" />
+                    <!-- <defaultFormatter implementation="de.netzquantum.publictalk.MyFormatter"/> -->
+                </epsilon.egl>
+
+                  <!-- Transform -->
+                <epsilon.egl src="../ApiService.egl" target="../../src/generated/ApiService.ts">
+                  <model ref="Source" />
+                    <!-- <defaultFormatter implementation="de.netzquantum.publictalk.MyFormatter"/> -->
+                </epsilon.egl>
+
+                  <!-- Transform -->
+                <epsilon.egl src="../types.egl" target="../../src/generated/types.ts">
+                  <model ref="Source" />
+                    <!-- <defaultFormatter implementation="de.netzquantum.publictalk.MyFormatter"/> -->
+                </epsilon.egl>
+
+                  <!-- Transform -->
+                <epsilon.egl src="../register.egl" target="../../src/generated/register.ts">
+                  <model ref="Source" />
+                    <!-- <defaultFormatter implementation="de.netzquantum.publictalk.MyFormatter"/> -->
+                </epsilon.egl>
+
+                  <!-- Transform -->
+                <epsilon.egl src="../registerCommands.egl" target="../../src/generated/registerCommands.ts">
+                  <model ref="Source" />
+                    <!-- <defaultFormatter implementation="de.netzquantum.publictalk.MyFormatter"/> -->
+                </epsilon.egl>
+
+                  <!-- Transform -->
+                <epsilon.egl src="../registerViews.egl" target="../../src/generated/registerViews.ts">
+                  <model ref="Source" />
+                    <!-- <defaultFormatter implementation="de.netzquantum.publictalk.MyFormatter"/> -->
+                </epsilon.egl>
+
+                  <!-- Transform -->
+                <epsilon.egl src="../RawSettingsService.egl" target="../../src/generated/RawSettingsService.ts">
+                  <model ref="Source" />
+                  <!-- <defaultFormatter implementation="de.netzquantum.publictalk.MyFormatter"/> -->
+                </epsilon.egl>
+
+                  <!-- Transform -->
+                <epsilon.egl src="../treeProviderResolvers.egl" target="../../src/generated/treeProviderResolvers.ts">
+                  <model ref="Source" />
+                    <!-- <defaultFormatter implementation="de.netzquantum.publictalk.MyFormatter"/> -->
+                </epsilon.egl>
+
+                  <!-- Transform -->
+                <epsilon.egl src="../treeViewDocs.egl" target="../../docs/generated/treeViewDocs.md">
+                  <model ref="Source" />
+                </epsilon.egl>
+
+                <!-- Load package.json as JSON model -->
+                <epsilon.loadModel name="PackageJson" type="JSON" impl="org.eclipse.epsilon.emc.json.JsonModel">
+                  <parameter name="file" file="../../package.json" />
+                  <parameter name="readOnLoad" value="true" />
+                </epsilon.loadModel>
+
+                <!-- Process package.json (remove devDependencies/scripts, add generated views) -->
+                <epsilon.eol src="../packageJson.eol">
+                  <model ref="Source" />
+                  <model ref="PackageJson" />
+                </epsilon.eol>
+
+                <!-- Dispose Source model after packageJson.eol -->
+                <epsilon.disposeModel model="Source" />
+
+                <!-- Store the filtered package.json -->
+                <epsilon.storeModel model="PackageJson" target="../../dist/package.json" />
+
+                <!-- Dispose the model -->
+                <epsilon.disposeModel model="PackageJson" />
+
+                <!-- Pretty-print the dist/package.json file -->
+                <exec executable="node" dir="../..">
+                  <arg value="-e" />
+                  <arg
+                    value="const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('dist/package.json', 'utf8')); fs.writeFileSync('dist/package.json', JSON.stringify(pkg, null, 2) + '\n');"
+                  />
+                </exec>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.eclipse.epsilon</groupId>
+            <artifactId>org.eclipse.epsilon.workflow</artifactId>
+            <version>2.5.0</version>
+          </dependency>
+          <dependency>
+            <groupId>org.eclipse.epsilon</groupId>
+            <artifactId>org.eclipse.epsilon.workflow.emf</artifactId>
+            <version>2.5.0</version>
+          </dependency>
+          <dependency>
+            <groupId>org.eclipse.epsilon</groupId>
+            <artifactId>org.eclipse.epsilon.emc.json</artifactId>
+            <version>2.5.0</version>
+          </dependency>
+          <dependency>
+            <groupId>org.eclipse.emfatic</groupId>
+            <artifactId>org.eclipse.emfatic.core</artifactId>
+            <version>1.1.0</version>
+          </dependency>
+            <!--dependency>
+            <groupId>de.netzquantum.publictalk</groupId>
+            <artifactId>formatter</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+          </dependency-->
+        </dependencies>
+      </plugin>
+    </plugins>
+  </build>
+</project>

@@ -1,0 +1,111 @@
+[%
+import "register.eol";
+%]
+import { Container } from "inversify";
+import { types } from "./types";
+import { Constructor } from "../common/constructor";
+import { IconService } from "../common/icons/IconService";
+import { ExtensionContextTreeItemMixin } from "../common/items/ExtensionContextTreeItemMixin";
+import {
+[%for (service in Service.all){%]
+  [%=service.name%]Service,
+[%}%]
+} from "./services";
+import {
+  handleOpenInWebAction,
+  OpenInWebTreeItemMixin,
+} from "../common/items/OpenInWebTreeItemMixin";
+
+import { 
+  handleRefreshAction, 
+  RefreshableTreeItemMixin 
+} from "../common/items/RefreshableTreeItemMixin";
+
+import { PinnedTreeItemMixin } from "../common/items/PinnedTreeItemMixin";
+import { PinnedItem } from "../common/items/PinnedItem";
+import { PinnableTreePartProviderMixin } from "../common/treePartProvider/PinnableTreePartProviderMixin";
+
+import {
+[%for (treeProvider in TreeProvider.all){%]
+  [%=treeProvider.name%]Resolver,
+[%}%]
+} from "./treeProviderResolvers";
+
+// imports
+[%
+// Outer loop is just here to have imports as local variable
+for (imports in combineImports(Set{
+  TreeProvider.all.collect(treeProvider|treeProvider.imports()),
+  TreePartProvider.all.collect(treePartProvider|treePartProvider.imports()),
+  TreeItem.all.collect(treeItem|treeItem.imports()),
+  TreeItem.all.collect(treeItem|treeItem.itemImports())
+  }.flatten()).asSet()) {
+for (key in imports.keySet()) {%]
+[%=importStatement(imports.get(key), key)%]
+[%}}%]
+
+export function registerServices(container: Container) {
+[%for (service in Service.all){%]
+  container
+  .bind<[%=service.name%]Service>(types.[%=service.name%]Service)
+  .to([%=service.name%]Service).inSingletonScope();
+[%}%]
+}
+
+export function registerTreeProvider(container: Container) {
+[%for (treeProvider in TreeProvider.all){%]
+  container
+    .bind<[%=treeProvider.name%]>(types.[%=treeProvider.name%])
+    .to([%=treeProvider.name%]).inSingletonScope();
+[%}%]
+}
+
+export function registerTreeProviderResolver(container: Container) {
+[%for (treeProvider in TreeProvider.all){%]
+  container
+    .bind<[%=treeProvider.name%]Resolver>(types.[%=treeProvider.name%]Resolver)
+    .to([%=treeProvider.name%]Resolver).inSingletonScope();
+[%}%]
+}
+
+export function registerTreePartProvider(container: Container) {
+  [%for (treePartProvider in TreePartProvider.all){%]
+  container
+    .bind<[%=treePartProvider.name()%]>(types.[%=treePartProvider.name()%])
+    .to([%=treePartProvider.pinnable(treePartProvider.name())%]).inSingletonScope();
+  [%}%]
+}
+
+export function registerTreeItem(container: Container) {
+  [%for (treeItem in TreeItem.all){
+    var template = Sequence{"Lcontainer
+      .bind<Constructor<",
+      "VtreeItemName",
+      "L<",
+      "VitemType",
+      "L>>>(types.",
+      "VtypeName",
+      "L)
+      .toConstantValue(",
+      "VtreeItemName",
+      "L)
+      .onActivation((context, injectable) => {
+        return ",
+      "Vinjectable",
+      "L;
+      });"};
+
+    var itemType = Sequence{"L" +  treeItem.itemName()};
+
+    var replacements = Map{
+      "injectable" = Sequence{"Linjectable"},
+      "name" = Sequence{"L" + treeItem.name.replaceAll("TreeItem$", "")},                 // base name
+      "treePartProviderName" = Sequence{"L" +  treeItem.name.replaceAll("TreeItem$", "TreePartProvider")}, // name of tree type
+      "treeItemName" = Sequence{"L" +  treeItem.name}, // name of tree type
+      "typeName" = Sequence{"L" +  treeItem.name},     // name in types.ts
+      "itemType" = Sequence{"L" +  treeItem.itemName()}          // name of item type
+    };
+  %]
+  [%=treeItem.pinnable(treeItem.openInWeb(treeItem.refreshable(treeItem.withExtensionContext(template)))).render(replacements)%]
+  [%}%]
+}

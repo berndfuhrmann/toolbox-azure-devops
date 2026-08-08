@@ -1,0 +1,87 @@
+operation AbstractTreePartProvider producedTreeItems() {
+  return self.produces;
+}
+
+operation StaticTreePartProvider producedTreeItems() {
+  var items = self.produces.clone();
+  for (entry in self.entry) {
+    var treeItem = TreeItem.all.select(t | t.name == entry.treeItem).first();
+    if (treeItem.isDefined()) {
+      items.add(treeItem);
+    }
+  }
+  return items;
+}
+
+operation CombiningTreePartProvider producedTreeItems() {
+  var items = self.produces.clone();
+  for (entry in self.entry) {
+    if (entry.childTreePartProvider.isDefined()) {
+      items.addAll(entry.childTreePartProvider.producedTreeItems());
+    }
+    if (entry.treeItem.isDefined()) {
+      var treeItem = TreeItem.all.select(t | t.name == entry.treeItem).first();
+      if (treeItem.isDefined()) {
+        items.add(treeItem);
+      }
+    }
+  }
+  return items;
+}
+
+operation DeduplicatingTreePartProvider producedTreeItems() {
+  var items = self.produces.clone();
+  items.addAll(self.innerTreePartProvider.producedTreeItems());
+  return items;
+}
+
+operation UnwrappingTreePartProvider producedTreeItems() {
+  var items = self.produces.clone();
+  items.addAll(self.innerTreePartProvider.producedTreeItems());
+  return items;
+}
+
+operation String graphNodeId() {
+  return self.replaceAll("[^a-zA-Z0-9_]", "_");
+}
+
+operation TreeProvider graphEdges() {
+  var edges = Sequence{};
+  var visited = Set{};
+  var queue = Sequence{};
+  
+  // Start with root providers (rules with no treeitem)
+  for (rule in self.rules.select(r | r.treeitem.isUndefined())) {
+    queue.add(rule.treePartProvider);
+  }
+  
+  while (queue.size() > 0) {
+    var provider = queue.first();
+    queue.removeAt(0);
+    if (visited.includes(provider)) {
+      continue;
+    }
+    visited.add(provider);
+    
+    for (treeItem in provider.producedTreeItems()) {
+      edges.add(Map{"from" = provider.name, "to" = treeItem.name, "label" = "produces"});
+      
+      var childRule = self.rules.select(r | r.treeitem.isDefined() and r.treeitem.name == treeItem.name).first();
+      if (childRule.isDefined()) {
+        edges.add(Map{"from" = treeItem.name, "to" = childRule.treePartProvider.name, "label" = "children"});
+        queue.add(childRule.treePartProvider);
+      }
+    }
+  }
+  
+  return edges;
+}
+
+operation TreeProvider graphNodes() {
+  var nodes = Set{};
+  for (edge in self.graphEdges()) {
+    nodes.add(edge.get("from"));
+    nodes.add(edge.get("to"));
+  }
+  return nodes;
+}

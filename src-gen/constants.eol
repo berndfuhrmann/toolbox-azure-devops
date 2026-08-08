@@ -1,0 +1,23 @@
+operation extensionId() {
+  return "toolbox-azure-devops-by-bf";
+}
+
+operation extensionIdPrefix() {
+  return extensionId() + ".";
+}
+
+operation viewsContainerId() {
+  return extensionId() + "-views";
+}
+
+operation commandCategory() {
+  return "Toolbox Azure Devops";
+}
+
+operation hasAccountsContext() {
+  return extensionId() + ".hasNoAccounts";
+}
+
+operation iconPath(iconName, style) {
+  return "resources/" + style + "/" + iconName + ".svg";
+}

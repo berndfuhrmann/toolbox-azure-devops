@@ -1,0 +1,67 @@
+[%
+import "common.eol";
+import "services.eol";
+
+var hasBatchMethods = DelegateToBatchServiceMethod.all.size() > 0;
+%]
+// generated
+
+import { inject, optional } from "inversify";
+import { [%if (hasBatchMethods) {%]combineLatest, firstValueFrom, map, of, [%}%]Observable } from "rxjs";
+[%if (hasBatchMethods) {%]
+import { isException, Exception } from "../common/Exception";
+import { BatchCoordinator } from "../common/BatchCoordinator";
+[%}%]
+import { ApiService } from "./ApiService";
+import { TupleMap } from "@nfi/tuplemap";
+import { DeepMap } from 'deep-equality-data-structures';
+import { pagedLoader } from "../common/pagedLoader";
+import { OutputChannel } from "vscode";
+import {
+  createInformationStream,
+  InformationStream,
+} from "../common/informationStream";
+import { types } from "./types";
+
+[%for (service in Service.all){%]
+import { I[%=service.getType()%] } from "azure-devops-node-api/[%=service.getType()%]";
+[%}%]
+import type * as VSSInterfaces from "azure-devops-node-api/interfaces/common/VSSInterfaces";
+
+[%for (serviceImport in Service.all.collect(service: Service | service.getTypeImport()).asSet()){%]
+[%=serviceImport%]
+[%}%]
+
+[%for (service in Service.all){%]
+export class [%=service.name()%] {
+  #apiService: ApiService;
+	#outputChannel: OutputChannel;
+
+[%for (method in service.methods){%]
+[%=method.fieldDeclaration()%]
+[%}%]
+
+  constructor(@inject(types.ApiService) apiService: ApiService, @inject(types.outputChannel) @optional() outputChannel: OutputChannel) {
+    this.#apiService = apiService;
+		this.#outputChannel = outputChannel;
+[%for (method in service.methods){
+  var init = method.constructorInit(service);
+  if (init.size() > 0) {%]
+[%=init%]
+[%  }
+}%]
+  }
+
+[%for (method in service.methods){%]
+
+  [%=method.name%]([%
+		for (parameter in method.parameters) {
+		%][%=parameter.name%]: [%=parameter.type%], [%
+		}
+	%]refreshTrigger: Observable<number>) {
+[%=method.methodBody(service)%]
+	}
+[%}%]
+}
+
+[%}%]

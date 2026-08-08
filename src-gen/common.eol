@@ -1,0 +1,23 @@
+operation Service getType() {
+  if (self.type.isDefined()) {
+    return self.type+"Api";
+  } else {
+    return self.name+"Api";
+  }
+}
+
+operation Service getTypeImport() {
+  var name : String = self.name;
+  if (self.typeImport.isDefined()) {
+    name = self.typeImport;
+  }
+  return "import * as " + name +"Interfaces from \"azure-devops-node-api/interfaces/" + name +"Interfaces\";";
+}
+
+operation String toCamelCase() {
+    if (self.size() > 0) {
+        return self.substring(0, 1).toLowerCase() + self.substring(1);
+    } else {
+        return self;
+    }
+}

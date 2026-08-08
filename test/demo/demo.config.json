@@ -1,0 +1,18 @@
+{
+  "description": "Configuration for automated demo recordings",
+
+  "outputDir": "demos/output",
+
+  "gif": {
+    "width": 1200,
+    "fps": 15,
+    "quality": 90,
+    "comment": "quality: 1-100, higher is better (for gifski)"
+  },
+
+  "webm": {
+    "crf": 20,
+    "scale": 1.0,
+    "comment": "crf: 0-63, lower is better quality (15-35 recommended). scale: 0.5 = half size, 1.0 = original"
+  }
+}

@@ -1,0 +1,40 @@
+// generated
+export const types = {
+  vscodeContext: Symbol("vscodeContext"),
+  outputChannel: Symbol("outputChannel"),
+  Container: Symbol("Container"),
+  SettingsService: Symbol("SettingsService"),
+  StorageService: Symbol("StorageService"),
+  PinActionFactory: Symbol("PinActionFactory"),
+  OpenInWebActionFactory: Symbol("OpenInWebActionFactory"),
+  Account: Symbol("Account"),
+  ApiServiceConstructor: Symbol("ApiServiceConstructor"),
+  ApiService: Symbol("ApiService"),
+  TreeItemRegistry: Symbol("TreeItemRegistry"),
+  StatusFileDecorationProvider: Symbol("StatusFileDecorationProvider"),
+  AccountContextProvider: Symbol("AccountContextProvider"),
+  IconService: Symbol("IconService"),
+  WorkItemTypeIconService: Symbol("WorkItemTypeIconService"),
+[%for (service in Service.all){%]
+  [%=service.name%]Service: Symbol("[%=service.name%]Service"),
+[%}%]
+[%for (treeProvider in TreeProvider.all){%]
+  [%=treeProvider.name%]: Symbol("[%=treeProvider.name%]"),
+[%}%]
+[%for (treeProvider in TreeProvider.all){%]
+  [%=treeProvider.name%]Resolver: Symbol("[%=treeProvider.name%]Resolver"),
+[%}%]
+[%for (treepartprovider in TreePartProvider.all){%]
+  [%=treepartprovider.name%]: Symbol("[%=treepartprovider.name%]"),
+[%}%]
+[%for (treeItem in TreeItem.all){%]
+  [%=treeItem.name%]: Symbol("[%=treeItem.name%]"),
+  [%if (treeItem.pinnable) {%]
+  Pinnable[%=treeItem.name%]: Symbol("Pinnable[%=treeItem.name%]"),
+  [%}%]
+[%}%]
+  PinnedExceptionTreeItem: Symbol("PinnedExceptionTreeItem"),
+  PinnedMissingTreeItem: Symbol("PinnedMissingTreeItem"),
+  TextDocumentContentProviderPart: Symbol("TextDocumentContentProviderPart"),
+  CombinedTextDocumentContentProvider: Symbol("CombinedTextDocumentContentProvider"),
+};

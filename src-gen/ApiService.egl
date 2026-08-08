@@ -1,0 +1,74 @@
+[%
+import "common.eol";
+%]
+// generated
+import { getPersonalAccessTokenHandler, WebApi } from "azure-devops-node-api";
+[%for (service in Service.all){%]
+import { I[%=service.getType()%] } from "azure-devops-node-api/[%=service.getType()%]";
+[%}%]
+import { injectable } from "inversify";
+import {
+  catchError,
+  from,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  switchMap,
+} from "rxjs";
+import { isException, Exception, createException } from "../common/Exception";
+import { Account, buildAccountUrl } from "../modules/core/account";
+
+@injectable()
+export class ApiService {
+  #webApi: Observable<WebApi | Exception>;
+[%for (service in Service.all){%]
+	#[%=service.name.toCamelCase()%]Api: Observable<I[%=service.getType()%] | Exception>;
+[%}%]
+
+  constructor(
+    accountObservable: Observable<Account>
+  ) {
+    this.#webApi = accountObservable.pipe(
+      map((account) => {
+        if (isException(account)) {
+          return account;
+        } else {
+          return this.#WebApi(account);
+        }
+      }),
+      shareReplay(1),
+    );
+[%for (service in Service.all){%]
+    this.#[%=service.name.toCamelCase()%]Api = this.#makeApi((webApi) => webApi?.get[%=service.name%]Api());
+[%}%]
+  }
+[%for (service in Service.all){%]
+	public [%=service.name.toCamelCase()%]Api() {
+    return this.#[%=service.name.toCamelCase()%]Api;
+  }
+[%}%]
+  #makeApi<T>(getter: (webApi: WebApi) => Promise<T>) {
+    return this.#webApi.pipe(
+      switchMap((webApi) => {
+        if (isException(webApi)) {
+          return of(webApi);
+        } else {
+          return from(getter(webApi)).pipe(
+            catchError((error) => {
+              return of(createException(error));
+            }),
+          );
+        }
+      }),
+      shareReplay(1),
+    );
+  }
+
+  #WebApi(account: Account) {
+    return new WebApi(
+      buildAccountUrl(account),
+      getPersonalAccessTokenHandler(account.personalAccessToken!),
+    );
+  }
+}

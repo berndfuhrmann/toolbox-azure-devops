@@ -1,0 +1,65 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  # Use a standard Windows Server 2022 box.
+  config.vm.box = "gusztavvargadr/windows-server-2022-standard"
+  config.vm.communicator = "winrm"
+
+  # Guest-specific settings
+  config.vm.guest = :windows
+  config.vm.graceful_halt_timeout = 20
+
+  # Admin user/password for WinRM.
+  config.winrm.username = "vagrant"
+  config.winrm.password = "vagrant"
+
+  # Azure DevOps Server requires a decent amount of memory.
+  # 8GB is a good starting point.
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = "8192"
+    vb.cpus = 2
+    vb.customize ["storageattach", :id,
+      "--storagectl", "IDE Controller",
+      "--port", "1", "--device", "0",
+      "--type", "dvddrive",
+      "--medium", "#{__dir__}/AzureDevOpsServerExpress2022.iso"]
+  end
+  config.vm.provider "hyperv" do |h|
+    h.memory = "8192"
+    h.cpus = 2
+    h.vmname = "ado-server"
+  end
+
+  config.vm.network "public_network", bridge: "Default Switch"
+
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  config.vm.provision "file", source: "unattend.ini", destination: "C:/unattend.ini"
+
+  # Hyper-V: attach the ISO as a virtual DVD drive using attach-dvd.ps1.
+  # Three trigger points cover all common workflows:
+  #   before :up       - vagrant reload --provision (VM exists, attach before reboot)
+  #   after  :up       - vagrant up --no-provision  (VM just created, attach after boot)
+  #   before :provision- vagrant provision          (attach before provisioners run)
+  # VirtualBox attaches the DVD natively via vb.customize above.
+  attach_dvd = { inline: "powershell -ExecutionPolicy Bypass -File \"#{__dir__}/attach-dvd.ps1\"" }
+
+  config.trigger.before :up do |t|
+    t.name = "Attach ISO DVD"
+    t.run  = attach_dvd
+  end
+
+  config.trigger.after :up do |t|
+    t.name = "Attach ISO DVD"
+    t.run  = attach_dvd
+  end
+
+  config.trigger.before :provision do |t|
+    t.name = "Attach ISO DVD"
+    t.run  = attach_dvd
+  end
+
+  # The main provisioning script that will install everything.
+  config.vm.provision "shell", path: "setup.ps1"
+end

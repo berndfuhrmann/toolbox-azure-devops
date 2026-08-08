@@ -1,0 +1,1776 @@
+<?nsuri toolboxazuredevopsbybf?>
+<plugin>
+  <service name="Alert">
+    <serviceMethod
+      name="alerts"
+      outputType="AlertInterfaces.Alert[]"
+      paged="true"
+      implementation="getAlerts(project, repository, undefined, undefined, undefined, undefined, continuationToken)"
+    >
+      <parameter name="project" type="string" />
+      <parameter name="repository" type="string" />
+    </serviceMethod>
+    <serviceMethod
+      name="alertInstances"
+      outputType="AlertInterfaces.AlertAnalysisInstance[]"
+      implementation="getAlertInstances(project, alertId, repository)"
+    >
+      <parameter name="project" type="string" />
+      <parameter name="alertId" type="number" />
+      <parameter name="repository" type="string" />
+    </serviceMethod>
+  </service>
+  <service name="Build">
+    <serviceMethod
+      name="artifacts"
+      outputType="BuildInterfaces.BuildArtifact[]"
+      implementation="getArtifacts(
+        project, 
+        buildId
+      )"
+    >
+      <parameter name="project" type="string" />
+      <parameter name="buildId" type="number" />
+    </serviceMethod>
+    <serviceMethod
+      name="buildLogs"
+      outputType="BuildInterfaces.BuildLog[]"
+      implementation="getBuildLogs(
+        project, 
+        buildId
+      )"
+    >
+      <parameter name="project" type="string" />
+      <parameter name="buildId" type="number" />
+    </serviceMethod>
+    <serviceMethod
+      name="buildTags"
+      outputType="string[]"
+      implementation="getBuildTags(
+        project, 
+        buildId
+      )"
+    >
+      <parameter name="project" type="string" />
+      <parameter name="buildId" type="number" />
+    </serviceMethod>
+    <serviceMethod
+      name="definition"
+      outputType="BuildInterfaces.BuildDefinitionReference"
+      implementation="getDefinition(
+        project, 
+        definitionId,
+      )"
+    >
+      <parameter name="project" type="string" />
+      <parameter name="definitionId" type="number" />
+    </serviceMethod>
+
+    <serviceMethod
+      name="definitions"
+      outputType="BuildInterfaces.BuildDefinitionReference[]"
+      paged="true"
+      implementation="getDefinitions(
+        project, 
+        undefined, /* name */
+        undefined, /* repositoryId */
+        undefined, /* repositoryType */
+        undefined, /* queryOrder */
+        undefined, /* top */
+        continuationToken,
+        undefined, /* minMetricsTime */
+        undefined, /* definitionIds */
+        path
+      )"
+    >
+      <parameter name="project" type="string" />
+      <parameter name="path" type="string | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="folders"
+      outputType="BuildInterfaces.Folder[]"
+      paged="true"
+      implementation="getFolders(project)"
+    >
+      <parameter name="project" type="string" />
+    </serviceMethod>
+    <serviceMethod
+      name="builds"
+      outputType="BuildInterfaces.Build[]"
+      paged="true"
+      implementation="getBuilds(
+        project, 
+        definitions,
+        undefined /*queues*/,
+        undefined /*buildNumber*/,
+        undefined /*minTime*/,
+        undefined /*maxTime*/,
+        undefined /*requestedFor*/,
+        undefined /*reasonFilter*/,
+        undefined /*statusFilter*/,
+        undefined /*resultFilter*/,
+        undefined /*tagFilters*/,
+        undefined /*properties*/,
+        undefined /*top*/,
+        continuationToken,
+        undefined /*maxBuildsPerDefinition*/,
+        undefined /*deletedFilter*/,
+        undefined /*queryOrder*/,
+        undefined /*branchName*/,
+        undefined /*buildIds*/,
+        undefined /*repositoryId*/,
+        undefined /*repositoryType*/,
+      )"
+    >
+      <parameter name="project" type="string" />
+      <parameter name="definitions" type="number[] | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="buildTimeline"
+      outputType="BuildInterfaces.Timeline"
+      implementation="getBuildTimeline(project, buildId, undefined, undefined, undefined)"
+    >
+      <parameter name="project" type="string" />
+      <parameter name="buildId" type="number" />
+    </serviceMethod>
+    <serviceMethod name="build" outputType="BuildInterfaces.Build" implementation="getBuild(project, buildId)">
+      <parameter name="buildId" type="number" />
+      <parameter name="project" type="string" />
+    </serviceMethod>
+  </service>
+  <service name="Cix" />
+  <service name="Core">
+    <serviceMethod
+      name="projects"
+      outputType="CoreInterfaces.TeamProjectReference[]"
+      paged="true"
+      implementation="getProjects(undefined, undefined, undefined, continuationToken as number | undefined)"
+    />
+    <serviceMethod
+      name="teams"
+      outputType="CoreInterfaces.WebApiTeam[]"
+      paged="true"
+      implementation="getTeams(projectId, mine, continuationToken as number | undefined, undefined)"
+    >
+      <parameter name="projectId" type="string" />
+      <parameter name="mine" type="boolean | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="allTeams"
+      outputType="CoreInterfaces.WebApiTeam[]"
+      paged="true"
+      implementation="getAllTeams(mine, continuationToken as number | undefined, undefined)"
+    >
+      <parameter name="mine" type="boolean | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="teamMembersWithExtendedProperties"
+      outputType="VSSInterfaces.TeamMember[]"
+      paged="true"
+      implementation="getTeamMembersWithExtendedProperties(projectId, teamId, continuationToken as number | undefined, undefined)"
+    >
+      <parameter name="projectId" type="string" />
+      <parameter name="teamId" type="string" />
+    </serviceMethod>
+  </service>
+  <service name="Dashboard">
+    <serviceMethod
+      name="dashboards"
+      outputType="DashboardInterfaces.Dashboard[]"
+      implementation="getDashboardsByProject(teamContext)"
+    >
+      <parameter name="teamContext" type="CoreInterfaces.TeamContext" />
+    </serviceMethod>
+    <serviceMethod
+      name="dashboard"
+      outputType="DashboardInterfaces.Dashboard"
+      implementation="getDashboard(teamContext, dashboardId)"
+    >
+      <parameter name="teamContext" type="CoreInterfaces.TeamContext" />
+      <parameter name="dashboardId" type="string" />
+    </serviceMethod>
+  </service>
+  <service name="ExtensionManagement" />
+  <service name="FeatureManagement" />
+  <service name="FileContainer">
+    <serviceMethod
+      name="container"
+      outputType="FileContainerInterfaces.FileContainer[]"
+      implementation="getContainers(scope, artifactUris)"
+    >
+      <parameter name="scope" type="string | undefined" />
+      <parameter name="artifactUris" type="string | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="items"
+      outputType="FileContainerInterfaces.FileContainerItem[]"
+      implementation="getItems(containerId)"
+    >
+      <parameter name="containerId" type="number" />
+      <parameter name="scope" type="string | undefined" />
+      <parameter name="itemPath" type="string | undefined" />
+      <parameter name="metadata" type="boolean | undefined" />
+      <parameter name="format" type="string | undefined" />
+      <parameter name="downloadFileName" type="string | undefined" />
+      <parameter name="includeDownloadTickets" type="boolean | undefined" />
+      <parameter name="isShallow" type="boolean | undefined" />
+      <parameter name="ignoreRequestedMediaType" type="boolean | undefined" />
+      <parameter name="includeBlobMetadata" type="boolean | undefined" />
+      <parameter name="saveAbsolutePath" type="boolean | undefined" />
+      <parameter name="preferRedirect" type="boolean | undefined" />
+    </serviceMethod>
+  </service>
+  <service name="Gallery" />
+  <service name="Git">
+    <serviceMethod
+      name="repositories"
+      outputType="GitInterfaces.GitRepository[]"
+      implementation="getRepositories(project)"
+    >
+      <parameter name="project" type="string | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="repository"
+      outputType="GitInterfaces.GitRepository"
+      implementation="getRepository(repositoryId, project)"
+    >
+      <parameter name="repositoryId" type="string" />
+      <parameter name="project" type="string | undefined" />
+    </serviceMethod>
+
+    <serviceMethod
+      name="branches"
+      outputType="GitInterfaces.GitBranchStats[]"
+      implementation="getBranches(repositoryId)"
+    >
+      <parameter name="repositoryId" type="string" />
+    </serviceMethod>
+    <serviceMethod
+      name="commits"
+      outputType="GitInterfaces.GitCommitRef[]"
+      implementation="getCommits(repositoryId, searchCriteria, project)"
+    >
+      <parameter name="repositoryId" type="string" />
+      <parameter name="searchCriteria" type="GitInterfaces.GitQueryCommitsCriteria" />
+      <parameter name="project" type="string | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="commit"
+      outputType="GitInterfaces.GitCommitRef"
+      implementation="getCommit(commitId, repositoryId, project)"
+    >
+      <parameter name="commitId" type="string" />
+      <parameter name="repositoryId" type="string" />
+      <parameter name="project" type="string | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="pullRequests"
+      outputType="GitInterfaces.GitPullRequest[]"
+      implementation="getPullRequests(repositoryId, {})"
+    >
+      <parameter name="repositoryId" type="string" />
+      <parameter name="status" type="number | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="pullRequestById"
+      outputType="GitInterfaces.GitPullRequest"
+      implementation="getPullRequestById(pullRequestId, project)"
+    >
+      <parameter name="pullRequestId" type="number" />
+      <parameter name="project" type="string | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="threads"
+      outputType="GitInterfaces.GitPullRequestCommentThread[]"
+      implementation="getThreads(repositoryId, pullRequestId, project)"
+    >
+      <parameter name="repositoryId" type="string" />
+      <parameter name="pullRequestId" type="number" />
+      <parameter name="project" type="string | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="comments"
+      outputType="GitInterfaces.Comment[]"
+      implementation="getComments(repositoryId, pullRequestId, threadId, project)"
+    >
+      <parameter name="repositoryId" type="string" />
+      <parameter name="pullRequestId" type="number" />
+      <parameter name="threadId" type="number" />
+      <parameter name="project" type="string | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="pullRequestStatuses"
+      outputType="GitInterfaces.GitPullRequestStatus[]"
+      implementation="getStatuses(commitId, repositoryId, project, undefined, undefined, latestOnly)"
+    >
+      <parameter name="commitId" type="string" />
+      <parameter name="repositoryId" type="string" />
+      <parameter name="project" type="string | undefined" />
+      <parameter name="latestOnly" type="boolean | undefined" optional="true" defaultValue="false" />
+    </serviceMethod>
+    <serviceMethod
+      name="pullRequestWorkItemRefs"
+      outputType="VSSInterfaces.ResourceRef[]"
+      implementation="getPullRequestWorkItemRefs(repositoryId, pullRequestId, project)"
+    >
+      <parameter name="repositoryId" type="string" />
+      <parameter name="pullRequestId" type="number" />
+      <parameter name="project" type="string | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="items"
+      outputType="GitInterfaces.GitItem[]"
+      implementation="getItems(repositoryId, project, scopePath, recursionLevel, includeContentMetadata, latestProcessedChange, download, includeLinks, versionDescriptor, zipForUnix)"
+    >
+      <parameter name="repositoryId" type="string" />
+      <parameter name="project" type="string | undefined" />
+      <parameter name="scopePath" type="string | undefined" />
+      <parameter name="recursionLevel" type="GitInterfaces.VersionControlRecursionType | undefined" />
+      <parameter name="includeContentMetadata" type="boolean | undefined" />
+      <parameter name="latestProcessedChange" type="boolean | undefined" />
+      <parameter name="download" type="boolean | undefined" />
+      <parameter name="includeLinks" type="boolean | undefined" />
+      <parameter name="versionDescriptor" type="GitInterfaces.GitVersionDescriptor | undefined" />
+      <parameter name="zipForUnix" type="boolean | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="refs"
+      outputType="GitInterfaces.GitRef[]"
+      implementation="getRefs(repositoryId, project, filter, includeLinks, includeStatuses, includeMyBranches, latestStatusesOnly, peelTags, filterContains)"
+    >
+      <parameter name="repositoryId" type="string" />
+      <parameter name="project" type="string | undefined" />
+      <parameter name="filter" type="string | undefined" />
+      <parameter name="includeLinks" type="boolean | undefined" />
+      <parameter name="includeStatuses" type="boolean | undefined" />
+      <parameter name="includeMyBranches" type="boolean | undefined" />
+      <parameter name="latestStatusesOnly" type="boolean | undefined" />
+      <parameter name="peelTags" type="boolean | undefined" />
+      <parameter name="filterContains" type="string | undefined" />
+    </serviceMethod>
+  </service>
+  <service name="Locations" />
+  <service name="Management" />
+  <service name="Notification" />
+  <service name="Pipelines">
+    <serviceMethod name="runs" outputType="PipelinesInterfaces.Run[]" implementation="listRuns(project, pipelineId)">
+      <parameter name="project" type="string" />
+      <parameter name="pipelineId" type="number" />
+    </serviceMethod>
+  </service>
+  <service name="Policy" />
+  <service name="Profile" />
+  <service name="ProjectAnalysis" />
+  <service name="Release" />
+  <service name="SecurityRoles" />
+  <service name="TaskAgent">
+    <serviceMethod
+      name="agentPools"
+      outputType="TaskAgentInterfaces.TaskAgentPool[]"
+      implementation="getAgentPools()"
+    />
+    <serviceMethod
+      name="agents"
+      outputType="TaskAgentInterfaces.TaskAgent[]"
+      implementation="getAgents(poolId, undefined, includeCapabilities, includeAssignedRequest)"
+    >
+      <parameter name="poolId" type="number" />
+      <parameter name="includeCapabilities" type="boolean | undefined" />
+      <parameter name="includeAssignedRequest" type="boolean | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="agentPoolJobs"
+      outputType="TaskAgentInterfaces.TaskAgentJobRequest[]"
+      implementation="getAgentRequests(poolId, top, continuationToken)"
+    >
+      <parameter name="poolId" type="number" />
+      <parameter name="top" type="number" />
+      <parameter name="continuationToken" type="string | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="agentJobs"
+      outputType="TaskAgentInterfaces.TaskAgentJobRequest[]"
+      implementation="getAgentRequestsForAgent(poolId, agentId, completedRequestCount)"
+    >
+      <parameter name="poolId" type="number" />
+      <parameter name="agentId" type="number" />
+      <parameter name="completedRequestCount" type="number | undefined" />
+    </serviceMethod>
+  </service>
+  <service name="Task" typeImport="TaskAgent" />
+  <service name="Test" />
+  <service name="TestPlan" />
+  <service name="TestResults" typeImport="Test" />
+  <service name="Wiki" />
+  <service name="Work">
+    <serviceMethod
+      name="teamSettings"
+      outputType="WorkInterfaces.TeamSetting"
+      implementation="getTeamSettings(teamContext)"
+    >
+      <parameter name="teamContext" type="CoreInterfaces.TeamContext" />
+    </serviceMethod>
+    <serviceMethod
+      name="teamFieldValues"
+      outputType="WorkInterfaces.TeamFieldValues"
+      implementation="getTeamFieldValues(teamContext)"
+    >
+      <parameter name="teamContext" type="CoreInterfaces.TeamContext" />
+    </serviceMethod>
+    <serviceMethod
+      name="backlogs"
+      outputType="WorkInterfaces.BacklogLevelConfiguration[]"
+      implementation="getBacklogs(teamContext)"
+    >
+      <parameter name="teamContext" type="CoreInterfaces.TeamContext" />
+    </serviceMethod>
+    <serviceMethod
+      name="teamIterations"
+      outputType="WorkInterfaces.TeamSettingsIteration[]"
+      implementation="getTeamIterations(teamContext, timeframe)"
+    >
+      <parameter name="teamContext" type="CoreInterfaces.TeamContext" />
+      <parameter name="timeframe" type="string | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="teamIteration"
+      outputType="WorkInterfaces.TeamSettingsIteration"
+      implementation="getTeamIteration(teamContext, id)"
+    >
+      <parameter name="teamContext" type="CoreInterfaces.TeamContext" />
+      <parameter name="id" type="string" />
+    </serviceMethod>
+    <serviceMethod
+      name="capacitiesWithIdentityRefAndTotals"
+      outputType="WorkInterfaces.TeamCapacity"
+      implementation="getCapacitiesWithIdentityRefAndTotals(teamContext, iterationId)"
+    >
+      <parameter name="teamContext" type="CoreInterfaces.TeamContext" />
+      <parameter name="iterationId" type="string" />
+    </serviceMethod>
+  </service>
+  <service name="WorkItemTracking">
+    <delegateToBatchServiceMethod
+      name="workItem"
+      outputType="WorkItemTrackingInterfaces.WorkItem"
+      batchKeyParam="id"
+      batchKeyProperty="id"
+      batchFetch="getWorkItems(batchIds, undefined, undefined, WorkItemTrackingInterfaces.WorkItemExpand.All, undefined, project)"
+    >
+      <parameter name="id" type="number" />
+      <parameter name="project" type="string | undefined" />
+    </delegateToBatchServiceMethod>
+    <batchServiceMethod
+      name="workItems"
+      outputType="WorkItemTrackingInterfaces.WorkItem[]"
+      coordinatedMethodName="workItem"
+      batchIdsParam="ids"
+    >
+      <parameter name="ids" type="number[]" />
+      <parameter name="project" type="string | undefined" />
+    </batchServiceMethod>
+    <serviceMethod
+      name="queryByWiql"
+      outputType="WorkItemTrackingInterfaces.WorkItemQueryResult"
+      implementation="queryByWiql(query, teamContext, timePrecision, top)"
+    >
+      <parameter name="query" type="WorkItemTrackingInterfaces.Wiql" />
+      <parameter name="teamContext" type="CoreInterfaces.TeamContext | undefined" />
+      <parameter name="timePrecision" type="boolean | undefined" />
+      <parameter name="top" type="number | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="queries"
+      outputType="WorkItemTrackingInterfaces.QueryHierarchyItem[]"
+      implementation="getQueries(project, expand, depth, includeDeleted)"
+    >
+      <parameter name="project" type="string" />
+      <parameter name="expand" type="WorkItemTrackingInterfaces.QueryExpand | undefined" />
+      <parameter name="depth" type="number | undefined" />
+      <parameter name="includeDeleted" type="boolean | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="query"
+      outputType="WorkItemTrackingInterfaces.QueryHierarchyItem"
+      implementation="getQuery(project, query, expand, depth, includeDeleted, useIsoDateFormat)"
+    >
+      <parameter name="project" type="string" />
+      <parameter name="query" type="string" />
+      <parameter name="expand" type="WorkItemTrackingInterfaces.QueryExpand | undefined" />
+      <parameter name="depth" type="number | undefined" />
+      <parameter name="includeDeleted" type="boolean | undefined" />
+      <parameter name="useIsoDateFormat" type="boolean | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="classificationNode"
+      outputType="WorkItemTrackingInterfaces.WorkItemClassificationNode"
+      implementation="getClassificationNode(project, structureGroup, path, depth)"
+    >
+      <parameter name="project" type="string" />
+      <parameter name="structureGroup" type="WorkItemTrackingInterfaces.TreeStructureGroup" />
+      <parameter name="path" type="string | undefined" />
+      <parameter name="depth" type="number | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="classificationNodes"
+      outputType="WorkItemTrackingInterfaces.WorkItemClassificationNode[]"
+      implementation="getClassificationNodes(project, ids, depth, undefined)"
+    >
+      <parameter name="project" type="string" />
+      <parameter name="ids" type="number[]" />
+      <parameter name="depth" type="number | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="comments"
+      outputType="WorkItemTrackingInterfaces.CommentList"
+      implementation="getComments(project, workItemId, top, continuationToken, includeDeleted, expand, order)"
+    >
+      <parameter name="project" type="string" />
+      <parameter name="workItemId" type="number" />
+      <parameter name="top" type="number | undefined" />
+      <parameter name="continuationToken" type="string | undefined" />
+      <parameter name="includeDeleted" type="boolean | undefined" />
+      <parameter name="expand" type="WorkItemTrackingInterfaces.CommentExpandOptions | undefined" />
+      <parameter name="order" type="WorkItemTrackingInterfaces.CommentSortOrder | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="comment"
+      outputType="WorkItemTrackingInterfaces.Comment"
+      implementation="getComment(project, workItemId, commentId, includeDeleted, expand)"
+    >
+      <parameter name="project" type="string" />
+      <parameter name="workItemId" type="number" />
+      <parameter name="commentId" type="number" />
+      <parameter name="includeDeleted" type="boolean | undefined" />
+      <parameter name="expand" type="WorkItemTrackingInterfaces.CommentExpandOptions | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="workItemIcons"
+      outputType="WorkItemTrackingInterfaces.WorkItemIcon[]"
+      implementation="getWorkItemIcons()"
+    />
+    <serviceMethod
+      name="workItemIconSvg"
+      outputType="NodeJS.ReadableStream"
+      implementation="getWorkItemIconSvg(icon, color, v)"
+    >
+      <parameter name="icon" type="string" />
+      <parameter name="color" type="string | undefined" />
+      <parameter name="v" type="number | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="relationTypes"
+      outputType="WorkItemTrackingInterfaces.WorkItemRelationType[]"
+      implementation="getRelationTypes()"
+    />
+    <serviceMethod
+      name="workItemTypeCategories"
+      outputType="WorkItemTrackingInterfaces.WorkItemTypeCategory[]"
+      implementation="getWorkItemTypeCategories(project)"
+    >
+      <parameter name="project" type="string" />
+    </serviceMethod>
+    <serviceMethod
+      name="workItemTypeColorAndIcons"
+      outputType="{ key: string; value: WorkItemTrackingInterfaces.WorkItemTypeColorAndIcon[]; }[]"
+      implementation="getWorkItemTypeColorAndIcons(projectNames)"
+    >
+      <parameter name="projectNames" type="string[]" />
+    </serviceMethod>
+    <serviceMethod
+      name="workItemTypes"
+      outputType="WorkItemTrackingInterfaces.WorkItemType[]"
+      implementation="getWorkItemTypes(project)"
+    >
+      <parameter name="project" type="string" />
+    </serviceMethod>
+    <serviceMethod
+      name="workItemTypeFieldsWithReferences"
+      outputType="WorkItemTrackingInterfaces.WorkItemTypeFieldWithReferences[]"
+      implementation="getWorkItemTypeFieldsWithReferences(project, type, expand)"
+    >
+      <parameter name="project" type="string" />
+      <parameter name="type" type="string" />
+      <parameter name="expand" type="WorkItemTrackingInterfaces.WorkItemTypeFieldsExpandLevel | undefined" />
+    </serviceMethod>
+    <serviceMethod
+      name="workItemTypeStates"
+      outputType="WorkItemTrackingInterfaces.WorkItemStateColor[]"
+      implementation="getWorkItemTypeStates(project, type)"
+    >
+      <parameter name="project" type="string" />
+      <parameter name="type" type="string" />
+    </serviceMethod>
+  </service>
+  <service name="WorkItemTrackingProcess" />
+  <service
+    name="WorkItemTrackingProcessDefinition"
+    type="WorkItemTrackingProcessDefinitions"
+    typeImport="WorkItemTrackingProcessDefinitions"
+  />
+  <treeProvider
+    name="RepositoryTreeProvider"
+    module="repository"
+    treePartProvider="RepositoryRootDeduplicatingTreePartProvider,GitRepositoryDetailStaticTreePartProvider,GitRepositoryBranchDetailStaticTreePartProvider,GitRepositoryCommitDetailStaticTreePartProvider,GitRepositoryPullRequestContentCombiningTreePartProvider,GitRepositoryTreePartProvider,GitRepositoryBranchTreePartProvider,GitRepositoryCommitTreePartProvider,GitRepositoryTagTreePartProvider,GitRepositoryPullRequestTreePartProvider,GitRepositoryPullRequestReviewerTreePartProvider,GitRepositoryPullRequestStatusTreePartProvider,GitRepositoryPullRequestCommentThreadTreePartProvider,GitRepositoryPullRequestWorkItemTreePartProvider,GitRepositoryItemTreePartProvider,PinnedGitRepositoryTreePartProvider,PinnedGitRepositoryPullRequestTreePartProvider,WorkItemContentsCombiningTreePartProvider,WorkItemDetailStaticTreePartProvider,HierarchyChildrenTreePartProvider,WorkItemLinkedWorkItemGroupsTreePartProvider,WorkItemCommentsTreePartProvider,WorkItemHistoryTreePartProvider,WorkItemRevisionFieldsTreePartProvider,AttachmentTreePartProvider,WorkItemLinkedCommitsTreePartProvider,WorkItemLinkedPullRequestsTreePartProvider,WorkItemLinkedBranchesTreePartProvider,WorkItemLinkedBuildsTreePartProvider,WorkItemLinkedWorkItemsTreePartProvider"
+  >
+    <treeProviderRule treePartProvider="RepositoryRootDeduplicatingTreePartProvider" />
+    <treeProviderRule treeitem="AccountTreeItem" treePartProvider="ProjectUnwrappingTreePartProvider" />
+    <treeProviderRule treeitem="ProjectTreeItem" treePartProvider="GitRepositoryTreePartProvider" />
+    <treeProviderRule treeitem="GitRepositoryTreeItem" treePartProvider="GitRepositoryDetailStaticTreePartProvider" />
+    <treeProviderRule treeitem="GitRepositoryItemsTreeItem" treePartProvider="GitRepositoryItemTreePartProvider" />
+    <treeProviderRule treeitem="GitRepositoryItemTreeItem" treePartProvider="GitRepositoryItemTreePartProvider" />
+    <treeProviderRule treeitem="GitRepositoryCommitsTreeItem" treePartProvider="GitRepositoryCommitTreePartProvider" />
+    <treeProviderRule
+      treeitem="GitRepositoryCommitTreeItem"
+      treePartProvider="GitRepositoryCommitDetailStaticTreePartProvider"
+    />
+    <treeProviderRule treeitem="GitRepositoryBranchesTreeItem" treePartProvider="GitRepositoryBranchTreePartProvider" />
+    <treeProviderRule
+      treeitem="GitRepositoryBranchTreeItem"
+      treePartProvider="GitRepositoryBranchDetailStaticTreePartProvider"
+    />
+    <treeProviderRule treeitem="GitRepositoryTagsTreeItem" treePartProvider="GitRepositoryTagTreePartProvider" />
+    <treeProviderRule
+      treeitem="GitRepositoryPullRequestsTreeItem"
+      treePartProvider="GitRepositoryPullRequestTreePartProvider"
+    />
+    <treeProviderRule
+      treeitem="GitRepositoryPullRequestTreeItem"
+      treePartProvider="GitRepositoryPullRequestContentCombiningTreePartProvider"
+    />
+    <treeProviderRule
+      treeitem="GitRepositoryPullRequestReviewersTreeItem"
+      treePartProvider="GitRepositoryPullRequestReviewerTreePartProvider"
+    />
+    <treeProviderRule treeitem="WorkItemTreeItem" treePartProvider="WorkItemContentsCombiningTreePartProvider" />
+    <treeProviderRule treeitem="WorkItemCommentsTreeItem" treePartProvider="WorkItemCommentsTreePartProvider" />
+    <treeProviderRule treeitem="WorkItemHistoryTreeItem" treePartProvider="WorkItemHistoryTreePartProvider" />
+    <treeProviderRule treeitem="WorkItemRevisionTreeItem" treePartProvider="WorkItemRevisionFieldsTreePartProvider" />
+    <treeProviderRule treeitem="WorkItemAttachmentsTreeItem" treePartProvider="AttachmentTreePartProvider" />
+    <treeProviderRule
+      treeitem="WorkItemLinkedCommitsTreeItem"
+      treePartProvider="WorkItemLinkedCommitsTreePartProvider"
+    />
+    <treeProviderRule
+      treeitem="WorkItemLinkedPullRequestsTreeItem"
+      treePartProvider="WorkItemLinkedPullRequestsTreePartProvider"
+    />
+    <treeProviderRule
+      treeitem="WorkItemLinkedBranchesTreeItem"
+      treePartProvider="WorkItemLinkedBranchesTreePartProvider"
+    />
+    <treeProviderRule treeitem="WorkItemLinkedBuildsTreeItem" treePartProvider="WorkItemLinkedBuildsTreePartProvider" />
+    <treeProviderRule
+      treeitem="WorkItemRelationGroupTreeItem"
+      treePartProvider="WorkItemLinkedWorkItemsTreePartProvider"
+    />
+  </treeProvider>
+  <treeProvider
+    name="PipelineTreeProvider"
+    module="pipeline"
+    treePartProvider="PipelineRootDeduplicatingTreePartProvider,PipelineFolderAndPipelineCombiningTreePartProvider,PipelineRunDetailCombiningTreePartProvider,PipelineFolderTreePartProvider,PipelineTreePartProvider,PipelineRunTreePartProvider,PipelineRunArtifactTreePartProvider,PipelineRunTimelineTreePartProvider,PinnedPipelineFolderTreePartProvider,PinnedPipelineTreePartProvider"
+  >
+    <treeProviderRule treePartProvider="PipelineRootDeduplicatingTreePartProvider" />
+    <treeProviderRule treeitem="AccountTreeItem" treePartProvider="ProjectUnwrappingTreePartProvider" />
+    <treeProviderRule
+      treeitem="ProjectTreeItem"
+      treePartProvider="PipelineFolderAndPipelineCombiningTreePartProvider"
+    />
+    <treeProviderRule
+      treeitem="PipelineFolderTreeItem"
+      treePartProvider="PipelineFolderAndPipelineCombiningTreePartProvider"
+    />
+    <treeProviderRule treeitem="PipelineTreeItem" treePartProvider="PipelineRunTreePartProvider" />
+    <treeProviderRule treeitem="PipelineRunTreeItem" treePartProvider="PipelineRunDetailCombiningTreePartProvider" />
+    <treeProviderRule treeitem="PipelineArtifactsTreeItem" treePartProvider="PipelineRunArtifactTreePartProvider" />
+    <treeProviderRule treeitem="PipelineRunTimelineTreeItem" treePartProvider="PipelineRunTimelineTreePartProvider" />
+  </treeProvider>
+  <treeProvider
+    name="DashboardTreeProvider"
+    module="dashboard"
+    treePartProvider="ProjectDashboardsStaticTreePartProvider,DashboardTreePartProvider,DashboardWidgetTreePartProvider"
+  >
+    <treeProviderRule treePartProvider="AccountRootUnwrappingTreePartProvider" />
+    <treeProviderRule treeitem="AccountTreeItem" treePartProvider="ProjectUnwrappingTreePartProvider" />
+    <treeProviderRule treeitem="ProjectTreeItem" treePartProvider="ProjectDashboardsStaticTreePartProvider" />
+    <treeProviderRule treeitem="DashboardsContainerTreeItem" treePartProvider="DashboardTreePartProvider" />
+    <treeProviderRule treeitem="DashboardTreeItem" treePartProvider="DashboardWidgetTreePartProvider" />
+  </treeProvider>
+  <treeProvider
+    name="WorkItemTreeProvider"
+    module="workItem"
+    treePartProvider="WorkItemRootCombiningTreePartProvider,ProjectRootTreePartProvider,MyWorkStaticTreePartProvider,MyTeamsTreePartProvider,AllTeamsTreePartProvider,TeamContentsCombiningTreePartProvider,BacklogContentTreePartProvider,HierarchyRootContentTreePartProvider,AreaPathsContentTreePartProvider,QueriesContentTreePartProvider,QueryFolderChildrenTreePartProvider,QueryResultsTreePartProvider,AreaPathNodeCombiningTreePartProvider,CurrentSprintScopeTreePartProvider,CurrentSprintScopeContentTreePartProvider,CurrentSprintGroupWorkItemTreePartProvider,AssignedToMeTreePartProvider,MentionedTreePartProvider,RecentlyModifiedByMeTreePartProvider,WorkItemContentsCombiningTreePartProvider,PinnedWorkItemTreePartProvider,PinnedWorkItemAreaPathTreePartProvider,PinnedWorkItemTeamTreePartProvider,PinnedWorkItemQueryLeafTreePartProvider,AttachmentTreePartProvider,WorkItemLinkedWorkItemGroupsTreePartProvider,WorkItemLinkedWorkItemsTreePartProvider,WorkItemCommentsTreePartProvider,WorkItemHistoryTreePartProvider,WorkItemRevisionFieldsTreePartProvider,WorkItemLinkedCommitsTreePartProvider,WorkItemLinkedPullRequestsTreePartProvider,WorkItemLinkedBranchesTreePartProvider,WorkItemLinkedBuildsTreePartProvider"
+  >
+    <treeProviderRule treePartProvider="WorkItemRootCombiningTreePartProvider" />
+    <treeProviderRule treeitem="AccountTreeItem" treePartProvider="ProjectUnwrappingTreePartProvider" />
+    <treeProviderRule treeitem="ProjectTreeItem" treePartProvider="ProjectRootTreePartProvider" />
+    <treeProviderRule treeitem="MyWorkTreeItem" treePartProvider="MyWorkStaticTreePartProvider" />
+    <treeProviderRule treeitem="MyTeamsTreeItem" treePartProvider="MyTeamsTreePartProvider" />
+    <treeProviderRule treeitem="AllTeamsTreeItem" treePartProvider="AllTeamsTreePartProvider" />
+    <treeProviderRule treeitem="WorkItemTeamTreeItem" treePartProvider="TeamContentsCombiningTreePartProvider" />
+    <treeProviderRule treeitem="WorkItemBacklogTreeItem" treePartProvider="BacklogContentTreePartProvider" />
+    <treeProviderRule treeitem="WorkItemHierarchyTreeItem" treePartProvider="HierarchyRootContentTreePartProvider" />
+    <treeProviderRule treeitem="AreaPathsTreeItem" treePartProvider="AreaPathsContentTreePartProvider" />
+    <treeProviderRule treeitem="QueriesTreeItem" treePartProvider="QueriesContentTreePartProvider" />
+    <treeProviderRule treeitem="WorkItemQueryFolderTreeItem" treePartProvider="QueryFolderChildrenTreePartProvider" />
+    <treeProviderRule treeitem="WorkItemQueryLeafTreeItem" treePartProvider="QueryResultsTreePartProvider" />
+    <treeProviderRule treeitem="WorkItemAreaPathTreeItem" treePartProvider="AreaPathNodeCombiningTreePartProvider" />
+    <treeProviderRule treeitem="WorkItemCurrentSprintTreeItem" treePartProvider="CurrentSprintScopeTreePartProvider" />
+    <treeProviderRule
+      treeitem="WorkItemCurrentSprintByAssigneeScopeTreeItem"
+      treePartProvider="CurrentSprintScopeContentTreePartProvider"
+    />
+    <treeProviderRule
+      treeitem="WorkItemCurrentSprintByStateScopeTreeItem"
+      treePartProvider="CurrentSprintScopeContentTreePartProvider"
+    />
+    <treeProviderRule
+      treeitem="WorkItemCurrentSprintUnassignedScopeTreeItem"
+      treePartProvider="CurrentSprintScopeContentTreePartProvider"
+    />
+    <treeProviderRule
+      treeitem="WorkItemCurrentSprintGroupTreeItem"
+      treePartProvider="CurrentSprintGroupWorkItemTreePartProvider"
+    />
+    <treeProviderRule treeitem="AssignedToMeTreeItem" treePartProvider="AssignedToMeTreePartProvider" />
+    <treeProviderRule treeitem="MentionedTreeItem" treePartProvider="MentionedTreePartProvider" />
+    <treeProviderRule treeitem="RecentlyModifiedByMeTreeItem" treePartProvider="RecentlyModifiedByMeTreePartProvider" />
+    <treeProviderRule treeitem="WorkItemTreeItem" treePartProvider="WorkItemContentsCombiningTreePartProvider" />
+    <treeProviderRule treeitem="WorkItemCommentsTreeItem" treePartProvider="WorkItemCommentsTreePartProvider" />
+    <treeProviderRule treeitem="WorkItemHistoryTreeItem" treePartProvider="WorkItemHistoryTreePartProvider" />
+    <treeProviderRule treeitem="WorkItemRevisionTreeItem" treePartProvider="WorkItemRevisionFieldsTreePartProvider" />
+    <treeProviderRule treeitem="WorkItemAttachmentsTreeItem" treePartProvider="AttachmentTreePartProvider" />
+    <treeProviderRule
+      treeitem="WorkItemLinkedCommitsTreeItem"
+      treePartProvider="WorkItemLinkedCommitsTreePartProvider"
+    />
+    <treeProviderRule
+      treeitem="WorkItemLinkedPullRequestsTreeItem"
+      treePartProvider="WorkItemLinkedPullRequestsTreePartProvider"
+    />
+    <treeProviderRule
+      treeitem="WorkItemLinkedBranchesTreeItem"
+      treePartProvider="WorkItemLinkedBranchesTreePartProvider"
+    />
+    <treeProviderRule treeitem="WorkItemLinkedBuildsTreeItem" treePartProvider="WorkItemLinkedBuildsTreePartProvider" />
+    <treeProviderRule
+      treeitem="WorkItemRelationGroupTreeItem"
+      treePartProvider="WorkItemLinkedWorkItemsTreePartProvider"
+    />
+  </treeProvider>
+  <treeProvider
+    name="WikiTreeProvider"
+    module="wiki"
+    treePartProvider="AccountRootUnwrappingTreePartProvider,ProjectUnwrappingTreePartProvider"
+  >
+    <treeProviderRule treePartProvider="AccountRootUnwrappingTreePartProvider" />
+    <treeProviderRule treeitem="AccountTreeItem" treePartProvider="ProjectUnwrappingTreePartProvider" />
+  </treeProvider>
+  <treeProvider
+    name="TestPlanTreeProvider"
+    module="testPlan"
+    treePartProvider="AccountRootUnwrappingTreePartProvider,ProjectUnwrappingTreePartProvider"
+  >
+    <treeProviderRule treePartProvider="AccountRootUnwrappingTreePartProvider" />
+    <treeProviderRule treeitem="AccountTreeItem" treePartProvider="ProjectUnwrappingTreePartProvider" />
+  </treeProvider>
+  <treeProvider
+    name="AgentsTreeProvider"
+    module="agents"
+    treePartProvider="AgentsRootCombiningTreePartProvider,AccountRootUnwrappingTreePartProvider,ProjectUnwrappingTreePartProvider,AgentPoolChildrenStaticTreePartProvider,AgentChildrenStaticTreePartProvider,AgentPoolTreePartProvider,AgentTreePartProvider,AgentJobTreePartProvider,PinnedAgentPoolTreePartProvider,PinnedAgentTreePartProvider"
+  >
+    <treeProviderRule treePartProvider="AgentsRootCombiningTreePartProvider" />
+    <treeProviderRule treeitem="AccountTreeItem" treePartProvider="ProjectUnwrappingTreePartProvider" />
+    <treeProviderRule treeitem="ProjectTreeItem" treePartProvider="AgentPoolTreePartProvider" />
+    <treeProviderRule treeitem="AgentPoolTreeItem" treePartProvider="AgentPoolChildrenStaticTreePartProvider" />
+    <treeProviderRule treeitem="AgentsContainerTreeItem" treePartProvider="AgentTreePartProvider" />
+    <treeProviderRule treeitem="AgentTreeItem" treePartProvider="AgentChildrenStaticTreePartProvider" />
+    <treeProviderRule treeitem="JobsContainerTreeItem" treePartProvider="AgentJobTreePartProvider" />
+    <treeProviderRule treeitem="AgentJobsContainerTreeItem" treePartProvider="AgentJobTreePartProvider" />
+  </treeProvider>
+
+  <!-- Views (1:1 with TreeProviders) -->
+  <view name="WorkItem" viewId="workItem" contextualTitle="Work Items" icon="resources/dark/work-item.svg" />
+  <view name="Repository" viewId="repository" contextualTitle="Repositories" icon="resources/dark/git.svg" />
+  <view name="Pipeline" viewId="pipeline" contextualTitle="Pipelines" icon="resources/dark/pipeline.svg" />
+  <!--view name="Dashboard" viewId="dashboard" contextualTitle="Dashboards" icon="resources/dark/dashboard.svg" /-->
+  <!-- <view name="Wiki" viewId="wiki" contextualTitle="Wiki" icon="resources/icons/wiki.svg" />
+  <view name="TestPlan" viewId="testPlan" contextualTitle="Test Plans" icon="resources/icons/test-plan.svg" /-->
+  <view name="Agents" viewId="agents" contextualTitle="Agents" icon="resources/icons/agents.svg" />
+
+  <treepartprovider
+    name="AccountTreePartProvider"
+    importPath="/modules/core/treePartProviders/Account"
+    produces="AccountTreeItem"
+  />
+  <treepartprovider
+    name="ProjectTreePartProvider"
+    importPath="/modules/core/treePartProviders/Project"
+    produces="ProjectTreeItem"
+  />
+
+  <treeItem
+    name="MissingTreeItem"
+    importPath="/common/treeItems/MissingTreeItem"
+    itemImport="/common/items/MissingItem"
+  />
+  <treeItem
+    name="LoadingTreeItem"
+    importPath="/common/treeItems/LoadingTreeItem"
+    itemImport="/common/items/LoadingItem"
+  />
+  <treeItem
+    name="ExceptionTreeItem"
+    importPath="/common/treeItems/ExceptionTreeItem"
+    itemImport="/common/items/ExceptionItem"
+  />
+  <treeItem name="AccountTreeItem" module="core" refreshable="true" />
+  <treeItem name="ProjectTreeItem" module="core" refreshable="true" />
+
+  <treepartprovider
+    name="GitRepositoryTreePartProvider"
+    module="repository"
+    pinnable="true"
+    produces="GitRepositoryTreeItem"
+  />
+  <treepartprovider
+    name="GitRepositoryBranchTreePartProvider"
+    module="repository"
+    produces="GitRepositoryBranchTreeItem"
+  />
+  <treepartprovider name="GitRepositoryItemTreePartProvider" module="repository" produces="GitRepositoryItemTreeItem" />
+  <treepartprovider
+    name="GitRepositoryCommitTreePartProvider"
+    module="repository"
+    produces="GitRepositoryCommitTreeItem"
+  />
+  <treepartprovider name="GitRepositoryTagTreePartProvider" module="repository" produces="GitRepositoryTagTreeItem" />
+  <treepartprovider
+    name="GitRepositoryPullRequestTreePartProvider"
+    module="repository"
+    pinnable="true"
+    produces="GitRepositoryPullRequestTreeItem"
+  />
+  <treepartprovider
+    name="GitRepositoryPullRequestReviewerTreePartProvider"
+    module="repository"
+    produces="GitRepositoryPullRequestReviewerTreeItem"
+  />
+  <treepartprovider
+    name="GitRepositoryPullRequestWorkItemTreePartProvider"
+    module="repository"
+    produces="WorkItemTreeItem"
+  />
+  <treepartprovider
+    name="GitRepositoryPullRequestStatusTreePartProvider"
+    module="repository"
+    produces="GitRepositoryPullRequestStatusTreeItem"
+  />
+  <treepartprovider
+    name="GitRepositoryPullRequestCommentThreadTreePartProvider"
+    module="repository"
+    produces="GitRepositoryPullRequestCommentThreadTreeItem"
+  />
+  <treepartprovider name="PinnedGitRepositoryTreePartProvider" module="repository" produces="GitRepositoryTreeItem" />
+  <treepartprovider
+    name="PinnedGitRepositoryPullRequestTreePartProvider"
+    module="repository"
+    produces="GitRepositoryPullRequestTreeItem"
+  />
+  <treeItem name="GitRepositoryTreeItem" module="repository" inWeb="true" refreshable="true" pinnable="true" />
+  <treeItem name="GitRepositoryBranchTreeItem" module="repository" refreshable="true" />
+  <treeItem name="GitRepositoryItemTreeItem" module="repository" refreshable="true" />
+  <treeItem name="GitRepositoryItemsTreeItem" module="repository" refreshable="true" item="GitRepositoryItem" />
+  <treeItem name="GitRepositoryBranchesTreeItem" module="repository" refreshable="true" item="GitRepositoryItem" />
+  <treeItem name="GitRepositoryCommitTreeItem" module="repository" refreshable="true" />
+  <treeItem name="GitRepositoryCommitsTreeItem" module="repository" refreshable="true" item="GitRepositoryItem" />
+  <treeItem name="GitRepositoryTagsTreeItem" module="repository" refreshable="true" item="GitRepositoryItem" />
+  <treeItem name="GitRepositoryTagTreeItem" module="repository" refreshable="true" />
+  <treeItem name="GitRepositoryPullRequestsTreeItem" module="repository" refreshable="true" item="GitRepositoryItem" />
+  <treeItem
+    name="GitRepositoryPullRequestTreeItem"
+    module="repository"
+    inWeb="true"
+    refreshable="true"
+    pinnable="true"
+  />
+  <treeItem name="GitRepositoryPullRequestReviewerTreeItem" module="repository" refreshable="true" />
+  <treeItem
+    name="GitRepositoryPullRequestReviewersTreeItem"
+    module="repository"
+    refreshable="true"
+    item="GitRepositoryPullRequestItem"
+  />
+  <treeItem name="GitRepositoryPullRequestStatusTreeItem" module="repository" refreshable="true" />
+  <treeItem name="GitRepositoryPullRequestCommentThreadTreeItem" module="repository" refreshable="true" />
+
+  <treepartprovider
+    name="PipelineFolderTreePartProvider"
+    module="pipeline"
+    pinnable="true"
+    produces="PipelineFolderTreeItem"
+  />
+  <treepartprovider name="PipelineTreePartProvider" module="pipeline" pinnable="true" produces="PipelineTreeItem" />
+  <treepartprovider name="PipelineRunTreePartProvider" module="pipeline" produces="PipelineRunTreeItem" />
+  <treepartprovider
+    name="PipelineRunArtifactTreePartProvider"
+    module="pipeline"
+    produces="PipelineRunArtifactTreeItem"
+  />
+  <treepartprovider
+    name="PipelineRunTimelineTreePartProvider"
+    module="pipeline"
+    produces="PipelineRunTimelineTreeItem"
+  />
+  <treepartprovider name="PinnedPipelineFolderTreePartProvider" module="pipeline" produces="PipelineFolderTreeItem" />
+  <treepartprovider name="PinnedPipelineTreePartProvider" module="pipeline" produces="PipelineTreeItem" />
+  <treeItem name="PipelineFolderTreeItem" module="pipeline" refreshable="true" pinnable="true" />
+  <treeItem name="PipelineTreeItem" module="pipeline" inWeb="true" refreshable="true" pinnable="true" />
+  <treeItem name="PipelineRunTreeItem" module="pipeline" refreshable="true" />
+  <treeItem name="PipelineArtifactsTreeItem" module="pipeline" refreshable="true" item="PipelineRunItem" />
+  <treeItem name="PipelineRunArtifactTreeItem" module="pipeline" refreshable="true" />
+  <treeItem name="PipelineRunTimelineTreeItem" module="pipeline" refreshable="true" />
+
+  <treepartprovider
+    name="AssignedToMeTreePartProvider"
+    module="workItem"
+    pinnable="true"
+    pinnableTreePartProvider="PinnedWorkItemTreePartProvider"
+    produces="WorkItemTreeItem"
+  />
+  <treepartprovider
+    name="MentionedTreePartProvider"
+    module="workItem"
+    pinnable="true"
+    pinnableTreePartProvider="PinnedWorkItemTreePartProvider"
+    produces="WorkItemTreeItem"
+  />
+  <treepartprovider
+    name="RecentlyModifiedByMeTreePartProvider"
+    module="workItem"
+    pinnable="true"
+    pinnableTreePartProvider="PinnedWorkItemTreePartProvider"
+    produces="WorkItemTreeItem"
+  />
+  <treepartprovider
+    name="MyTeamsTreePartProvider"
+    module="workItem"
+    pinnable="true"
+    pinnableTreePartProvider="PinnedWorkItemTeamTreePartProvider"
+    produces="WorkItemTeamTreeItem"
+  />
+  <treepartprovider
+    name="AllTeamsTreePartProvider"
+    module="workItem"
+    pinnable="true"
+    pinnableTreePartProvider="PinnedWorkItemTeamTreePartProvider"
+    produces="WorkItemTeamTreeItem"
+  />
+  <treepartprovider name="CurrentSprintTreePartProvider" module="workItem" produces="WorkItemCurrentSprintTreeItem" />
+  <treepartprovider
+    name="CurrentSprintScopeTreePartProvider"
+    module="workItem"
+    produces="WorkItemCurrentSprintByAssigneeScopeTreeItem,WorkItemCurrentSprintByStateScopeTreeItem,WorkItemCurrentSprintUnassignedScopeTreeItem"
+  />
+  <treepartprovider
+    name="CurrentSprintScopeContentTreePartProvider"
+    module="workItem"
+    produces="WorkItemCurrentSprintGroupTreeItem"
+  />
+  <treepartprovider name="CurrentSprintGroupWorkItemTreePartProvider" module="workItem" produces="WorkItemTreeItem" />
+  <treepartprovider name="BacklogContentTreePartProvider" module="workItem" produces="WorkItemBacklogTreeItem" />
+  <treepartprovider
+    name="HierarchyRootContentTreePartProvider"
+    module="workItem"
+    produces="WorkItemHierarchyTreeItem"
+  />
+  <treepartprovider name="HierarchyChildrenTreePartProvider" module="workItem" produces="WorkItemTreeItem" />
+  <treepartprovider
+    name="AreaPathsContentTreePartProvider"
+    module="workItem"
+    pinnable="true"
+    pinnableTreePartProvider="PinnedWorkItemAreaPathTreePartProvider"
+    produces="WorkItemAreaPathTreeItem"
+  />
+  <treepartprovider
+    name="AreaPathChildrenTreePartProvider"
+    module="workItem"
+    pinnable="true"
+    pinnableTreePartProvider="PinnedWorkItemAreaPathTreePartProvider"
+    produces="WorkItemAreaPathTreeItem"
+  />
+  <treepartprovider name="AreaPathHierarchyRootTreePartProvider" module="workItem" produces="WorkItemTreeItem" />
+  <treepartprovider name="QueriesContentTreePartProvider" module="workItem" produces="WorkItemQueryFolderTreeItem" />
+  <treepartprovider
+    name="QueryFolderChildrenTreePartProvider"
+    module="workItem"
+    pinnable="true"
+    pinnableTreePartProvider="PinnedWorkItemQueryLeafTreePartProvider"
+    produces="WorkItemQueryFolderTreeItem,WorkItemQueryLeafTreeItem"
+  />
+  <treepartprovider name="QueryResultsTreePartProvider" module="workItem" produces="WorkItemTreeItem" />
+  <treepartprovider name="PinnedWorkItemTreePartProvider" module="workItem" produces="WorkItemTreeItem" />
+  <treepartprovider
+    name="PinnedWorkItemAreaPathTreePartProvider"
+    module="workItem"
+    produces="WorkItemAreaPathTreeItem"
+  />
+  <treepartprovider name="PinnedWorkItemTeamTreePartProvider" module="workItem" produces="WorkItemTeamTreeItem" />
+  <treepartprovider
+    name="PinnedWorkItemQueryLeafTreePartProvider"
+    module="workItem"
+    produces="WorkItemQueryLeafTreeItem"
+  />
+  <treepartprovider
+    name="ProjectRootTreePartProvider"
+    module="workItem"
+    produces="MyWorkTreeItem,MyTeamsTreeItem,AllTeamsTreeItem,WorkItemHierarchyTreeItem,AreaPathsTreeItem,QueriesTreeItem"
+  />
+  <treepartprovider name="AttachmentTreePartProvider" module="workItem" produces="AttachmentTreeItem" />
+  <treepartprovider
+    name="WorkItemLinkedWorkItemGroupsTreePartProvider"
+    module="workItem"
+    produces="WorkItemRelationGroupTreeItem"
+  />
+  <treepartprovider name="WorkItemLinkedWorkItemsTreePartProvider" module="workItem" produces="WorkItemTreeItem" />
+  <treepartprovider name="WorkItemCommentsTreePartProvider" module="workItem" produces="WorkItemCommentTreeItem" />
+  <treepartprovider
+    name="WorkItemLinkedCommitsTreePartProvider"
+    module="workItem"
+    produces="WorkItemLinkedCommitTreeItem"
+  />
+  <treepartprovider
+    name="WorkItemLinkedPullRequestsTreePartProvider"
+    module="workItem"
+    produces="WorkItemLinkedPullRequestTreeItem"
+  />
+  <treepartprovider
+    name="WorkItemLinkedBranchesTreePartProvider"
+    module="workItem"
+    produces="WorkItemLinkedBranchTreeItem"
+  />
+  <treepartprovider
+    name="WorkItemLinkedBuildsTreePartProvider"
+    module="workItem"
+    produces="WorkItemLinkedBuildTreeItem"
+  />
+  <treeItem name="WorkItemTreeItem" module="workItem" inWeb="true" refreshable="true" pinnable="true" />
+  <treeItem
+    name="MyWorkTreeItem"
+    module="workItem"
+    item="MyWorkItem"
+    itemImport="/modules/workItem/items/WorkItemProjectRootItem"
+  />
+  <treeItem
+    name="MyTeamsTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="MyTeamsItem"
+    itemImport="/modules/workItem/items/WorkItemProjectRootItem"
+  />
+  <treeItem
+    name="AllTeamsTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="AllTeamsItem"
+    itemImport="/modules/workItem/items/WorkItemProjectRootItem"
+  />
+  <treeItem
+    name="WorkItemHierarchyTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemHierarchyItem"
+    itemImport="/modules/workItem/items/WorkItemProjectRootItem"
+  />
+  <treeItem
+    name="AreaPathsTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="AreaPathsItem"
+    itemImport="/modules/workItem/items/WorkItemProjectRootItem"
+  />
+  <treeItem
+    name="QueriesTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="QueriesItem"
+    itemImport="/modules/workItem/items/WorkItemProjectRootItem"
+  />
+  <treeItem
+    name="AssignedToMeTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="MyWorkItem"
+    itemImport="/modules/workItem/items/WorkItemProjectRootItem"
+  />
+  <treeItem
+    name="MentionedTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="MyWorkItem"
+    itemImport="/modules/workItem/items/WorkItemProjectRootItem"
+  />
+  <treeItem
+    name="RecentlyModifiedByMeTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="MyWorkItem"
+    itemImport="/modules/workItem/items/WorkItemProjectRootItem"
+  />
+  <treeItem
+    name="WorkItemTeamTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemTeamItem"
+    itemImport="/modules/workItem/items/WorkItemTeamItem"
+    pinnable="true"
+  />
+  <treeItem
+    name="WorkItemCurrentSprintTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemCurrentSprintItem"
+    itemImport="/modules/workItem/items/WorkItemCurrentSprintItem"
+  />
+  <treeItem
+    name="WorkItemCurrentSprintByAssigneeScopeTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemCurrentSprintByAssigneeScopeItem"
+    itemImport="/modules/workItem/items/WorkItemCurrentSprintByAssigneeScopeItem"
+  />
+  <treeItem
+    name="WorkItemCurrentSprintByStateScopeTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemCurrentSprintByStateScopeItem"
+    itemImport="/modules/workItem/items/WorkItemCurrentSprintByStateScopeItem"
+  />
+  <treeItem
+    name="WorkItemCurrentSprintUnassignedScopeTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemCurrentSprintUnassignedScopeItem"
+    itemImport="/modules/workItem/items/WorkItemCurrentSprintUnassignedScopeItem"
+  />
+  <treeItem
+    name="WorkItemCurrentSprintGroupTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemCurrentSprintGroupItem"
+    itemImport="/modules/workItem/items/WorkItemCurrentSprintGroupItem"
+  />
+  <treeItem
+    name="WorkItemBacklogTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemTeamItem"
+    itemImport="/modules/workItem/items/WorkItemTeamItem"
+  />
+  <treeItem
+    name="WorkItemQueryFolderTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemQueryItem"
+    itemImport="/modules/workItem/items/WorkItemQueryItem"
+  />
+  <treeItem
+    name="WorkItemQueryLeafTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemQueryItem"
+    itemImport="/modules/workItem/items/WorkItemQueryItem"
+    pinnable="true"
+  />
+  <treeItem
+    name="WorkItemAreaPathTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemAreaPathItem"
+    itemImport="/modules/workItem/items/WorkItemAreaPathItem"
+    pinnable="true"
+  />
+  <treeItem name="AttachmentTreeItem" module="workItem" />
+  <treeItem
+    name="WorkItemAttachmentsTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemItem"
+    itemImport="/modules/workItem/items/WorkItemItem"
+  />
+  <treeItem
+    name="WorkItemLinkedItemTreeItem"
+    module="workItem"
+    item="WorkItemLinkedItemItem"
+    itemImport="/modules/workItem/items/WorkItemLinkedItemItem"
+    inWeb="true"
+  />
+  <treeItem
+    name="WorkItemCommentsTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemItem"
+    itemImport="/modules/workItem/items/WorkItemItem"
+  />
+  <treeItem
+    name="WorkItemCommentTreeItem"
+    module="workItem"
+    item="WorkItemCommentItem"
+    itemImport="/modules/workItem/items/WorkItemCommentItem"
+  />
+  <treeItem
+    name="WorkItemHistoryTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemItem"
+    itemImport="/modules/workItem/items/WorkItemItem"
+  />
+  <treeItem
+    name="WorkItemRevisionTreeItem"
+    module="workItem"
+    item="WorkItemRevisionItem"
+    itemImport="/modules/workItem/items/WorkItemRevisionItem"
+  />
+  <treeItem
+    name="WorkItemRevisionFieldChangeTreeItem"
+    module="workItem"
+    item="WorkItemRevisionFieldChangeItem"
+    itemImport="/modules/workItem/items/WorkItemRevisionFieldChangeItem"
+  />
+  <treepartprovider name="WorkItemHistoryTreePartProvider" module="workItem" produces="WorkItemRevisionTreeItem" />
+  <treepartprovider
+    name="WorkItemRevisionFieldsTreePartProvider"
+    module="workItem"
+    produces="WorkItemRevisionFieldChangeTreeItem"
+  />
+  <treeItem
+    name="WorkItemLinkedCommitsTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemItem"
+    itemImport="/modules/workItem/items/WorkItemItem"
+  />
+  <treeItem
+    name="WorkItemLinkedPullRequestsTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemItem"
+    itemImport="/modules/workItem/items/WorkItemItem"
+  />
+  <treeItem
+    name="WorkItemLinkedBranchesTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemItem"
+    itemImport="/modules/workItem/items/WorkItemItem"
+  />
+  <treeItem
+    name="WorkItemLinkedBuildsTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemItem"
+    itemImport="/modules/workItem/items/WorkItemItem"
+  />
+  <treeItem
+    name="WorkItemRelationGroupTreeItem"
+    module="workItem"
+    refreshable="true"
+    item="WorkItemRelationGroupItem"
+    itemImport="/modules/workItem/items/WorkItemRelationGroupItem"
+  />
+  <treeItem
+    name="WorkItemLinkedCommitTreeItem"
+    module="workItem"
+    item="WorkItemLinkedItemItem"
+    itemImport="/modules/workItem/items/WorkItemLinkedItemItem"
+    inWeb="true"
+  />
+  <treeItem
+    name="WorkItemLinkedPullRequestTreeItem"
+    module="workItem"
+    item="WorkItemLinkedItemItem"
+    itemImport="/modules/workItem/items/WorkItemLinkedItemItem"
+    inWeb="true"
+  />
+  <treeItem
+    name="WorkItemLinkedBranchTreeItem"
+    module="workItem"
+    item="WorkItemLinkedItemItem"
+    itemImport="/modules/workItem/items/WorkItemLinkedItemItem"
+    inWeb="true"
+  />
+  <treeItem
+    name="WorkItemLinkedBuildTreeItem"
+    module="workItem"
+    item="WorkItemLinkedItemItem"
+    itemImport="/modules/workItem/items/WorkItemLinkedItemItem"
+    inWeb="true"
+  />
+
+  <treepartprovider name="AgentPoolTreePartProvider" module="agents" pinnable="true" produces="AgentPoolTreeItem" />
+  <treepartprovider name="AgentTreePartProvider" module="agents" pinnable="true" produces="AgentTreeItem" />
+  <treepartprovider name="AgentJobTreePartProvider" module="agents" produces="AgentJobTreeItem" />
+  <treepartprovider name="PinnedAgentPoolTreePartProvider" module="agents" produces="AgentPoolTreeItem" />
+  <treepartprovider name="PinnedAgentTreePartProvider" module="agents" produces="AgentTreeItem" />
+
+  <treeItem name="AgentPoolTreeItem" module="agents" item="AgentPoolItem" refreshable="true" pinnable="true" />
+  <treeItem name="AgentsContainerTreeItem" module="agents" item="AgentPoolItem" refreshable="true" />
+  <treeItem name="AgentTreeItem" module="agents" item="AgentItem" refreshable="true" pinnable="true" />
+  <treeItem name="JobsContainerTreeItem" module="agents" item="AgentPoolItem" refreshable="true" />
+  <treeItem name="AgentJobsContainerTreeItem" module="agents" item="AgentItem" refreshable="true" />
+  <treeItem name="AgentJobTreeItem" module="agents" item="AgentJobItem" refreshable="true" />
+
+  <treepartprovider name="DashboardWidgetTreePartProvider" module="dashboard" produces="DashboardWidgetTreeItem" />
+  <treepartprovider name="DashboardTreePartProvider" module="dashboard" produces="DashboardTreeItem" />
+
+  <!-- Derived TreePartProviders -->
+  <!-- Account -->
+  <unwrappingTreePartProvider
+    name="AccountRootUnwrappingTreePartProvider"
+    innerTreePartProvider="AccountTreePartProvider"
+    childTreePartProvider="ProjectUnwrappingTreePartProvider"
+    unwrapPredicate="shouldUnwrapAccountOrProject(this.#settingsService.unwrapAccounts())"
+  />
+  <unwrappingTreePartProvider
+    name="ProjectUnwrappingTreePartProvider"
+    innerTreePartProvider="ProjectTreePartProvider"
+    childTreePartProvider="resolveAccountRootTreePartProvider"
+    unwrapPredicate="shouldUnwrapAccountOrProject(this.#settingsService.unwrapProjects())"
+  />
+
+  <!-- Repository -->
+  <combiningTreePartProvider name="RepositoryRootCombiningTreePartProvider">
+    <entry key="pinnedPullRequests" childTreePartProvider="PinnedGitRepositoryPullRequestTreePartProvider" />
+    <entry key="pinnedRepositories" childTreePartProvider="PinnedGitRepositoryTreePartProvider" />
+    <entry key="accounts" childTreePartProvider="AccountRootUnwrappingTreePartProvider" />
+  </combiningTreePartProvider>
+  <deduplicatingTreePartProvider
+    name="RepositoryRootDeduplicatingTreePartProvider"
+    innerTreePartProvider="RepositoryRootCombiningTreePartProvider"
+    dedupePredicate="dedupePinnedRepositories"
+  />
+  <staticTreePartProvider name="GitRepositoryDetailStaticTreePartProvider">
+    <entry key="items" treeItem="GitRepositoryItemsTreeItem" />
+    <entry key="branches" treeItem="GitRepositoryBranchesTreeItem" />
+    <entry key="commits" treeItem="GitRepositoryCommitsTreeItem" />
+    <entry key="tags" treeItem="GitRepositoryTagsTreeItem" />
+    <entry key="pullRequests" treeItem="GitRepositoryPullRequestsTreeItem" />
+  </staticTreePartProvider>
+  <staticTreePartProvider name="GitRepositoryBranchDetailStaticTreePartProvider">
+    <entry key="items" treeItem="GitRepositoryItemsTreeItem" />
+    <entry key="commits" treeItem="GitRepositoryCommitsTreeItem" />
+  </staticTreePartProvider>
+  <staticTreePartProvider name="GitRepositoryCommitDetailStaticTreePartProvider">
+    <entry key="items" treeItem="GitRepositoryItemsTreeItem" />
+  </staticTreePartProvider>
+  <staticTreePartProvider name="GitRepositoryPullRequestReviewersStaticTreePartProvider">
+    <entry key="reviewers" treeItem="GitRepositoryPullRequestReviewersTreeItem" />
+  </staticTreePartProvider>
+  <combiningTreePartProvider name="GitRepositoryPullRequestContentCombiningTreePartProvider">
+    <entry key="reviewers" childTreePartProvider="GitRepositoryPullRequestReviewersStaticTreePartProvider" />
+    <entry key="status" childTreePartProvider="GitRepositoryPullRequestStatusTreePartProvider" />
+    <entry key="commentThread" childTreePartProvider="GitRepositoryPullRequestCommentThreadTreePartProvider" />
+    <entry key="workItems" childTreePartProvider="GitRepositoryPullRequestWorkItemTreePartProvider" />
+  </combiningTreePartProvider>
+
+  <!-- Pipeline -->
+  <combiningTreePartProvider name="PipelineRootCombiningTreePartProvider">
+    <entry key="pinnedPipelineFolders" childTreePartProvider="PinnedPipelineFolderTreePartProvider" />
+    <entry key="pinnedPipelines" childTreePartProvider="PinnedPipelineTreePartProvider" />
+    <entry key="accounts" childTreePartProvider="AccountRootUnwrappingTreePartProvider" />
+  </combiningTreePartProvider>
+  <deduplicatingTreePartProvider
+    name="PipelineRootDeduplicatingTreePartProvider"
+    innerTreePartProvider="PipelineRootCombiningTreePartProvider"
+    dedupePredicate="dedupePinnedPipelines"
+  />
+  <combiningTreePartProvider name="PipelineFolderAndPipelineCombiningTreePartProvider">
+    <entry key="pipelineFolder" childTreePartProvider="PipelineFolderTreePartProvider" />
+    <entry key="pipeline" childTreePartProvider="PipelineTreePartProvider" />
+  </combiningTreePartProvider>
+  <staticTreePartProvider name="PipelineRunArtifactsStaticTreePartProvider">
+    <entry key="artifacts" treeItem="PipelineArtifactsTreeItem" />
+  </staticTreePartProvider>
+  <combiningTreePartProvider name="PipelineRunDetailCombiningTreePartProvider">
+    <entry key="artifacts" childTreePartProvider="PipelineRunArtifactsStaticTreePartProvider" />
+    <entry key="timeline" childTreePartProvider="PipelineRunTimelineTreePartProvider" />
+  </combiningTreePartProvider>
+
+  <!-- Dashboard -->
+  <staticTreePartProvider name="ProjectDashboardsStaticTreePartProvider">
+    <entry key="dashboards" treeItem="DashboardsContainerTreeItem" />
+  </staticTreePartProvider>
+
+  <!-- WorkItem -->
+  <combiningTreePartProvider name="WorkItemRootCombiningTreePartProvider">
+    <entry key="pinnedWorkItems" childTreePartProvider="PinnedWorkItemTreePartProvider" />
+    <entry key="pinnedAreaPaths" childTreePartProvider="PinnedWorkItemAreaPathTreePartProvider" />
+    <entry key="pinnedTeams" childTreePartProvider="PinnedWorkItemTeamTreePartProvider" />
+    <entry key="pinnedQueries" childTreePartProvider="PinnedWorkItemQueryLeafTreePartProvider" />
+    <entry key="accounts" childTreePartProvider="AccountRootUnwrappingTreePartProvider" />
+  </combiningTreePartProvider>
+  <staticTreePartProvider name="MyWorkStaticTreePartProvider">
+    <entry key="assignedToMe" treeItem="AssignedToMeTreeItem" />
+    <entry key="mentioned" treeItem="MentionedTreeItem" />
+    <entry key="recentlyModifiedByMe" treeItem="RecentlyModifiedByMeTreeItem" />
+  </staticTreePartProvider>
+  <staticTreePartProvider name="BacklogStaticTreePartProvider">
+    <entry key="backlog" treeItem="WorkItemBacklogTreeItem" />
+  </staticTreePartProvider>
+  <staticTreePartProvider name="WorkItemDetailStaticTreePartProvider">
+    <entry
+      key="linkedCommits"
+      treeItem="WorkItemLinkedCommitsTreeItem"
+      condition="(itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.relations?.some((relation: any) => relation.url?.startsWith('vstfs:///Git/Commit/') ?? false) ?? false)))"
+    />
+    <entry
+      key="linkedPullRequests"
+      treeItem="WorkItemLinkedPullRequestsTreeItem"
+      condition="(itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.relations?.some((relation: any) => relation.url?.startsWith('vstfs:///Git/PullRequestId/') ?? false) ?? false)))"
+    />
+    <entry
+      key="linkedBranches"
+      treeItem="WorkItemLinkedBranchesTreeItem"
+      condition="(itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.relations?.some((relation: any) => relation.url?.startsWith('vstfs:///Git/Ref/') ?? false) ?? false)))"
+    />
+    <entry
+      key="linkedBuilds"
+      treeItem="WorkItemLinkedBuildsTreeItem"
+      condition="(itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.relations?.some((relation: any) => relation.url?.startsWith('vstfs:///Build/Build/') ?? false) ?? false)))"
+    />
+    <entry
+      key="comments"
+      treeItem="WorkItemCommentsTreeItem"
+      condition="(itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.fields?.['System.CommentCount'] ?? 0) > 0))"
+    />
+    <entry
+      key="attachments"
+      treeItem="WorkItemAttachmentsTreeItem"
+      condition="(itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.relations?.some((relation: any) => relation.rel === 'AttachedFile') ?? false)))"
+    />
+  </staticTreePartProvider>
+  <combiningTreePartProvider name="WorkItemContentsCombiningTreePartProvider">
+    <entry key="children" childTreePartProvider="HierarchyChildrenTreePartProvider" />
+    <entry key="details" childTreePartProvider="WorkItemDetailStaticTreePartProvider" />
+    <entry key="linkedWorkItemGroups" childTreePartProvider="WorkItemLinkedWorkItemGroupsTreePartProvider" />
+  </combiningTreePartProvider>
+  <combiningTreePartProvider name="AreaPathNodeCombiningTreePartProvider">
+    <entry key="areaPathChildren" childTreePartProvider="AreaPathChildrenTreePartProvider" />
+    <entry key="hierarchy" childTreePartProvider="AreaPathHierarchyRootTreePartProvider" />
+  </combiningTreePartProvider>
+  <unwrappingTreePartProvider
+    name="CurrentSprintUnwrappingTreePartProvider"
+    innerTreePartProvider="CurrentSprintTreePartProvider"
+    childTreePartProvider="CurrentSprintScopeTreePartProvider"
+    unwrapPredicate="(items) => of(items.size === 1 &amp;&amp; !items.has('exception'))"
+  />
+  <combiningTreePartProvider name="TeamContentsCombiningTreePartProvider">
+    <entry key="sprints" childTreePartProvider="CurrentSprintUnwrappingTreePartProvider" />
+    <entry key="backlog" childTreePartProvider="BacklogStaticTreePartProvider" />
+  </combiningTreePartProvider>
+
+  <!-- Agents -->
+  <combiningTreePartProvider name="AgentsRootCombiningTreePartProvider">
+    <entry key="pinnedAgentPools" childTreePartProvider="PinnedAgentPoolTreePartProvider" />
+    <entry key="pinnedAgents" childTreePartProvider="PinnedAgentTreePartProvider" />
+    <entry key="accounts" childTreePartProvider="AccountRootUnwrappingTreePartProvider" />
+  </combiningTreePartProvider>
+  <staticTreePartProvider name="AgentPoolChildrenStaticTreePartProvider">
+    <entry key="jobs" treeItem="JobsContainerTreeItem" />
+    <entry key="agents" treeItem="AgentsContainerTreeItem" />
+  </staticTreePartProvider>
+  <staticTreePartProvider name="AgentChildrenStaticTreePartProvider">
+    <entry key="jobs" treeItem="AgentJobsContainerTreeItem" />
+  </staticTreePartProvider>
+
+  <treeItem name="DashboardTreeItem" module="dashboard" inWeb="true" refreshable="true" />
+  <treeItem name="DashboardWidgetTreeItem" module="dashboard" refreshable="true" />
+  <treeItem
+    name="DashboardsContainerTreeItem"
+    module="dashboard"
+    refreshable="true"
+    item="ProjectItem"
+    itemImport="/modules/core/items/ProjectItem"
+  />
+
+  <!-- Commands -->
+  <command
+    name="addOrganization"
+    handler="addOrganizationAction"
+    importPath="/modules/core/actions/addOrganizationAction"
+    needsContainer="true"
+    title="Add Organization"
+    icon="organization-add"
+  >
+    <menuLocation location="view/title" when="!false" group="navigation">
+      <!--allowInView>dashboard</allowInView-->
+    </menuLocation>
+  </command>
+  <command
+    name="removeOrganization"
+    handler="removeOrganizationAction"
+    importPath="/modules/core/actions/removeOrganizationAction"
+    needsContainer="true"
+    title="Remove Organization"
+    icon="organization-remove"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,account,/" />
+    <menuLocation location="view/title" when="toolbox-azure-devops-by-bf.accounts-unwrapped" group="navigation" />
+  </command>
+  <command
+    name="updatePersonalAccessToken"
+    handler="updatePersonalAccessTokenAction"
+    importPath="/modules/core/actions/updatePersonalAccessTokenAction"
+    needsContainer="true"
+    title="Update Personal Access Token (PAT)"
+    icon="pat-update"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,account,/" />
+    <menuLocation location="view/title" when="toolbox-azure-devops-by-bf.accounts-unwrapped" group="navigation" />
+  </command>
+  <command
+    name="openInWeb"
+    handler="handleOpenInWebAction"
+    importPath="/common/items/OpenInWebTreeItemMixin"
+    needsContainer="false"
+    title="Open in External Web Browser"
+    icon="link"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,inWeb,/" group="inline@3" />
+  </command>
+  <command
+    name="pin"
+    handler="handlePinAction"
+    importPath="/common/items/PinnedTreeItemMixin"
+    needsContainer="false"
+    title="Pin item"
+    icon="pin"
+  >
+    <menuLocation
+      location="view/item/context"
+      when="viewItem =~ /,pinnable,/ &amp;&amp; !(viewItem =~ /,pinned,/)"
+      group="inline@1"
+    />
+  </command>
+  <command
+    name="unpin"
+    handler="handleUnpinAction"
+    importPath="/common/items/PinnedTreeItemMixin"
+    needsContainer="false"
+    title="Unpin item"
+    icon="pinned-off"
+  >
+    <menuLocation
+      location="view/item/context"
+      when="viewItem =~ /,pinnable,/ &amp;&amp; viewItem =~ /,pinned,/"
+      group="inline@1"
+    />
+  </command>
+  <command
+    name="refresh"
+    handler="handleRefreshAction"
+    importPath="/common/items/RefreshableTreeItemMixin"
+    needsContainer="false"
+    title="Refresh"
+    icon="refresh"
+  >
+    <menuLocation location="view/title" when="!false" group="navigation" />
+    <menuLocation location="view/item/context" when="viewItem =~ /,refreshable,/" group="inline@2" />
+  </command>
+  <command
+    name="workItem.downloadAttachment"
+    handler="downloadAttachmentAction"
+    importPath="/modules/workItem/actions/attachmentActions"
+    needsContainer="true"
+    title="Download Attachment"
+    icon="download"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,workItem.attachment,/" group="inline" />
+  </command>
+  <command
+    name="workItem.setState"
+    handler="workItemSetStateAction"
+    importPath="/modules/workItem/actions/workItemActions"
+    needsContainer="true"
+    title="Set State"
+    icon="edit"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,workItem.workItem,/" group="navigation" />
+  </command>
+  <command
+    name="workItem.setTitle"
+    handler="workItemSetTitleAction"
+    importPath="/modules/workItem/actions/workItemActions"
+    needsContainer="true"
+    title="Set Title"
+    icon="edit"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,workItem.workItem,/" group="navigation" />
+  </command>
+  <command
+    name="workItem.setEffort"
+    handler="workItemSetEffortAction"
+    importPath="/modules/workItem/actions/workItemActions"
+    needsContainer="true"
+    title="Set Effort"
+    icon="edit"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,workItem.workItem,/" group="navigation" />
+  </command>
+  <command
+    name="workItem.setAssignedTo"
+    handler="workItemSetAssignedToAction"
+    importPath="/modules/workItem/actions/workItemActions"
+    needsContainer="true"
+    title="Assign To"
+    icon="edit"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,workItem.workItem,/" group="navigation" />
+  </command>
+  <!--command
+    name="workItem.setSprint"
+    handler="workItemSetSprintAction"
+    importPath="/modules/workItem/actions/workItemActions"
+    needsContainer="true"
+    title="Set Sprint"
+    icon="edit"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,workItem.workItem,/" group="navigation" />
+  </command-->
+  <command
+    name="workItem.copyId"
+    handler="workItemCopyIdAction"
+    importPath="/modules/workItem/actions/workItemActions"
+    needsContainer="false"
+    title="Copy ID"
+    icon="copy"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,workItem.workItem,/" group="navigation" />
+  </command>
+  <command
+    name="openTextFile"
+    handler="openTextFileAction"
+    importPath="/common/openTextFileAction"
+    needsContainer="true"
+    title="Open Item"
+  />
+  <command
+    name="gitRepository.pullRequest.setTitle"
+    handler="gitRepositoryPullRequestSetTitleAction"
+    importPath="/modules/repository/actions/gitRepositoryPullRequestActions"
+    needsContainer="true"
+    title="Set Title"
+    icon="edit"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,gitRepository.pullRequest,/" group="navigation" />
+  </command>
+  <command
+    name="pipeline.renameFolder"
+    handler="pipelineRenameFolderAction"
+    importPath="/modules/pipeline/actions/folderActions"
+    needsContainer="true"
+    title="Rename Folder"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,pipeline.folder,/" group="navigation" />
+  </command>
+  <command
+    name="pipeline.createFolder"
+    handler="pipelineCreateFolderAction"
+    importPath="/modules/pipeline/actions/folderActions"
+    needsContainer="true"
+    title="Create Folder"
+  >
+    <menuLocation
+      location="view/item/context"
+      when="viewItem =~ /,pipeline.folder,/ || viewItem =~ /,common.project,/"
+      group="navigation"
+    />
+  </command>
+  <command
+    name="pipeline.deleteFolder"
+    handler="pipelineDeleteFolderAction"
+    importPath="/modules/pipeline/actions/folderActions"
+    needsContainer="true"
+    title="Delete Folder"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,pipeline.folder,/" group="navigation" />
+  </command>
+  <command
+    name="pipeline.revealRepository"
+    handler="pipelineRevealRepositoryAction"
+    importPath="/modules/pipeline/actions/pipelineActions"
+    needsContainer="true"
+    title="Reveal Repository"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,pipeline.pipeline,/" group="navigation" />
+  </command>
+  <command
+    name="pipeline.renamePipeline"
+    handler="pipelineRenamePipelineAction"
+    importPath="/modules/pipeline/actions/pipelineActions"
+    needsContainer="true"
+    title="Rename Pipeline"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,pipeline.pipeline,/" group="navigation" />
+  </command>
+  <command
+    name="pipeline.deletePipeline"
+    handler="pipelineDeletePipelineAction"
+    importPath="/modules/pipeline/actions/pipelineActions"
+    needsContainer="true"
+    title="Delete Pipeline"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,pipeline.pipeline,/" group="navigation" />
+  </command>
+  <command
+    name="pipeline.runPipeline"
+    handler="pipelineRunPipelineAction"
+    importPath="/modules/pipeline/actions/pipelineActions"
+    needsContainer="true"
+    title="Run Pipeline"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,pipeline.pipeline,/" group="navigation" />
+  </command>
+  <command
+    name="pipeline.cancelRun"
+    handler="pipelineCancelRunAction"
+    importPath="/modules/pipeline/actions/pipelineRunActions"
+    needsContainer="true"
+    title="Cancel Run"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,pipeline.run,/" group="navigation" />
+  </command>
+  <command
+    name="pipeline.rerunRun"
+    handler="pipelineRerunRunAction"
+    importPath="/modules/pipeline/actions/pipelineRunActions"
+    needsContainer="true"
+    title="Re-run"
+  >
+    <menuLocation location="view/item/context" when="viewItem =~ /,pipeline.run,/" group="navigation" />
+  </command>
+
+  <!-- Configuration -->
+  <configurationProperty
+    name="autoRefreshInterval"
+    defaultValue="null"
+    description="Maximum number of milliseconds to wait until updating data automatically"
+  >
+    <type>number</type>
+    <type>null</type>
+  </configurationProperty>
+  <configurationProperty
+    name="unwrapAccounts"
+    defaultValue="true"
+    description="Unwrap child items of account item, if there is only one account"
+  >
+    <type>boolean</type>
+  </configurationProperty>
+  <configurationProperty
+    name="unwrapProjects"
+    defaultValue="true"
+    description="Unwrap child items of project item, if there is only one project"
+  >
+    <type>boolean</type>
+  </configurationProperty>
+</plugin>

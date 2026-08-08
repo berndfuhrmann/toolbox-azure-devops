@@ -1,0 +1,27 @@
+[%
+import "command.eol";
+import "register.eol";
+%]
+import * as vscode from "vscode";
+import { Container } from "inversify";
+import { extensionName } from "../config";
+[%
+// Generate imports
+for (imports in combineImports(Command.all.collect(cmd|cmd.imports())).asSet()) {
+for (key in imports.keySet()) {%]
+[%=importStatement(imports.get(key), key)%]
+[%}}%]
+
+export function registerCommands(
+  context: vscode.ExtensionContext,
+  container: Container,
+) {
+[%for (cmd in Command.all){%]
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      extensionName + ".[%=cmd.name%]",
+      [%if (cmd.needsContainer){%][%=cmd.handler%](container)[%} else {%][%=cmd.handler%][%}%],
+    ),
+  );
+[%}%]
+}

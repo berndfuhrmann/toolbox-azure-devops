@@ -1,0 +1,157 @@
+@namespace(uri="toolboxazuredevopsbybf", prefix="ado")
+package toolboxazuredevopsbybf;
+
+class Plugin {
+    val Service[*] services;
+    val TreeProvider[*] treeProvider;
+    val AbstractTreePartProvider[*] treepartprovider;
+    val TreeItem[*] treeItem;
+    val Command[*] command;
+    val View[*] view;
+    val ConfigurationProperty[*] configuration;
+}
+
+class Service {
+    attr String name;
+    attr String[?] type;
+    attr String[?] typeImport;
+    val AbstractServiceMethod[*] methods;
+}
+
+abstract class AbstractServiceMethod {
+    attr String name;
+    attr String outputType;
+    attr Boolean[?] paged;
+    val ServiceMethodParameter[*] parameters;
+}
+
+class ServiceMethod extends AbstractServiceMethod {
+    attr String implementation;
+}
+
+class DelegateToBatchServiceMethod extends AbstractServiceMethod {
+    attr String batchKeyParam;
+    attr String batchKeyProperty;
+    attr String batchFetch;
+}
+
+class BatchServiceMethod extends AbstractServiceMethod {
+    attr String coordinatedMethodName;
+    attr String batchIdsParam;
+}
+
+class ServiceMethodParameter {
+    attr String name;
+    attr String type;
+    attr Boolean[?] optional = false;
+    attr String defaultValue;
+}
+
+class TreeProvider {
+    attr String name;
+    attr String[?] importPath;
+    attr String[?] module;
+    ref AbstractTreePartProvider[*] treePartProvider;
+    val TreeProviderRule[*] rules;
+}
+
+class TreeProviderRule {
+    ref TreeItem[?] treeitem;
+    ref AbstractTreePartProvider treePartProvider;
+}
+
+abstract class AbstractTreePartProvider {
+    attr String name;
+    attr String[?] notes;
+    ref TreeItem[*] produces;
+}
+
+class TreePartProvider extends AbstractTreePartProvider {
+    attr String[?] importPath;
+    attr String[?] module;
+    attr Boolean[?] pinnable = false;
+    attr String[?] pinnableTreePartProvider;
+}
+
+// Base type for provider-local, named TreePartProvider definitions.
+abstract class DerivedTreePartProvider extends AbstractTreePartProvider {}
+
+// Combines multiple child providers or tree items into one logical provider.
+class CombiningTreePartProvider extends DerivedTreePartProvider {
+    val CombiningTreePartProviderEntry[*] entry;
+}
+
+// A single entry used by CombiningTreePartProvider.
+class CombiningTreePartProviderEntry {
+    attr String key;
+    ref AbstractTreePartProvider childTreePartProvider;
+    attr String[?] treeItem;
+}
+
+// Produces static child items for a node.
+class StaticTreePartProvider extends DerivedTreePartProvider {
+    val StaticTreePartProviderEntry[*] entry;
+}
+
+// A single entry used by StaticTreePartProvider.
+class StaticTreePartProviderEntry {
+    attr String key;
+    attr String treeItem;
+    attr String[?] condition;
+}
+
+// Wraps another provider and removes duplicate entries by a runtime-specific strategy.
+class DeduplicatingTreePartProvider extends DerivedTreePartProvider {
+    ref AbstractTreePartProvider innerTreePartProvider;
+    attr String[?] dedupePredicate;
+}
+
+// Wraps another provider and optionally unwraps into a child provider.
+class UnwrappingTreePartProvider extends DerivedTreePartProvider {
+    ref AbstractTreePartProvider innerTreePartProvider;
+    attr String childTreePartProvider;
+    attr String[?] unwrapPredicate;
+}
+
+class TreeItem {
+    attr String name;
+    attr String[?] importPath;
+    attr String[?] module;
+    attr String[?] item;
+    attr String[?] itemImport;
+    attr Boolean[?] inWeb = false;
+    attr Boolean[?] refreshable = false;
+    attr Boolean[?] pinnable = false;
+}
+
+class Command {
+    attr String name;
+    attr String handler;
+    attr String importPath;
+    attr Boolean[?] needsContainer = false;
+    attr String[?] title;
+    attr String[?] icon;
+    val MenuLocation[*] menuLocations;
+}
+
+class MenuLocation {
+    attr String location;
+    attr String[*] allowInView;
+    attr String when;
+    attr String[?] group;
+}
+
+class View {
+    attr String name;
+    attr String viewId;
+    attr String contextualTitle;
+    attr String[?] icon;
+    attr String[?] visibility = "collapsed";
+}
+
+class ConfigurationProperty {
+    attr String name;
+    attr String[*] type;
+    attr String defaultValue;
+    attr String description;
+}

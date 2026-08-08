@@ -1,0 +1,196 @@
+operation TreeProvider resolverName() {
+  return self.name + "Resolver";
+}
+
+operation TreeProvider leafProviders() {
+  var direct = self.rules.collect(r | r.treePartProvider).select(p | p.isTypeOf(TreePartProvider)).asSet();
+  var allDerived = self.derivedProviders();
+
+  var referencedFromDerived = allDerived.collect(d | d.referencedTreePartProviders()).flatten().select(p | p.isDefined() and p.isTypeOf(TreePartProvider)).asSet();
+
+  return direct.includingAll(referencedFromDerived);
+}
+
+operation TreeProvider derivedProviders() {
+  var direct = self.rules.collect(r | r.treePartProvider).select(p | p.isKindOf(DerivedTreePartProvider)).asSet();
+  var all = direct.clone();
+  var progress = true;
+  while (progress) {
+    var before = all.size();
+    var toAdd = all.collect(d | d.referencedTreePartProviders()).flatten().select(p | p.isDerived()).asSet();
+    all.addAll(toAdd);
+    progress = all.size() > before;
+  }
+  return all;
+}
+
+operation AbstractTreePartProvider isDerived() {
+  return self.isKindOf(DerivedTreePartProvider);
+}
+
+operation DerivedTreePartProvider referencedTreePartProviders() {
+  return Set{};
+}
+
+operation UnwrappingTreePartProvider referencedTreePartProviders() {
+  var result = Set{};
+  result.add(self.innerTreePartProvider);
+  if (self.childTreePartProvider.isDefined() and not self.childTreePartProvider.startsWith("resolve")) {
+    var resolved = AbstractTreePartProvider.all.select(p | p.name == self.childTreePartProvider).first();
+    if (resolved.isDefined()) {
+      result.add(resolved);
+    }
+  }
+  return result;
+}
+
+operation CombiningTreePartProvider referencedTreePartProviders() {
+  var result = Set{};
+  for (entry in self.entry) {
+    if (entry.childTreePartProvider.isDefined()) {
+      result.add(entry.childTreePartProvider);
+    }
+  }
+  return result;
+}
+
+operation DeduplicatingTreePartProvider referencedTreePartProviders() {
+  var result = Set{};
+  result.add(self.innerTreePartProvider);
+  return result;
+}
+
+operation TreeProvider ruleTreeItems() {
+  return self.rules.collect(r | r.treeitem).select(t | t.isDefined()).asSet();
+}
+
+operation TreeProvider staticTreeItemEntries() {
+  var items = Set{};
+  for (provider in self.derivedProviders().select(p | p.isTypeOf(StaticTreePartProvider))) {
+    for (entry in provider.entry) {
+      var treeItem = TreeItem.all.select(t | t.name == entry.treeItem).first();
+      if (treeItem.isDefined()) {
+        items.add(treeItem);
+      }
+    }
+  }
+  return items;
+}
+
+operation AbstractTreePartProvider fieldReference() {
+  if (self.isTypeOf(TreePartProvider)) {
+    return "this.#" + self.name.toCamelCase();
+  } else {
+    return "this." + self.name.toCamelCase();
+  }
+}
+
+operation TreePartProvider resolverImport() {
+  var importPath = self.importPath != null ? 
+      (".." + self.importPath + "TreePartProvider")
+    : ("../modules/" + self.module + "/treePartProviders/" + self.name);
+  var result = Map{};
+  result.put(importPath, Set{self.name});
+  return result;
+}
+
+operation TreeItem resolverImport() {
+  var importPath = self.importPath != null ? 
+    (".." + self.importPath)
+    : ("../modules/" + self.module + "/treeItems/" + self.name);
+  var result = Map{};
+  result.put(importPath, Set{self.name});
+  return result;
+}
+
+operation TreeProvider needsPostConstruct() {
+  return self.derivedProviders().size() > 0;
+}
+
+operation TreeProvider derivedProviderCreationOrder() {
+  var providers = self.derivedProviders();
+  var ordered = Sequence{};
+  var visited = Set{};
+  
+  while (ordered.size() < providers.size()) {
+    var progress = false;
+    for (provider in providers) {
+      if (not visited.includes(provider)) {
+        var deps = provider.dependencies();
+        var unresolved = deps.select(d | not visited.includes(d));
+        if (unresolved.isEmpty()) {
+          ordered.add(provider);
+          visited.add(provider);
+          progress = true;
+        }
+      }
+    }
+    if (not progress) {
+      for (provider in providers) {
+        if (not visited.includes(provider)) {
+          ordered.add(provider);
+          visited.add(provider);
+        }
+      }
+    }
+  }
+  return ordered;
+}
+
+operation AbstractTreePartProvider dependencies() {
+  if (self.isKindOf(DerivedTreePartProvider)) {
+    return self.referencedTreePartProviders().select(p | p.isDerived()).asSet();
+  }
+  return Set{};
+}
+
+operation AbstractTreePartProvider initializationCode() {
+  if (self.isTypeOf(UnwrappingTreePartProvider)) {
+    var code = "    this." + self.name.toCamelCase() + " = new UnwrappingTreePartProvider(\n";
+    code = code + "      " + self.innerTreePartProvider.fieldReference() + ",\n";
+    code = code + "      " + self.unwrapPredicate + ",\n";
+    if (self.childTreePartProvider.isDefined() and self.childTreePartProvider.startsWith("resolve")) {
+      code = code + "      (i) => this.getTreePartProvider(i),\n";
+    } else {
+      var referenced = AbstractTreePartProvider.all.select(p | p.name == self.childTreePartProvider).first();
+      if (referenced.isDefined()) {
+        code = code + "      () => " + referenced.fieldReference() + ",\n";
+      } else {
+        code = code + "      /* TODO: unknown childTreePartProvider: " + self.childTreePartProvider + " */,\n";
+      }
+    }
+    code = code + "    );";
+    return code;
+  } else if (self.isTypeOf(CombiningTreePartProvider)) {
+    var code = "    this." + self.name.toCamelCase() + " = new CombiningTreePartProvider({\n";
+    for (entry in self.entry) {
+      code = code + "      " + entry.key + ": " + entry.childTreePartProvider.fieldReference() + ",\n";
+    }
+    code = code + "    });";
+    return code;
+  } else if (self.isTypeOf(StaticTreePartProvider)) {
+    var code = "    this." + self.name.toCamelCase() + " = new StaticTreePartProvider({\n";
+    for (entry in self.entry) {
+      code = code + "      " + entry.key + ": {\n";
+      code = code + "        treeItem: this.#" + entry.treeItem.toCamelCase() + ",\n";
+      if (entry.condition.isDefined()) {
+        code = code + "        condition: " + entry.condition + ",\n";
+      }
+      code = code + "      },\n";
+    }
+    code = code + "    });";
+    return code;
+  } else if (self.isTypeOf(DeduplicatingTreePartProvider)) {
+    var code = "    this." + self.name.toCamelCase() + " = new DeduplicatingTreePartProvider(\n";
+    code = code + "      " + self.innerTreePartProvider.fieldReference() + ",\n";
+    if (self.dedupePredicate.isDefined()) {
+      code = code + "      " + self.dedupePredicate + ",\n";
+    } else {
+      code = code + "      /* TODO: dedupe predicate */ ,\n";
+    }
+    code = code + "    );";
+    return code;
+  }
+  return "";
+}
+

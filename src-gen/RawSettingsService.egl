@@ -1,0 +1,75 @@
+[%
+import "rawSettingsService.eol";
+%]
+
+import { Disposable, workspace, ExtensionContext } from "vscode";
+import { extensionName } from "../config";
+import { map, Observable, ReplaySubject } from "rxjs";
+
+export interface RawSettingsServiceData {
+  [% for (property in ConfigurationProperty.all) { %]
+  [%=property.name %]: [%=property.typescriptType() %];
+  [% } %]
+}
+
+export class RawSettingsService {
+  private static readonly settingsSection = extensionName;
+  [% for (property in ConfigurationProperty.all) { %]
+  private static readonly [%=property.settingName() %] = "[%=property.name %]";
+  [% } %]
+
+  #configSettingsData: ReplaySubject<RawSettingsServiceData>;
+  [% for (property in ConfigurationProperty.all) { %]
+  #[%=property.name %]: Observable<[%=property.typescriptType() %]>;
+  [% } %]
+
+  constructor(context: ExtensionContext) {
+    this.#configSettingsData = new ReplaySubject(1);
+    this.#configSettingsData.next(this.#getSettingsServiceData());
+
+    context.subscriptions.push(
+      workspace.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(RawSettingsService.settingsSection)) {
+          this.#configSettingsData.next(this.#getSettingsServiceData());
+        }
+      }),
+      Disposable.from({
+        dispose: () => {},
+      }),
+    );
+    
+    [% for (property in ConfigurationProperty.all) { %]
+    this.#[%=property.name %] = this.#configSettingsData.pipe(
+      map((data) => data.[%=property.name %]),
+    );
+    [% } %]
+  }
+
+  [% for (property in ConfigurationProperty.all) { %]
+  public [%=property.name %](): Observable<[%=property.typescriptType() %]> {
+    return this.#[%=property.name %];
+  }
+
+  [% } %]
+  #getSettingsServiceData() {
+    return {
+      [% for (property in ConfigurationProperty.all) { %]
+      [%=property.name %]: this.#[%=property.getterName() %](),
+      [% } %]
+    };
+  }
+
+  #getSettings() {
+    return workspace.getConfiguration(RawSettingsService.settingsSection);
+  }
+
+  [% for (property in ConfigurationProperty.all) { %]
+  #[%=property.getterName() %](): [%=property.typescriptType() %] {
+    const value = this.#getSettings().get<[%=property.typescriptType() %]>(
+      RawSettingsService.[%=property.settingName() %]
+    );
+    return value ?? [%=property.typescriptType() == 'boolean' ? property.defaultValue.toLowerCase() : property.defaultValue %];
+  }
+
+  [% } %]
+}

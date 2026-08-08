@@ -1,0 +1,37 @@
+[%
+import "common.eol";
+import "treeViewDocs.eol";
+%]
+# Tree View Documentation
+
+[%for (treeProvider in TreeProvider.all) {%]
+## [%=treeProvider.name%]
+
+### Mermaid
+
+```mermaid
+flowchart TD
+[%for (node in treeProvider.graphNodes()) {%]
+  [%=node.graphNodeId()%]["[%=node%]"]
+[%}%]
+[%for (edge in treeProvider.graphEdges()) {%]
+  [%=edge.get("from").graphNodeId()%] -->|[%=edge.get("label")%]| [%=edge.get("to").graphNodeId()%]
+[%}%]
+```
+
+### GraphViz
+
+```dot
+digraph [%=treeProvider.name%] {
+  rankdir=TB
+  node [shape=box]
+[%for (node in treeProvider.graphNodes()) {%]
+  [%=node.graphNodeId()%] [label="[%=node%]"]
+[%}%]
+[%for (edge in treeProvider.graphEdges()) {%]
+  [%=edge.get("from").graphNodeId()%] -> [%=edge.get("to").graphNodeId()%] [label="[%=edge.get("label")%]"]
+[%}%]
+}
+```
+
+[%}%]

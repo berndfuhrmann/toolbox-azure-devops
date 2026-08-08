@@ -1,0 +1,200 @@
+// ============================================================
+// Base AbstractServiceMethod operations (inherited by all subclasses)
+// ============================================================
+
+operation AbstractServiceMethod getKeyType() {
+	switch(self.parameters.size()) {
+		case 0: return "undefined";
+		case 1: return self.parameters.first().serializedType();
+		default: return "[" + self.parameters.collect(p:ServiceMethodParameter | p.serializedType()).concat(", ") + "]";
+	}
+}
+
+operation AbstractServiceMethod getKeyValue() {
+	switch(self.parameters.size()) {
+		case 0: return "undefined";
+		case 1: return self.parameters.first().serializedValue();
+		default: return "[" + self.parameters.collect(p:ServiceMethodParameter | p.serializedValue()).concat(", ") + "]";
+	}
+}
+
+operation AbstractServiceMethod finalizationRegistry() {
+	return "#" + self.name + "FinalizationRegistry";
+}
+
+operation AbstractServiceMethod logMessage(message: String, timeStamp: String) {
+	var time = timeStamp == "" ? " " : " " + " ${"+timeStamp+"} ";
+	return "`" + message + time + self.eContainer().apiName() + "." + self.name + " " + self.parameters.collect(p | "${" + p.name + "}").concat(" ") + "`";
+}
+
+// Default: no constructor initialisation needed
+operation AbstractServiceMethod constructorInit(service: Service): String {
+	return "";
+}
+
+// ============================================================
+// ServiceMethod operations
+// ============================================================
+
+operation ServiceMethod implementationBody(): String {
+	return "{
+					this.#outputChannel?.appendLine("+ self.logMessage("Started", "") + ");
+					const t0 = performance.now();
+					const result = await " + self.eContainer().apiName() + "." + self.implementation + ";
+					const t1 = performance.now();
+					this.#outputChannel?.appendLine("+ self.logMessage("Finished", "t1 - t0") + ");
+					return result;
+				}";
+}
+
+operation ServiceMethod fieldDeclaration(): String {
+	var keyType = self.getKeyType();
+	if (self.parameters.isEmpty()) {
+		return "\t#" + self.name + ": WeakRef<InformationStream<" + self.outputType + ">> | " + keyType + ";\n\n" +
+		       "\t" + self.finalizationRegistry() + ": FinalizationRegistry<" + keyType + "> = new FinalizationRegistry(key => this.#" + self.name + "= undefined);";
+	} else {
+		return "\t#" + self.name + ": DeepMap<" + keyType + ", WeakRef<InformationStream<" + self.outputType + ">>> = new DeepMap();\n\n" +
+		       "\t" + self.finalizationRegistry() + ": FinalizationRegistry<" + keyType + "> = new FinalizationRegistry(key => this.#" + self.name + ".delete(key));";
+	}
+}
+
+operation ServiceMethod methodBody(service: Service): String {
+	var keyValue = self.getKeyValue();
+	var fetchExpr = self.paged == true
+		? "pagedLoader(async (continuationToken) => " + self.implementationBody() + ")"
+		: self.implementationBody();
+	var entryAccess = self.parameters.isEmpty() ? " " : ".get(" + keyValue + ")";
+	var entryAssign = self.parameters.isEmpty() ? " = weakRef" : ".set(" + keyValue + ", weakRef)";
+	return "		let entry = this.#" + self.name + entryAccess + "?.deref();\n" +
+	       "		if (!entry) {\n" +
+	       "      entry = createInformationStream(\n" +
+	       "				async (" + service.apiName() + ": I" + service.name + "Api) => " + fetchExpr + ", \n" +
+	       "				this.#apiService." + service.apiName() + "()\n" +
+	       "      );\n" +
+	       "			const weakRef = new WeakRef(entry);\n" +
+	       "			this." + self.finalizationRegistry() + ".register(weakRef, " + keyValue + ");\n" +
+	       "			this.#" + self.name + entryAssign + ";\n" +
+	       "  	}\n" +
+	       "		\n" +
+	       "    entry.refreshTriggers.next(refreshTrigger);\n" +
+	       "    return entry.values;";
+}
+
+// ============================================================
+// DelegateToBatchServiceMethod operations
+// ============================================================
+
+operation DelegateToBatchServiceMethod batchCoordinatorField(): String {
+	return "#" + self.name + "Coordinator";
+}
+
+operation DelegateToBatchServiceMethod batchGroupParams() {
+	return self.parameters.select(p | p.name <> self.batchKeyParam);
+}
+
+operation DelegateToBatchServiceMethod batchParamsTuple(): String {
+	return "[" + self.parameters.collect(p | p.serializedType()).concat(", ") + "]";
+}
+
+operation DelegateToBatchServiceMethod batchKeyType(): String {
+	return self.parameters.selectOne(p | p.name == self.batchKeyParam).serializedType();
+}
+
+operation DelegateToBatchServiceMethod batchGroupParamsTuple(): String {
+	var groupParams = self.batchGroupParams();
+	if (groupParams.isEmpty()) { return "[]"; }
+	return "[" + groupParams.collect(p | p.serializedType()).concat(", ") + "]";
+}
+
+operation DelegateToBatchServiceMethod fieldDeclaration(): String {
+	return "\t" + self.batchCoordinatorField() + ": BatchCoordinator<" +
+	       self.batchParamsTuple() + ", " + self.batchKeyType() + ", " +
+	       self.batchGroupParamsTuple() + ", " + self.outputType + ">;";
+}
+
+operation DelegateToBatchServiceMethod constructorInit(service: Service): String {
+	var groupParams = self.batchGroupParams();
+	var groupParamNames = groupParams.collect(p | p.name);
+	var allParamNames = self.parameters.collect(p | p.name);
+	var apiName = service.apiName();
+	var startLog = "`Started " + apiName + "." + self.name + " ${batchIds} " + groupParamNames.collect(p | "${" + p + "}").concat(" ") + "`";
+	var finishLog = "`Finished ${t1 - t0}ms " + apiName + "." + self.name + " " + groupParamNames.collect(p | "${" + p + "}").concat(" ") + "`";
+	return "    this." + self.batchCoordinatorField() + " = new BatchCoordinator(\n" +
+		"      this.#apiService." + apiName + "(),\n" +
+		"      async (batchIds, [" + groupParamNames.concat(", ") + "]) => {\n" +
+		"        this.#outputChannel?.appendLine(" + startLog + ");\n" +
+		"        const t0 = performance.now();\n" +
+		"        const api = await firstValueFrom(this.#apiService." + apiName + "());\n" +
+		"        if (isException(api)) throw api;\n" +
+		"        const result = await api." + self.batchFetch + " ?? [];\n" +
+		"        const t1 = performance.now();\n" +
+		"        this.#outputChannel?.appendLine(" + finishLog + ");\n" +
+		"        return result;\n" +
+		"      },\n" +
+		"      result => result." + self.batchKeyProperty + "!,\n" +
+		"      ([" + allParamNames.concat(", ") + "]) => ({ item: " + self.batchKeyParam + ", group: [" + groupParamNames.concat(", ") + "] }),\n" +
+		"    );";
+}
+
+operation DelegateToBatchServiceMethod methodBody(service: Service): String {
+	return "    return this." + self.batchCoordinatorField() + ".get(" + self.getKeyValue() + ", refreshTrigger);";
+}
+
+// ============================================================
+// BatchServiceMethod operations
+// ============================================================
+
+operation BatchServiceMethod coordinatedMethod(): DelegateToBatchServiceMethod {
+	// FIXME: Getting something by name here that really should be available via reference
+	return self.eContainer().methods.selectOne(m | m.name == self.coordinatedMethodName);
+}
+
+operation BatchServiceMethod fieldDeclaration(): String {
+	return "";
+}
+
+operation BatchServiceMethod methodBody(service: Service): String {
+	var single = self.coordinatedMethod();
+	var idsParam = self.batchIdsParam;
+	var groupParamNames = single.batchGroupParams().collect(p | p.name);
+	var getArgs = "[id, " + groupParamNames.concat(", ") + "]";
+	var outputType = self.outputType;
+	var coordField = single.batchCoordinatorField();
+	return "    if (" + idsParam + ".length === 0) return of<" + outputType + ">([]);\n" +
+		"    return combineLatest(\n" +
+		"      " + idsParam + ".map(id => this." + coordField + ".get(" + getArgs + ", refreshTrigger)),\n" +
+		"    ).pipe(\n" +
+		"      map(results => {\n" +
+		"        const exception = results.find((r): r is Exception => isException(r));\n" +
+		"        return exception ?? (results as " + outputType + ");\n" +
+		"      }),\n" +
+		"    );";
+}
+
+// ============================================================
+// Service operations
+// ============================================================
+
+operation Service name() {
+	return self.name + "Service";
+}
+
+operation Service apiName() {
+	return self.name.toCamelCase() + "Api";
+}
+
+// ============================================================
+// ServiceMethodParameter operations
+// ============================================================
+
+operation ServiceMethodParameter serializedValue() {
+	if (self.optional) {
+		return "(" + self.name + " ?? " + self.defaultValue + ")";
+	} else {
+		return self.name;
+	}
+}
+
+operation ServiceMethodParameter serializedType() {
+	return self.type;
+}

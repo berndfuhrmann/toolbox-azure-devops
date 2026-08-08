@@ -1,0 +1,16 @@
+# Ignore artifacts:
+build
+coverage
+dist
+out
+resources
+src/generated
+
+# Unsupported file types
+*.ps1
+Vagrantfile
+*.ini
+*.iso
+*.txt
+test/e2e/.env
+test/e2e/.vagrant/

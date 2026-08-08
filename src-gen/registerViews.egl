@@ -1,0 +1,48 @@
+[%
+import "common.eol";
+%]
+import * as vscode from "vscode";
+import { Container } from "inversify";
+import { extensionName } from "../config";
+import { AbstractTreeProvider } from "../common/AbstractTreeProvider";
+import { AbstractTreeItem } from "../common/treeItems/AbstractTreeItem";
+import { types } from "./types";
+[%for (view in View.all.sortBy(v|v.name)){
+  var treeProvider = TreeProvider.all.selectOne(tp|tp.name == view.name + "TreeProvider");
+  if (treeProvider.isDefined()) {%]
+import { [%=treeProvider.name%] } from "../modules/[%=treeProvider.module%]/[%=treeProvider.name%]";
+[%}}%]
+
+function registerTreeView(
+  context: vscode.ExtensionContext,
+  treeDataProvider: AbstractTreeProvider,
+  name: string,
+) {
+  const treeView = vscode.window.createTreeView<AbstractTreeItem<any>>(
+    extensionName + "." + name,
+    {
+      treeDataProvider: treeDataProvider,
+      dragAndDropController: treeDataProvider,
+    },
+  );
+
+  context.subscriptions.push(
+    treeView,
+    treeDataProvider.registerTreeView(treeView),
+  );
+}
+
+export function registerViews(
+  context: vscode.ExtensionContext,
+  container: Container,
+) {
+[%for (view in View.all.sortBy(v|v.name)){
+  var treeProvider = TreeProvider.all.selectOne(tp|tp.name == view.name + "TreeProvider");
+  if (treeProvider.isDefined()) {%]
+  registerTreeView(
+    context,
+    container.get<[%=treeProvider.name%]>(types.[%=treeProvider.name%]),
+    "[%=view.viewId%]",
+  );
+[%}}%]
+}

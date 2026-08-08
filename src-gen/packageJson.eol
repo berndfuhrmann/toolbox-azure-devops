@@ -1,0 +1,196 @@
+import "constants.eol";
+import "command.eol";
+
+cleanPackageJson();
+generateContributes();
+
+operation cleanPackageJson() {
+  PackageJson.root.remove("devDependencies");
+  PackageJson.root.remove("scripts");
+  PackageJson.root.put("main", "./extension.js");
+}
+
+operation generateContributes() {
+  var contributes = PackageJson.root.get("contributes");
+  
+  // Create contributes if it doesn't exist
+  if (not contributes.isDefined()) {
+    contributes = Map {};
+    PackageJson.root.put("contributes", contributes);
+  }
+  
+  // Merge generated data with existing contributes
+  contributes.put("configuration", generateConfiguration());
+  contributes.put("viewsContainers", generateViewsContainers());
+  contributes.put("views", generateViews());
+  contributes.put("viewsWelcome", generateViewsWelcome());
+  contributes.put("commands", generateCommands());
+  contributes.put("menus", generateMenus());
+}
+
+operation generateConfiguration() {
+  var configObj = Map {
+    "title" = "Azure Devops Toolbox",
+    "properties" = generateConfigurationProperties()
+  };
+  return Sequence {configObj};
+}
+
+operation generateConfigurationProperties() {
+  var propertiesObj = Map {};
+  
+  for (prop in ConfigurationProperty.all) {
+    var propObj = createConfigurationProperty(prop);
+    propertiesObj.put(extensionId() + "." + prop.name, propObj);
+  }
+  
+  return propertiesObj;
+}
+
+operation createConfigurationProperty(prop) {
+  var propObj = Map {};
+  
+  // Handle type - single or multiple types
+  if (prop.type.size() == 1) {
+    propObj.put("type", prop.type.first());
+  }
+  else {
+    propObj.put("type", Sequence {}.addAll(prop.type));
+  }
+  
+  propObj.put("default", parseDefaultValue(prop));
+  propObj.put("description", prop.description);
+  
+  return propObj;
+}
+
+operation parseDefaultValue(prop) {
+  var defaultVal = prop.defaultValue;
+  
+  if (prop.defaultValue == "null") {
+    return null;
+  }
+  
+  if (prop.type.includes("number") and prop.defaultValue <> "null") {
+    return prop.defaultValue.asInteger();
+  }
+  
+  if (prop.type.includes("boolean")) {
+    return prop.defaultValue.asBoolean();
+  }
+  
+  return defaultVal;
+}
+
+operation generateViewsContainers() {
+  var containerObj = Map {
+    "id" = viewsContainerId(),
+    "title" = "Azure Devops",
+    "icon" = "resources/icons/azure-devops.svg"
+  };
+  
+  return Map {
+    "activitybar" = Sequence {containerObj}
+  };
+}
+
+operation generateViews() {
+  var viewsContainer = Map {};
+  var viewsList = Sequence {};
+  
+  for (view in View.all) {
+    viewsList.add(createViewObject(view));
+  }
+  
+  viewsContainer.put(viewsContainerId(), viewsList);
+  return viewsContainer;
+}
+
+operation createViewObject(view) {
+  var viewObj = Map {};
+  viewObj.put("id", extensionIdPrefix() + view.viewId);
+  viewObj.put("name", view.name);
+  viewObj.put("contextualTitle", view.contextualTitle);
+  viewObj.put("visibility", view.visibility.isDefined() ? view.visibility : "collapsed");
+  
+  if (view.icon.isDefined()) {
+    viewObj.put("icon", view.icon);
+  }
+  
+  return viewObj;
+}
+
+operation generateViewsWelcome() {
+  var viewsWelcomeList = Sequence {};
+  
+  for (view in View.all) {
+    viewsWelcomeList.add(createViewWelcomeObject(view));
+  }
+  
+  return viewsWelcomeList;
+}
+
+operation createViewWelcomeObject(view) {
+  return Map {
+    "view" = extensionIdPrefix() + view.viewId,
+    "contents" = "No Azure DevOps organizations configured.\n[Add Organization](command:" + Command.all.selectOne(c | c.name = 'addOrganization').name() + ")",
+    "when" = hasAccountsContext()
+  };
+}
+
+operation generateCommands() {
+  var commandsList = Sequence {};
+  
+  for (cmd in Command.all.select(c | c.title.isDefined())) {
+    commandsList.add(createCommandObject(cmd));
+  }
+  
+  return commandsList;
+}
+
+operation createCommandObject(cmd) {
+  var cmdObj = Map {};
+  cmdObj.put("command", cmd.name());
+  cmdObj.put("title", cmd.title);
+  cmdObj.put("category", commandCategory());
+  
+  if (cmd.icon.isDefined()) {
+    cmdObj.put("icon", createIconObject(cmd.icon));
+  }
+  
+  return cmdObj;
+}
+
+operation createIconObject(icon) {
+  return Map {
+    "light" = iconPath(icon, "light"),
+    "dark" = iconPath(icon, "dark")
+  };
+}
+
+operation generateMenus() {
+  var menusObj = Map {};
+  var viewTitleList = Sequence {};
+  var viewItemContextList = Sequence {};
+  
+  
+  var Collectors = Native("java.util.stream.Collectors");
+
+  for (e in Command.all.collect(c | c.menuLocations).flatten().stream().collect(Collectors.groupingBy(m | m.location)).entrySet()) {
+    menusObj.put(e.key, e.value.collect(m | createMenuObject(m.eContainer, m)));
+  }
+
+  return menusObj;
+}
+
+operation createMenuObject(cmd, menuLoc) {
+  var menuObj = Map {};
+  menuObj.put("command", cmd.name());
+  menuObj.put("when", menuLoc.when());
+  
+  if (menuLoc.group.isDefined()) {
+    menuObj.put("group", menuLoc.group);
+  }
+  
+  return menuObj;
+}

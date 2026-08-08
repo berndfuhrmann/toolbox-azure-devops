@@ -1,0 +1,31 @@
+import "constants.eol";
+
+operation Command imports() {
+  var result = Map{};
+  result.put(".." + self.importPath, Set{self.handler});
+  return result;
+}
+
+operation Command importedNames() {
+  return Sequence {self.handler};
+}
+
+operation Command name() {
+  return extensionId() + "." + self.name;
+}
+
+operation View id() {
+  return extensionId() + "." + self.viewId;
+}
+
+operation MenuLocation when() {
+  if (self.location == 'view/item/context' or self.location == 'view/title') {
+    if (self.allowInView.isEmpty()) {
+      return "(" + View.all.collect(v | "view == " + v.id()).concat(" || ") + ") && (" + self.when + ")";
+    } else {
+      return "(" + View.all.select(v | self.allowInView.includes(v.viewId)).collect(v | "view == " + v.id()).concat(" || ") + ") && (" + self.when + ")";
+    }
+  } else {
+    return self.when;
+  }
+}
