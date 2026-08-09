@@ -189,6 +189,9 @@
                 <!-- Dispose Source model after packageJson.eol -->
                 <epsilon.disposeModel model="Source" />
 
+                <!-- Ensure dist directory exists -->
+                <mkdir dir="../../dist" />
+
                 <!-- Store the filtered package.json -->
                 <epsilon.storeModel model="PackageJson" target="../../dist/package.json" />
 

@@ -1,5 +1,5 @@
-ignoredBuiltDependencies:
-  - ffmpeg-static
-
-onlyBuiltDependencies:
-  - esbuild
+allowBuilds:
+  '@vscode/vsce-sign': true
+  esbuild: true
+  ffmpeg-static: false
+  keytar: true
