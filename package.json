@@ -3,6 +3,7 @@
   "publisher": "BerndFuhrmann",
   "displayName": "Toolbox for Azure Devops - by Bernd Fuhrmann",
   "description": "Access Azure Devops from within VSCode and similar",
+  "license": "MIT",
   "version": "0.0.4",
   "repository": {
     "type": "git",
