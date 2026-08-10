@@ -2,7 +2,7 @@
 import { getPersonalAccessTokenHandler, WebApi } from "azure-devops-node-api";
 import { IAlertApi } from "azure-devops-node-api/AlertApi";
 import { IBuildApi } from "azure-devops-node-api/BuildApi";
-import { ICixApi } from "azure-devops-node-api/CixApi";
+import { ICixApi } from "azure-devops-node-api/CIXApi";
 import { ICoreApi } from "azure-devops-node-api/CoreApi";
 import { IDashboardApi } from "azure-devops-node-api/DashboardApi";
 import { IExtensionManagementApi } from "azure-devops-node-api/ExtensionManagementApi";

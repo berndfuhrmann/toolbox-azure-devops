@@ -6,12 +6,32 @@ operation Service getType() {
   }
 }
 
+operation Service getApiImportName() {
+  var name : String = self.name;
+  if (self.importName.isDefined()) {
+    name = self.importName;
+  }
+  return name + "Api";
+}
+
+operation Service getInterfaceImportName() {
+  var name : String = self.name;
+  if (self.typeImportName.isDefined()) {
+    name = self.typeImportName;
+  }
+  return name + "Interfaces";
+}
+
+operation Service getApiImport() {
+  return "import { I" + self.getType() + " } from \"azure-devops-node-api/" + self.getApiImportName() + "\";";
+}
+
 operation Service getTypeImport() {
   var name : String = self.name;
   if (self.typeImport.isDefined()) {
     name = self.typeImport;
   }
-  return "import * as " + name +"Interfaces from \"azure-devops-node-api/interfaces/" + name +"Interfaces\";";
+  return "import * as " + name + "Interfaces from \"azure-devops-node-api/interfaces/" + self.getInterfaceImportName() + "\";";
 }
 
 operation String toCamelCase() {

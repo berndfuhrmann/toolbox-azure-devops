@@ -8,8 +8,8 @@ import { SettingsService } from "../common/SettingsService";
 
 import { BacklogContentTreePartProvider } from "../modules/workItem/treePartProviders/BacklogContentTreePartProvider";
 import { PipelineFolderTreePartProvider } from "../modules/pipeline/treePartProviders/PipelineFolderTreePartProvider";
-import { MyTeamsTreePartProvider } from "../modules/workItem/treePartProviders/MyTeamsTreePartProvider";
 import { GitRepositoryPullRequestStatusTreePartProvider } from "../modules/repository/treePartProviders/GitRepositoryPullRequestStatusTreePartProvider";
+import { MyTeamsTreePartProvider } from "../modules/workItem/treePartProviders/MyTeamsTreePartProvider";
 import { AssignedToMeTreePartProvider } from "../modules/workItem/treePartProviders/AssignedToMeTreePartProvider";
 import { QueriesTreeItem } from "../modules/workItem/treeItems/QueriesTreeItem";
 import { WorkItemTreeItem } from "../modules/workItem/treeItems/WorkItemTreeItem";
@@ -46,8 +46,8 @@ import { WorkItemHistoryTreeItem } from "../modules/workItem/treeItems/WorkItemH
 import { WorkItemCommentsTreePartProvider } from "../modules/workItem/treePartProviders/WorkItemCommentsTreePartProvider";
 import { GitRepositoryItemsTreeItem } from "../modules/repository/treeItems/GitRepositoryItemsTreeItem";
 import { PinnedAgentPoolTreePartProvider } from "../modules/agents/treePartProviders/PinnedAgentPoolTreePartProvider";
-import { PipelineRunTimelineTreePartProvider } from "../modules/pipeline/treePartProviders/PipelineRunTimelineTreePartProvider";
 import { GitRepositoryPullRequestCommentThreadTreePartProvider } from "../modules/repository/treePartProviders/GitRepositoryPullRequestCommentThreadTreePartProvider";
+import { PipelineRunTimelineTreePartProvider } from "../modules/pipeline/treePartProviders/PipelineRunTimelineTreePartProvider";
 import { GitRepositoryBranchesTreeItem } from "../modules/repository/treeItems/GitRepositoryBranchesTreeItem";
 import { Constructor } from "../common/constructor";
 import { AgentJobsContainerTreeItem } from "../modules/agents/treeItems/AgentJobsContainerTreeItem";
@@ -110,8 +110,8 @@ import { WorkItemRelationGroupTreeItem } from "../modules/workItem/treeItems/Wor
 import { WorkItemAreaPathTreeItem } from "../modules/workItem/treeItems/WorkItemAreaPathTreeItem";
 import { GitRepositoryTagsTreeItem } from "../modules/repository/treeItems/GitRepositoryTagsTreeItem";
 import { PipelineRunArtifactTreePartProvider } from "../modules/pipeline/treePartProviders/PipelineRunArtifactTreePartProvider";
-import { WorkItemLinkedBuildsTreePartProvider } from "../modules/workItem/treePartProviders/WorkItemLinkedBuildsTreePartProvider";
 import { GitRepositoryCommitTreePartProvider } from "../modules/repository/treePartProviders/GitRepositoryCommitTreePartProvider";
+import { WorkItemLinkedBuildsTreePartProvider } from "../modules/workItem/treePartProviders/WorkItemLinkedBuildsTreePartProvider";
 import { RecentlyModifiedByMeTreePartProvider } from "../modules/workItem/treePartProviders/RecentlyModifiedByMeTreePartProvider";
 import { WorkItemRevisionFieldsTreePartProvider } from "../modules/workItem/treePartProviders/WorkItemRevisionFieldsTreePartProvider";
 import { PinnedAgentTreePartProvider } from "../modules/agents/treePartProviders/PinnedAgentTreePartProvider";
@@ -122,8 +122,8 @@ import { PipelineArtifactsTreeItem } from "../modules/pipeline/treeItems/Pipelin
 import { WorkItemCurrentSprintByStateScopeTreeItem } from "../modules/workItem/treeItems/WorkItemCurrentSprintByStateScopeTreeItem";
 import { DashboardTreePartProvider } from "../modules/dashboard/treePartProviders/DashboardTreePartProvider";
 import { CurrentSprintScopeTreePartProvider } from "../modules/workItem/treePartProviders/CurrentSprintScopeTreePartProvider";
-import { AssignedToMeTreeItem } from "../modules/workItem/treeItems/AssignedToMeTreeItem";
 import { GitRepositoryBranchTreeItem } from "../modules/repository/treeItems/GitRepositoryBranchTreeItem";
+import { AssignedToMeTreeItem } from "../modules/workItem/treeItems/AssignedToMeTreeItem";
 import { PipelineFolderTreeItem } from "../modules/pipeline/treeItems/PipelineFolderTreeItem";
 import { WorkItemQueryFolderTreeItem } from "../modules/workItem/treeItems/WorkItemQueryFolderTreeItem";
 import { PinnedWorkItemTreePartProvider } from "../modules/workItem/treePartProviders/PinnedWorkItemTreePartProvider";
@@ -136,176 +136,140 @@ import { PinnedWorkItemTeamTreePartProvider } from "../modules/workItem/treePart
 export class RepositoryTreeProviderResolver {
   #settingsService: SettingsService;
 
-  #gitRepositoryPullRequestTreePartProvider: GitRepositoryPullRequestTreePartProvider;
-  #gitRepositoryCommitTreePartProvider: GitRepositoryCommitTreePartProvider;
-  #accountTreePartProvider: AccountTreePartProvider;
-  #workItemHistoryTreePartProvider: WorkItemHistoryTreePartProvider;
-  #gitRepositoryTagTreePartProvider: GitRepositoryTagTreePartProvider;
-  #workItemLinkedWorkItemGroupsTreePartProvider: WorkItemLinkedWorkItemGroupsTreePartProvider;
-  #pinnedGitRepositoryPullRequestTreePartProvider: PinnedGitRepositoryPullRequestTreePartProvider;
-  #workItemRevisionFieldsTreePartProvider: WorkItemRevisionFieldsTreePartProvider;
-  #pinnedGitRepositoryTreePartProvider: PinnedGitRepositoryTreePartProvider;
-  #gitRepositoryPullRequestStatusTreePartProvider: GitRepositoryPullRequestStatusTreePartProvider;
-  #workItemLinkedBuildsTreePartProvider: WorkItemLinkedBuildsTreePartProvider;
-  #workItemLinkedPullRequestsTreePartProvider: WorkItemLinkedPullRequestsTreePartProvider;
-  #gitRepositoryPullRequestReviewerTreePartProvider: GitRepositoryPullRequestReviewerTreePartProvider;
-  #gitRepositoryTreePartProvider: GitRepositoryTreePartProvider;
-  #workItemCommentsTreePartProvider: WorkItemCommentsTreePartProvider;
-  #gitRepositoryBranchTreePartProvider: GitRepositoryBranchTreePartProvider;
-  #hierarchyChildrenTreePartProvider: HierarchyChildrenTreePartProvider;
-  #gitRepositoryItemTreePartProvider: GitRepositoryItemTreePartProvider;
-  #workItemLinkedWorkItemsTreePartProvider: WorkItemLinkedWorkItemsTreePartProvider;
-  #projectTreePartProvider: ProjectTreePartProvider;
-  #gitRepositoryPullRequestCommentThreadTreePartProvider: GitRepositoryPullRequestCommentThreadTreePartProvider;
-  #attachmentTreePartProvider: AttachmentTreePartProvider;
   #workItemLinkedCommitsTreePartProvider: WorkItemLinkedCommitsTreePartProvider;
   #gitRepositoryPullRequestWorkItemTreePartProvider: GitRepositoryPullRequestWorkItemTreePartProvider;
+  #gitRepositoryBranchTreePartProvider: GitRepositoryBranchTreePartProvider;
+  #gitRepositoryCommitTreePartProvider: GitRepositoryCommitTreePartProvider;
+  #workItemRevisionFieldsTreePartProvider: WorkItemRevisionFieldsTreePartProvider;
+  #accountTreePartProvider: AccountTreePartProvider;
+  #workItemCommentsTreePartProvider: WorkItemCommentsTreePartProvider;
+  #workItemLinkedPullRequestsTreePartProvider: WorkItemLinkedPullRequestsTreePartProvider;
+  #pinnedGitRepositoryTreePartProvider: PinnedGitRepositoryTreePartProvider;
+  #gitRepositoryPullRequestReviewerTreePartProvider: GitRepositoryPullRequestReviewerTreePartProvider;
+  #workItemLinkedWorkItemGroupsTreePartProvider: WorkItemLinkedWorkItemGroupsTreePartProvider;
+  #gitRepositoryTagTreePartProvider: GitRepositoryTagTreePartProvider;
+  #gitRepositoryTreePartProvider: GitRepositoryTreePartProvider;
+  #pinnedGitRepositoryPullRequestTreePartProvider: PinnedGitRepositoryPullRequestTreePartProvider;
+  #gitRepositoryPullRequestCommentThreadTreePartProvider: GitRepositoryPullRequestCommentThreadTreePartProvider;
+  #projectTreePartProvider: ProjectTreePartProvider;
+  #gitRepositoryItemTreePartProvider: GitRepositoryItemTreePartProvider;
+  #workItemLinkedBuildsTreePartProvider: WorkItemLinkedBuildsTreePartProvider;
+  #workItemLinkedWorkItemsTreePartProvider: WorkItemLinkedWorkItemsTreePartProvider;
   #workItemLinkedBranchesTreePartProvider: WorkItemLinkedBranchesTreePartProvider;
+  #gitRepositoryPullRequestTreePartProvider: GitRepositoryPullRequestTreePartProvider;
+  #workItemHistoryTreePartProvider: WorkItemHistoryTreePartProvider;
+  #gitRepositoryPullRequestStatusTreePartProvider: GitRepositoryPullRequestStatusTreePartProvider;
+  #attachmentTreePartProvider: AttachmentTreePartProvider;
+  #hierarchyChildrenTreePartProvider: HierarchyChildrenTreePartProvider;
 
-  #gitRepositoryPullRequestsTreeItem: Constructor<GitRepositoryPullRequestsTreeItem>;
-  #gitRepositoryBranchesTreeItem: Constructor<GitRepositoryBranchesTreeItem>;
-  #workItemLinkedBuildsTreeItem: Constructor<WorkItemLinkedBuildsTreeItem>;
-  #workItemCommentsTreeItem: Constructor<WorkItemCommentsTreeItem>;
-  #gitRepositoryCommitsTreeItem: Constructor<GitRepositoryCommitsTreeItem>;
-  #workItemLinkedCommitsTreeItem: Constructor<WorkItemLinkedCommitsTreeItem>;
-  #workItemLinkedBranchesTreeItem: Constructor<WorkItemLinkedBranchesTreeItem>;
   #workItemAttachmentsTreeItem: Constructor<WorkItemAttachmentsTreeItem>;
   #gitRepositoryTagsTreeItem: Constructor<GitRepositoryTagsTreeItem>;
-  #gitRepositoryPullRequestReviewersTreeItem: Constructor<GitRepositoryPullRequestReviewersTreeItem>;
+  #workItemLinkedBranchesTreeItem: Constructor<WorkItemLinkedBranchesTreeItem>;
+  #workItemLinkedCommitsTreeItem: Constructor<WorkItemLinkedCommitsTreeItem>;
   #gitRepositoryItemsTreeItem: Constructor<GitRepositoryItemsTreeItem>;
+  #workItemLinkedBuildsTreeItem: Constructor<WorkItemLinkedBuildsTreeItem>;
+  #gitRepositoryPullRequestReviewersTreeItem: Constructor<GitRepositoryPullRequestReviewersTreeItem>;
+  #gitRepositoryCommitsTreeItem: Constructor<GitRepositoryCommitsTreeItem>;
   #workItemLinkedPullRequestsTreeItem: Constructor<WorkItemLinkedPullRequestsTreeItem>;
+  #gitRepositoryPullRequestsTreeItem: Constructor<GitRepositoryPullRequestsTreeItem>;
+  #workItemCommentsTreeItem: Constructor<WorkItemCommentsTreeItem>;
+  #gitRepositoryBranchesTreeItem: Constructor<GitRepositoryBranchesTreeItem>;
 
-  gitRepositoryCommitDetailStaticTreePartProvider: TreePartProvider<any, any> | undefined;
-  workItemDetailStaticTreePartProvider: TreePartProvider<any, any> | undefined;
-  accountRootUnwrappingTreePartProvider: TreePartProvider<any, any> | undefined;
-  workItemContentsCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
   gitRepositoryPullRequestReviewersStaticTreePartProvider: TreePartProvider<any, any> | undefined;
   repositoryRootCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
   gitRepositoryPullRequestContentCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
-  repositoryRootDeduplicatingTreePartProvider: TreePartProvider<any, any> | undefined;
+  workItemContentsCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
+  accountRootUnwrappingTreePartProvider: TreePartProvider<any, any> | undefined;
   gitRepositoryDetailStaticTreePartProvider: TreePartProvider<any, any> | undefined;
-  projectUnwrappingTreePartProvider: TreePartProvider<any, any> | undefined;
+  gitRepositoryCommitDetailStaticTreePartProvider: TreePartProvider<any, any> | undefined;
   gitRepositoryBranchDetailStaticTreePartProvider: TreePartProvider<any, any> | undefined;
+  workItemDetailStaticTreePartProvider: TreePartProvider<any, any> | undefined;
+  repositoryRootDeduplicatingTreePartProvider: TreePartProvider<any, any> | undefined;
+  projectUnwrappingTreePartProvider: TreePartProvider<any, any> | undefined;
 
   constructor(
     @inject(types.SettingsService) settingsService: SettingsService,
-    @inject(types.GitRepositoryPullRequestTreePartProvider) gitRepositoryPullRequestTreePartProvider: GitRepositoryPullRequestTreePartProvider,
-    @inject(types.GitRepositoryCommitTreePartProvider) gitRepositoryCommitTreePartProvider: GitRepositoryCommitTreePartProvider,
-    @inject(types.AccountTreePartProvider) accountTreePartProvider: AccountTreePartProvider,
-    @inject(types.WorkItemHistoryTreePartProvider) workItemHistoryTreePartProvider: WorkItemHistoryTreePartProvider,
-    @inject(types.GitRepositoryTagTreePartProvider) gitRepositoryTagTreePartProvider: GitRepositoryTagTreePartProvider,
-    @inject(types.WorkItemLinkedWorkItemGroupsTreePartProvider) workItemLinkedWorkItemGroupsTreePartProvider: WorkItemLinkedWorkItemGroupsTreePartProvider,
-    @inject(types.PinnedGitRepositoryPullRequestTreePartProvider) pinnedGitRepositoryPullRequestTreePartProvider: PinnedGitRepositoryPullRequestTreePartProvider,
-    @inject(types.WorkItemRevisionFieldsTreePartProvider) workItemRevisionFieldsTreePartProvider: WorkItemRevisionFieldsTreePartProvider,
-    @inject(types.PinnedGitRepositoryTreePartProvider) pinnedGitRepositoryTreePartProvider: PinnedGitRepositoryTreePartProvider,
-    @inject(types.GitRepositoryPullRequestStatusTreePartProvider) gitRepositoryPullRequestStatusTreePartProvider: GitRepositoryPullRequestStatusTreePartProvider,
-    @inject(types.WorkItemLinkedBuildsTreePartProvider) workItemLinkedBuildsTreePartProvider: WorkItemLinkedBuildsTreePartProvider,
-    @inject(types.WorkItemLinkedPullRequestsTreePartProvider) workItemLinkedPullRequestsTreePartProvider: WorkItemLinkedPullRequestsTreePartProvider,
-    @inject(types.GitRepositoryPullRequestReviewerTreePartProvider) gitRepositoryPullRequestReviewerTreePartProvider: GitRepositoryPullRequestReviewerTreePartProvider,
-    @inject(types.GitRepositoryTreePartProvider) gitRepositoryTreePartProvider: GitRepositoryTreePartProvider,
-    @inject(types.WorkItemCommentsTreePartProvider) workItemCommentsTreePartProvider: WorkItemCommentsTreePartProvider,
-    @inject(types.GitRepositoryBranchTreePartProvider) gitRepositoryBranchTreePartProvider: GitRepositoryBranchTreePartProvider,
-    @inject(types.HierarchyChildrenTreePartProvider) hierarchyChildrenTreePartProvider: HierarchyChildrenTreePartProvider,
-    @inject(types.GitRepositoryItemTreePartProvider) gitRepositoryItemTreePartProvider: GitRepositoryItemTreePartProvider,
-    @inject(types.WorkItemLinkedWorkItemsTreePartProvider) workItemLinkedWorkItemsTreePartProvider: WorkItemLinkedWorkItemsTreePartProvider,
-    @inject(types.ProjectTreePartProvider) projectTreePartProvider: ProjectTreePartProvider,
-    @inject(types.GitRepositoryPullRequestCommentThreadTreePartProvider) gitRepositoryPullRequestCommentThreadTreePartProvider: GitRepositoryPullRequestCommentThreadTreePartProvider,
-    @inject(types.AttachmentTreePartProvider) attachmentTreePartProvider: AttachmentTreePartProvider,
     @inject(types.WorkItemLinkedCommitsTreePartProvider) workItemLinkedCommitsTreePartProvider: WorkItemLinkedCommitsTreePartProvider,
     @inject(types.GitRepositoryPullRequestWorkItemTreePartProvider) gitRepositoryPullRequestWorkItemTreePartProvider: GitRepositoryPullRequestWorkItemTreePartProvider,
+    @inject(types.GitRepositoryBranchTreePartProvider) gitRepositoryBranchTreePartProvider: GitRepositoryBranchTreePartProvider,
+    @inject(types.GitRepositoryCommitTreePartProvider) gitRepositoryCommitTreePartProvider: GitRepositoryCommitTreePartProvider,
+    @inject(types.WorkItemRevisionFieldsTreePartProvider) workItemRevisionFieldsTreePartProvider: WorkItemRevisionFieldsTreePartProvider,
+    @inject(types.AccountTreePartProvider) accountTreePartProvider: AccountTreePartProvider,
+    @inject(types.WorkItemCommentsTreePartProvider) workItemCommentsTreePartProvider: WorkItemCommentsTreePartProvider,
+    @inject(types.WorkItemLinkedPullRequestsTreePartProvider) workItemLinkedPullRequestsTreePartProvider: WorkItemLinkedPullRequestsTreePartProvider,
+    @inject(types.PinnedGitRepositoryTreePartProvider) pinnedGitRepositoryTreePartProvider: PinnedGitRepositoryTreePartProvider,
+    @inject(types.GitRepositoryPullRequestReviewerTreePartProvider) gitRepositoryPullRequestReviewerTreePartProvider: GitRepositoryPullRequestReviewerTreePartProvider,
+    @inject(types.WorkItemLinkedWorkItemGroupsTreePartProvider) workItemLinkedWorkItemGroupsTreePartProvider: WorkItemLinkedWorkItemGroupsTreePartProvider,
+    @inject(types.GitRepositoryTagTreePartProvider) gitRepositoryTagTreePartProvider: GitRepositoryTagTreePartProvider,
+    @inject(types.GitRepositoryTreePartProvider) gitRepositoryTreePartProvider: GitRepositoryTreePartProvider,
+    @inject(types.PinnedGitRepositoryPullRequestTreePartProvider) pinnedGitRepositoryPullRequestTreePartProvider: PinnedGitRepositoryPullRequestTreePartProvider,
+    @inject(types.GitRepositoryPullRequestCommentThreadTreePartProvider) gitRepositoryPullRequestCommentThreadTreePartProvider: GitRepositoryPullRequestCommentThreadTreePartProvider,
+    @inject(types.ProjectTreePartProvider) projectTreePartProvider: ProjectTreePartProvider,
+    @inject(types.GitRepositoryItemTreePartProvider) gitRepositoryItemTreePartProvider: GitRepositoryItemTreePartProvider,
+    @inject(types.WorkItemLinkedBuildsTreePartProvider) workItemLinkedBuildsTreePartProvider: WorkItemLinkedBuildsTreePartProvider,
+    @inject(types.WorkItemLinkedWorkItemsTreePartProvider) workItemLinkedWorkItemsTreePartProvider: WorkItemLinkedWorkItemsTreePartProvider,
     @inject(types.WorkItemLinkedBranchesTreePartProvider) workItemLinkedBranchesTreePartProvider: WorkItemLinkedBranchesTreePartProvider,
-    @inject(types.GitRepositoryPullRequestsTreeItem) gitRepositoryPullRequestsTreeItem: Constructor<GitRepositoryPullRequestsTreeItem>,
-    @inject(types.GitRepositoryBranchesTreeItem) gitRepositoryBranchesTreeItem: Constructor<GitRepositoryBranchesTreeItem>,
-    @inject(types.WorkItemLinkedBuildsTreeItem) workItemLinkedBuildsTreeItem: Constructor<WorkItemLinkedBuildsTreeItem>,
-    @inject(types.WorkItemCommentsTreeItem) workItemCommentsTreeItem: Constructor<WorkItemCommentsTreeItem>,
-    @inject(types.GitRepositoryCommitsTreeItem) gitRepositoryCommitsTreeItem: Constructor<GitRepositoryCommitsTreeItem>,
-    @inject(types.WorkItemLinkedCommitsTreeItem) workItemLinkedCommitsTreeItem: Constructor<WorkItemLinkedCommitsTreeItem>,
-    @inject(types.WorkItemLinkedBranchesTreeItem) workItemLinkedBranchesTreeItem: Constructor<WorkItemLinkedBranchesTreeItem>,
+    @inject(types.GitRepositoryPullRequestTreePartProvider) gitRepositoryPullRequestTreePartProvider: GitRepositoryPullRequestTreePartProvider,
+    @inject(types.WorkItemHistoryTreePartProvider) workItemHistoryTreePartProvider: WorkItemHistoryTreePartProvider,
+    @inject(types.GitRepositoryPullRequestStatusTreePartProvider) gitRepositoryPullRequestStatusTreePartProvider: GitRepositoryPullRequestStatusTreePartProvider,
+    @inject(types.AttachmentTreePartProvider) attachmentTreePartProvider: AttachmentTreePartProvider,
+    @inject(types.HierarchyChildrenTreePartProvider) hierarchyChildrenTreePartProvider: HierarchyChildrenTreePartProvider,
     @inject(types.WorkItemAttachmentsTreeItem) workItemAttachmentsTreeItem: Constructor<WorkItemAttachmentsTreeItem>,
     @inject(types.GitRepositoryTagsTreeItem) gitRepositoryTagsTreeItem: Constructor<GitRepositoryTagsTreeItem>,
-    @inject(types.GitRepositoryPullRequestReviewersTreeItem) gitRepositoryPullRequestReviewersTreeItem: Constructor<GitRepositoryPullRequestReviewersTreeItem>,
+    @inject(types.WorkItemLinkedBranchesTreeItem) workItemLinkedBranchesTreeItem: Constructor<WorkItemLinkedBranchesTreeItem>,
+    @inject(types.WorkItemLinkedCommitsTreeItem) workItemLinkedCommitsTreeItem: Constructor<WorkItemLinkedCommitsTreeItem>,
     @inject(types.GitRepositoryItemsTreeItem) gitRepositoryItemsTreeItem: Constructor<GitRepositoryItemsTreeItem>,
+    @inject(types.WorkItemLinkedBuildsTreeItem) workItemLinkedBuildsTreeItem: Constructor<WorkItemLinkedBuildsTreeItem>,
+    @inject(types.GitRepositoryPullRequestReviewersTreeItem) gitRepositoryPullRequestReviewersTreeItem: Constructor<GitRepositoryPullRequestReviewersTreeItem>,
+    @inject(types.GitRepositoryCommitsTreeItem) gitRepositoryCommitsTreeItem: Constructor<GitRepositoryCommitsTreeItem>,
     @inject(types.WorkItemLinkedPullRequestsTreeItem) workItemLinkedPullRequestsTreeItem: Constructor<WorkItemLinkedPullRequestsTreeItem>,
+    @inject(types.GitRepositoryPullRequestsTreeItem) gitRepositoryPullRequestsTreeItem: Constructor<GitRepositoryPullRequestsTreeItem>,
+    @inject(types.WorkItemCommentsTreeItem) workItemCommentsTreeItem: Constructor<WorkItemCommentsTreeItem>,
+    @inject(types.GitRepositoryBranchesTreeItem) gitRepositoryBranchesTreeItem: Constructor<GitRepositoryBranchesTreeItem>,
   ) {
     this.#settingsService = settingsService;
-    this.#gitRepositoryPullRequestTreePartProvider = gitRepositoryPullRequestTreePartProvider;
-    this.#gitRepositoryCommitTreePartProvider = gitRepositoryCommitTreePartProvider;
-    this.#accountTreePartProvider = accountTreePartProvider;
-    this.#workItemHistoryTreePartProvider = workItemHistoryTreePartProvider;
-    this.#gitRepositoryTagTreePartProvider = gitRepositoryTagTreePartProvider;
-    this.#workItemLinkedWorkItemGroupsTreePartProvider = workItemLinkedWorkItemGroupsTreePartProvider;
-    this.#pinnedGitRepositoryPullRequestTreePartProvider = pinnedGitRepositoryPullRequestTreePartProvider;
-    this.#workItemRevisionFieldsTreePartProvider = workItemRevisionFieldsTreePartProvider;
-    this.#pinnedGitRepositoryTreePartProvider = pinnedGitRepositoryTreePartProvider;
-    this.#gitRepositoryPullRequestStatusTreePartProvider = gitRepositoryPullRequestStatusTreePartProvider;
-    this.#workItemLinkedBuildsTreePartProvider = workItemLinkedBuildsTreePartProvider;
-    this.#workItemLinkedPullRequestsTreePartProvider = workItemLinkedPullRequestsTreePartProvider;
-    this.#gitRepositoryPullRequestReviewerTreePartProvider = gitRepositoryPullRequestReviewerTreePartProvider;
-    this.#gitRepositoryTreePartProvider = gitRepositoryTreePartProvider;
-    this.#workItemCommentsTreePartProvider = workItemCommentsTreePartProvider;
-    this.#gitRepositoryBranchTreePartProvider = gitRepositoryBranchTreePartProvider;
-    this.#hierarchyChildrenTreePartProvider = hierarchyChildrenTreePartProvider;
-    this.#gitRepositoryItemTreePartProvider = gitRepositoryItemTreePartProvider;
-    this.#workItemLinkedWorkItemsTreePartProvider = workItemLinkedWorkItemsTreePartProvider;
-    this.#projectTreePartProvider = projectTreePartProvider;
-    this.#gitRepositoryPullRequestCommentThreadTreePartProvider = gitRepositoryPullRequestCommentThreadTreePartProvider;
-    this.#attachmentTreePartProvider = attachmentTreePartProvider;
     this.#workItemLinkedCommitsTreePartProvider = workItemLinkedCommitsTreePartProvider;
     this.#gitRepositoryPullRequestWorkItemTreePartProvider = gitRepositoryPullRequestWorkItemTreePartProvider;
+    this.#gitRepositoryBranchTreePartProvider = gitRepositoryBranchTreePartProvider;
+    this.#gitRepositoryCommitTreePartProvider = gitRepositoryCommitTreePartProvider;
+    this.#workItemRevisionFieldsTreePartProvider = workItemRevisionFieldsTreePartProvider;
+    this.#accountTreePartProvider = accountTreePartProvider;
+    this.#workItemCommentsTreePartProvider = workItemCommentsTreePartProvider;
+    this.#workItemLinkedPullRequestsTreePartProvider = workItemLinkedPullRequestsTreePartProvider;
+    this.#pinnedGitRepositoryTreePartProvider = pinnedGitRepositoryTreePartProvider;
+    this.#gitRepositoryPullRequestReviewerTreePartProvider = gitRepositoryPullRequestReviewerTreePartProvider;
+    this.#workItemLinkedWorkItemGroupsTreePartProvider = workItemLinkedWorkItemGroupsTreePartProvider;
+    this.#gitRepositoryTagTreePartProvider = gitRepositoryTagTreePartProvider;
+    this.#gitRepositoryTreePartProvider = gitRepositoryTreePartProvider;
+    this.#pinnedGitRepositoryPullRequestTreePartProvider = pinnedGitRepositoryPullRequestTreePartProvider;
+    this.#gitRepositoryPullRequestCommentThreadTreePartProvider = gitRepositoryPullRequestCommentThreadTreePartProvider;
+    this.#projectTreePartProvider = projectTreePartProvider;
+    this.#gitRepositoryItemTreePartProvider = gitRepositoryItemTreePartProvider;
+    this.#workItemLinkedBuildsTreePartProvider = workItemLinkedBuildsTreePartProvider;
+    this.#workItemLinkedWorkItemsTreePartProvider = workItemLinkedWorkItemsTreePartProvider;
     this.#workItemLinkedBranchesTreePartProvider = workItemLinkedBranchesTreePartProvider;
-    this.#gitRepositoryPullRequestsTreeItem = gitRepositoryPullRequestsTreeItem;
-    this.#gitRepositoryBranchesTreeItem = gitRepositoryBranchesTreeItem;
-    this.#workItemLinkedBuildsTreeItem = workItemLinkedBuildsTreeItem;
-    this.#workItemCommentsTreeItem = workItemCommentsTreeItem;
-    this.#gitRepositoryCommitsTreeItem = gitRepositoryCommitsTreeItem;
-    this.#workItemLinkedCommitsTreeItem = workItemLinkedCommitsTreeItem;
-    this.#workItemLinkedBranchesTreeItem = workItemLinkedBranchesTreeItem;
+    this.#gitRepositoryPullRequestTreePartProvider = gitRepositoryPullRequestTreePartProvider;
+    this.#workItemHistoryTreePartProvider = workItemHistoryTreePartProvider;
+    this.#gitRepositoryPullRequestStatusTreePartProvider = gitRepositoryPullRequestStatusTreePartProvider;
+    this.#attachmentTreePartProvider = attachmentTreePartProvider;
+    this.#hierarchyChildrenTreePartProvider = hierarchyChildrenTreePartProvider;
     this.#workItemAttachmentsTreeItem = workItemAttachmentsTreeItem;
     this.#gitRepositoryTagsTreeItem = gitRepositoryTagsTreeItem;
-    this.#gitRepositoryPullRequestReviewersTreeItem = gitRepositoryPullRequestReviewersTreeItem;
+    this.#workItemLinkedBranchesTreeItem = workItemLinkedBranchesTreeItem;
+    this.#workItemLinkedCommitsTreeItem = workItemLinkedCommitsTreeItem;
     this.#gitRepositoryItemsTreeItem = gitRepositoryItemsTreeItem;
+    this.#workItemLinkedBuildsTreeItem = workItemLinkedBuildsTreeItem;
+    this.#gitRepositoryPullRequestReviewersTreeItem = gitRepositoryPullRequestReviewersTreeItem;
+    this.#gitRepositoryCommitsTreeItem = gitRepositoryCommitsTreeItem;
     this.#workItemLinkedPullRequestsTreeItem = workItemLinkedPullRequestsTreeItem;
+    this.#gitRepositoryPullRequestsTreeItem = gitRepositoryPullRequestsTreeItem;
+    this.#workItemCommentsTreeItem = workItemCommentsTreeItem;
+    this.#gitRepositoryBranchesTreeItem = gitRepositoryBranchesTreeItem;
   }
 
 
   @postConstruct()
   private initializeRepositoryTreeProvider() {
-    this.gitRepositoryCommitDetailStaticTreePartProvider = new StaticTreePartProvider({
-      items: {
-        treeItem: this.#gitRepositoryItemsTreeItem,
-      },
-    });
-    this.workItemDetailStaticTreePartProvider = new StaticTreePartProvider({
-      linkedCommits: {
-        treeItem: this.#workItemLinkedCommitsTreeItem,
-        condition: (itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.relations?.some((relation: any) => relation.url?.startsWith('vstfs:///Git/Commit/') ?? false) ?? false))),
-      },
-      linkedPullRequests: {
-        treeItem: this.#workItemLinkedPullRequestsTreeItem,
-        condition: (itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.relations?.some((relation: any) => relation.url?.startsWith('vstfs:///Git/PullRequestId/') ?? false) ?? false))),
-      },
-      linkedBranches: {
-        treeItem: this.#workItemLinkedBranchesTreeItem,
-        condition: (itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.relations?.some((relation: any) => relation.url?.startsWith('vstfs:///Git/Ref/') ?? false) ?? false))),
-      },
-      linkedBuilds: {
-        treeItem: this.#workItemLinkedBuildsTreeItem,
-        condition: (itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.relations?.some((relation: any) => relation.url?.startsWith('vstfs:///Build/Build/') ?? false) ?? false))),
-      },
-      comments: {
-        treeItem: this.#workItemCommentsTreeItem,
-        condition: (itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.fields?.['System.CommentCount'] ?? 0) > 0)),
-      },
-      attachments: {
-        treeItem: this.#workItemAttachmentsTreeItem,
-        condition: (itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.relations?.some((relation: any) => relation.rel === 'AttachedFile') ?? false))),
-      },
-    });
-    this.workItemContentsCombiningTreePartProvider = new CombiningTreePartProvider({
-      children: this.#hierarchyChildrenTreePartProvider,
-      details: this.workItemDetailStaticTreePartProvider,
-      linkedWorkItemGroups: this.#workItemLinkedWorkItemGroupsTreePartProvider,
-    });
     this.gitRepositoryPullRequestReviewersStaticTreePartProvider = new StaticTreePartProvider({
       reviewers: {
         treeItem: this.#gitRepositoryPullRequestReviewersTreeItem,
@@ -334,11 +298,11 @@ export class RepositoryTreeProviderResolver {
         treeItem: this.#gitRepositoryPullRequestsTreeItem,
       },
     });
-    this.projectUnwrappingTreePartProvider = new UnwrappingTreePartProvider(
-      this.#projectTreePartProvider,
-      shouldUnwrapAccountOrProject(this.#settingsService.unwrapProjects()),
-      (i) => this.getTreePartProvider(i),
-    );
+    this.gitRepositoryCommitDetailStaticTreePartProvider = new StaticTreePartProvider({
+      items: {
+        treeItem: this.#gitRepositoryItemsTreeItem,
+      },
+    });
     this.gitRepositoryBranchDetailStaticTreePartProvider = new StaticTreePartProvider({
       items: {
         treeItem: this.#gitRepositoryItemsTreeItem,
@@ -346,6 +310,42 @@ export class RepositoryTreeProviderResolver {
       commits: {
         treeItem: this.#gitRepositoryCommitsTreeItem,
       },
+    });
+    this.workItemDetailStaticTreePartProvider = new StaticTreePartProvider({
+      linkedCommits: {
+        treeItem: this.#workItemLinkedCommitsTreeItem,
+        condition: (itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.relations?.some((relation: any) => relation.url?.startsWith('vstfs:///Git/Commit/') ?? false) ?? false))),
+      },
+      linkedPullRequests: {
+        treeItem: this.#workItemLinkedPullRequestsTreeItem,
+        condition: (itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.relations?.some((relation: any) => relation.url?.startsWith('vstfs:///Git/PullRequestId/') ?? false) ?? false))),
+      },
+      linkedBranches: {
+        treeItem: this.#workItemLinkedBranchesTreeItem,
+        condition: (itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.relations?.some((relation: any) => relation.url?.startsWith('vstfs:///Git/Ref/') ?? false) ?? false))),
+      },
+      linkedBuilds: {
+        treeItem: this.#workItemLinkedBuildsTreeItem,
+        condition: (itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.relations?.some((relation: any) => relation.url?.startsWith('vstfs:///Build/Build/') ?? false) ?? false))),
+      },
+      comments: {
+        treeItem: this.#workItemCommentsTreeItem,
+        condition: (itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.fields?.['System.CommentCount'] ?? 0) > 0)),
+      },
+      attachments: {
+        treeItem: this.#workItemAttachmentsTreeItem,
+        condition: (itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.relations?.some((relation: any) => relation.rel === 'AttachedFile') ?? false))),
+      },
+    });
+    this.projectUnwrappingTreePartProvider = new UnwrappingTreePartProvider(
+      this.#projectTreePartProvider,
+      shouldUnwrapAccountOrProject(this.#settingsService.unwrapProjects()),
+      (i) => this.getTreePartProvider(i),
+    );
+    this.workItemContentsCombiningTreePartProvider = new CombiningTreePartProvider({
+      children: this.#hierarchyChildrenTreePartProvider,
+      details: this.workItemDetailStaticTreePartProvider,
+      linkedWorkItemGroups: this.#workItemLinkedWorkItemGroupsTreePartProvider,
     });
     this.accountRootUnwrappingTreePartProvider = new UnwrappingTreePartProvider(
       this.#accountTreePartProvider,
@@ -446,48 +446,48 @@ export class RepositoryTreeProviderResolver {
 export class PipelineTreeProviderResolver {
   #settingsService: SettingsService;
 
-  #accountTreePartProvider: AccountTreePartProvider;
-  #pipelineTreePartProvider: PipelineTreePartProvider;
   #pipelineFolderTreePartProvider: PipelineFolderTreePartProvider;
-  #pipelineRunTimelineTreePartProvider: PipelineRunTimelineTreePartProvider;
-  #pipelineRunTreePartProvider: PipelineRunTreePartProvider;
-  #pinnedPipelineTreePartProvider: PinnedPipelineTreePartProvider;
   #pipelineRunArtifactTreePartProvider: PipelineRunArtifactTreePartProvider;
+  #pipelineRunTimelineTreePartProvider: PipelineRunTimelineTreePartProvider;
+  #pipelineTreePartProvider: PipelineTreePartProvider;
+  #pinnedPipelineTreePartProvider: PinnedPipelineTreePartProvider;
   #pinnedPipelineFolderTreePartProvider: PinnedPipelineFolderTreePartProvider;
+  #accountTreePartProvider: AccountTreePartProvider;
+  #pipelineRunTreePartProvider: PipelineRunTreePartProvider;
   #projectTreePartProvider: ProjectTreePartProvider;
 
   #pipelineArtifactsTreeItem: Constructor<PipelineArtifactsTreeItem>;
 
-  accountRootUnwrappingTreePartProvider: TreePartProvider<any, any> | undefined;
-  pipelineRunDetailCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
   pipelineRootDeduplicatingTreePartProvider: TreePartProvider<any, any> | undefined;
-  pipelineRootCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
-  projectUnwrappingTreePartProvider: TreePartProvider<any, any> | undefined;
+  accountRootUnwrappingTreePartProvider: TreePartProvider<any, any> | undefined;
   pipelineFolderAndPipelineCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
+  projectUnwrappingTreePartProvider: TreePartProvider<any, any> | undefined;
   pipelineRunArtifactsStaticTreePartProvider: TreePartProvider<any, any> | undefined;
+  pipelineRootCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
+  pipelineRunDetailCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
 
   constructor(
     @inject(types.SettingsService) settingsService: SettingsService,
-    @inject(types.AccountTreePartProvider) accountTreePartProvider: AccountTreePartProvider,
-    @inject(types.PipelineTreePartProvider) pipelineTreePartProvider: PipelineTreePartProvider,
     @inject(types.PipelineFolderTreePartProvider) pipelineFolderTreePartProvider: PipelineFolderTreePartProvider,
-    @inject(types.PipelineRunTimelineTreePartProvider) pipelineRunTimelineTreePartProvider: PipelineRunTimelineTreePartProvider,
-    @inject(types.PipelineRunTreePartProvider) pipelineRunTreePartProvider: PipelineRunTreePartProvider,
-    @inject(types.PinnedPipelineTreePartProvider) pinnedPipelineTreePartProvider: PinnedPipelineTreePartProvider,
     @inject(types.PipelineRunArtifactTreePartProvider) pipelineRunArtifactTreePartProvider: PipelineRunArtifactTreePartProvider,
+    @inject(types.PipelineRunTimelineTreePartProvider) pipelineRunTimelineTreePartProvider: PipelineRunTimelineTreePartProvider,
+    @inject(types.PipelineTreePartProvider) pipelineTreePartProvider: PipelineTreePartProvider,
+    @inject(types.PinnedPipelineTreePartProvider) pinnedPipelineTreePartProvider: PinnedPipelineTreePartProvider,
     @inject(types.PinnedPipelineFolderTreePartProvider) pinnedPipelineFolderTreePartProvider: PinnedPipelineFolderTreePartProvider,
+    @inject(types.AccountTreePartProvider) accountTreePartProvider: AccountTreePartProvider,
+    @inject(types.PipelineRunTreePartProvider) pipelineRunTreePartProvider: PipelineRunTreePartProvider,
     @inject(types.ProjectTreePartProvider) projectTreePartProvider: ProjectTreePartProvider,
     @inject(types.PipelineArtifactsTreeItem) pipelineArtifactsTreeItem: Constructor<PipelineArtifactsTreeItem>,
   ) {
     this.#settingsService = settingsService;
-    this.#accountTreePartProvider = accountTreePartProvider;
-    this.#pipelineTreePartProvider = pipelineTreePartProvider;
     this.#pipelineFolderTreePartProvider = pipelineFolderTreePartProvider;
-    this.#pipelineRunTimelineTreePartProvider = pipelineRunTimelineTreePartProvider;
-    this.#pipelineRunTreePartProvider = pipelineRunTreePartProvider;
-    this.#pinnedPipelineTreePartProvider = pinnedPipelineTreePartProvider;
     this.#pipelineRunArtifactTreePartProvider = pipelineRunArtifactTreePartProvider;
+    this.#pipelineRunTimelineTreePartProvider = pipelineRunTimelineTreePartProvider;
+    this.#pipelineTreePartProvider = pipelineTreePartProvider;
+    this.#pinnedPipelineTreePartProvider = pinnedPipelineTreePartProvider;
     this.#pinnedPipelineFolderTreePartProvider = pinnedPipelineFolderTreePartProvider;
+    this.#accountTreePartProvider = accountTreePartProvider;
+    this.#pipelineRunTreePartProvider = pipelineRunTreePartProvider;
     this.#projectTreePartProvider = projectTreePartProvider;
     this.#pipelineArtifactsTreeItem = pipelineArtifactsTreeItem;
   }
@@ -495,29 +495,29 @@ export class PipelineTreeProviderResolver {
 
   @postConstruct()
   private initializePipelineTreeProvider() {
+    this.pipelineFolderAndPipelineCombiningTreePartProvider = new CombiningTreePartProvider({
+      pipelineFolder: this.#pipelineFolderTreePartProvider,
+      pipeline: this.#pipelineTreePartProvider,
+    });
     this.projectUnwrappingTreePartProvider = new UnwrappingTreePartProvider(
       this.#projectTreePartProvider,
       shouldUnwrapAccountOrProject(this.#settingsService.unwrapProjects()),
       (i) => this.getTreePartProvider(i),
     );
-    this.pipelineFolderAndPipelineCombiningTreePartProvider = new CombiningTreePartProvider({
-      pipelineFolder: this.#pipelineFolderTreePartProvider,
-      pipeline: this.#pipelineTreePartProvider,
-    });
     this.pipelineRunArtifactsStaticTreePartProvider = new StaticTreePartProvider({
       artifacts: {
         treeItem: this.#pipelineArtifactsTreeItem,
       },
+    });
+    this.pipelineRunDetailCombiningTreePartProvider = new CombiningTreePartProvider({
+      artifacts: this.pipelineRunArtifactsStaticTreePartProvider,
+      timeline: this.#pipelineRunTimelineTreePartProvider,
     });
     this.accountRootUnwrappingTreePartProvider = new UnwrappingTreePartProvider(
       this.#accountTreePartProvider,
       shouldUnwrapAccountOrProject(this.#settingsService.unwrapAccounts()),
       () => this.projectUnwrappingTreePartProvider,
     );
-    this.pipelineRunDetailCombiningTreePartProvider = new CombiningTreePartProvider({
-      artifacts: this.pipelineRunArtifactsStaticTreePartProvider,
-      timeline: this.#pipelineRunTimelineTreePartProvider,
-    });
     this.pipelineRootCombiningTreePartProvider = new CombiningTreePartProvider({
       pinnedPipelineFolders: this.#pinnedPipelineFolderTreePartProvider,
       pinnedPipelines: this.#pinnedPipelineTreePartProvider,
@@ -565,8 +565,8 @@ export class DashboardTreeProviderResolver {
   #settingsService: SettingsService;
 
   #dashboardWidgetTreePartProvider: DashboardWidgetTreePartProvider;
-  #accountTreePartProvider: AccountTreePartProvider;
   #dashboardTreePartProvider: DashboardTreePartProvider;
+  #accountTreePartProvider: AccountTreePartProvider;
   #projectTreePartProvider: ProjectTreePartProvider;
 
   #dashboardsContainerTreeItem: Constructor<DashboardsContainerTreeItem>;
@@ -578,15 +578,15 @@ export class DashboardTreeProviderResolver {
   constructor(
     @inject(types.SettingsService) settingsService: SettingsService,
     @inject(types.DashboardWidgetTreePartProvider) dashboardWidgetTreePartProvider: DashboardWidgetTreePartProvider,
-    @inject(types.AccountTreePartProvider) accountTreePartProvider: AccountTreePartProvider,
     @inject(types.DashboardTreePartProvider) dashboardTreePartProvider: DashboardTreePartProvider,
+    @inject(types.AccountTreePartProvider) accountTreePartProvider: AccountTreePartProvider,
     @inject(types.ProjectTreePartProvider) projectTreePartProvider: ProjectTreePartProvider,
     @inject(types.DashboardsContainerTreeItem) dashboardsContainerTreeItem: Constructor<DashboardsContainerTreeItem>,
   ) {
     this.#settingsService = settingsService;
     this.#dashboardWidgetTreePartProvider = dashboardWidgetTreePartProvider;
-    this.#accountTreePartProvider = accountTreePartProvider;
     this.#dashboardTreePartProvider = dashboardTreePartProvider;
+    this.#accountTreePartProvider = accountTreePartProvider;
     this.#projectTreePartProvider = projectTreePartProvider;
     this.#dashboardsContainerTreeItem = dashboardsContainerTreeItem;
   }
@@ -637,163 +637,173 @@ export class DashboardTreeProviderResolver {
 export class WorkItemTreeProviderResolver {
   #settingsService: SettingsService;
 
-  #queryFolderChildrenTreePartProvider: QueryFolderChildrenTreePartProvider;
-  #accountTreePartProvider: AccountTreePartProvider;
-  #workItemHistoryTreePartProvider: WorkItemHistoryTreePartProvider;
-  #areaPathsContentTreePartProvider: AreaPathsContentTreePartProvider;
-  #backlogContentTreePartProvider: BacklogContentTreePartProvider;
-  #currentSprintScopeTreePartProvider: CurrentSprintScopeTreePartProvider;
-  #projectRootTreePartProvider: ProjectRootTreePartProvider;
-  #workItemLinkedWorkItemGroupsTreePartProvider: WorkItemLinkedWorkItemGroupsTreePartProvider;
-  #myTeamsTreePartProvider: MyTeamsTreePartProvider;
-  #workItemRevisionFieldsTreePartProvider: WorkItemRevisionFieldsTreePartProvider;
-  #queryResultsTreePartProvider: QueryResultsTreePartProvider;
-  #pinnedWorkItemAreaPathTreePartProvider: PinnedWorkItemAreaPathTreePartProvider;
-  #pinnedWorkItemTreePartProvider: PinnedWorkItemTreePartProvider;
-  #queriesContentTreePartProvider: QueriesContentTreePartProvider;
-  #hierarchyRootContentTreePartProvider: HierarchyRootContentTreePartProvider;
-  #recentlyModifiedByMeTreePartProvider: RecentlyModifiedByMeTreePartProvider;
-  #workItemLinkedBuildsTreePartProvider: WorkItemLinkedBuildsTreePartProvider;
-  #areaPathChildrenTreePartProvider: AreaPathChildrenTreePartProvider;
-  #workItemLinkedPullRequestsTreePartProvider: WorkItemLinkedPullRequestsTreePartProvider;
-  #areaPathHierarchyRootTreePartProvider: AreaPathHierarchyRootTreePartProvider;
-  #workItemCommentsTreePartProvider: WorkItemCommentsTreePartProvider;
-  #currentSprintScopeContentTreePartProvider: CurrentSprintScopeContentTreePartProvider;
-  #hierarchyChildrenTreePartProvider: HierarchyChildrenTreePartProvider;
   #pinnedWorkItemTeamTreePartProvider: PinnedWorkItemTeamTreePartProvider;
-  #currentSprintGroupWorkItemTreePartProvider: CurrentSprintGroupWorkItemTreePartProvider;
   #assignedToMeTreePartProvider: AssignedToMeTreePartProvider;
-  #mentionedTreePartProvider: MentionedTreePartProvider;
-  #workItemLinkedWorkItemsTreePartProvider: WorkItemLinkedWorkItemsTreePartProvider;
-  #pinnedWorkItemQueryLeafTreePartProvider: PinnedWorkItemQueryLeafTreePartProvider;
-  #projectTreePartProvider: ProjectTreePartProvider;
-  #currentSprintTreePartProvider: CurrentSprintTreePartProvider;
-  #attachmentTreePartProvider: AttachmentTreePartProvider;
   #workItemLinkedCommitsTreePartProvider: WorkItemLinkedCommitsTreePartProvider;
+  #pinnedWorkItemAreaPathTreePartProvider: PinnedWorkItemAreaPathTreePartProvider;
+  #myTeamsTreePartProvider: MyTeamsTreePartProvider;
+  #currentSprintGroupWorkItemTreePartProvider: CurrentSprintGroupWorkItemTreePartProvider;
+  #workItemRevisionFieldsTreePartProvider: WorkItemRevisionFieldsTreePartProvider;
+  #backlogContentTreePartProvider: BacklogContentTreePartProvider;
+  #areaPathHierarchyRootTreePartProvider: AreaPathHierarchyRootTreePartProvider;
+  #accountTreePartProvider: AccountTreePartProvider;
+  #pinnedWorkItemQueryLeafTreePartProvider: PinnedWorkItemQueryLeafTreePartProvider;
+  #projectRootTreePartProvider: ProjectRootTreePartProvider;
+  #currentSprintScopeTreePartProvider: CurrentSprintScopeTreePartProvider;
+  #areaPathChildrenTreePartProvider: AreaPathChildrenTreePartProvider;
+  #queriesContentTreePartProvider: QueriesContentTreePartProvider;
+  #workItemCommentsTreePartProvider: WorkItemCommentsTreePartProvider;
+  #workItemLinkedPullRequestsTreePartProvider: WorkItemLinkedPullRequestsTreePartProvider;
+  #queryFolderChildrenTreePartProvider: QueryFolderChildrenTreePartProvider;
+  #workItemLinkedWorkItemGroupsTreePartProvider: WorkItemLinkedWorkItemGroupsTreePartProvider;
+  #queryResultsTreePartProvider: QueryResultsTreePartProvider;
+  #areaPathsContentTreePartProvider: AreaPathsContentTreePartProvider;
+  #currentSprintScopeContentTreePartProvider: CurrentSprintScopeContentTreePartProvider;
+  #projectTreePartProvider: ProjectTreePartProvider;
   #allTeamsTreePartProvider: AllTeamsTreePartProvider;
+  #workItemLinkedBuildsTreePartProvider: WorkItemLinkedBuildsTreePartProvider;
+  #workItemLinkedWorkItemsTreePartProvider: WorkItemLinkedWorkItemsTreePartProvider;
+  #recentlyModifiedByMeTreePartProvider: RecentlyModifiedByMeTreePartProvider;
+  #mentionedTreePartProvider: MentionedTreePartProvider;
   #workItemLinkedBranchesTreePartProvider: WorkItemLinkedBranchesTreePartProvider;
+  #pinnedWorkItemTreePartProvider: PinnedWorkItemTreePartProvider;
+  #workItemHistoryTreePartProvider: WorkItemHistoryTreePartProvider;
+  #attachmentTreePartProvider: AttachmentTreePartProvider;
+  #hierarchyChildrenTreePartProvider: HierarchyChildrenTreePartProvider;
+  #hierarchyRootContentTreePartProvider: HierarchyRootContentTreePartProvider;
+  #currentSprintTreePartProvider: CurrentSprintTreePartProvider;
 
-  #assignedToMeTreeItem: Constructor<AssignedToMeTreeItem>;
-  #workItemBacklogTreeItem: Constructor<WorkItemBacklogTreeItem>;
-  #workItemLinkedBuildsTreeItem: Constructor<WorkItemLinkedBuildsTreeItem>;
-  #workItemCommentsTreeItem: Constructor<WorkItemCommentsTreeItem>;
-  #workItemLinkedCommitsTreeItem: Constructor<WorkItemLinkedCommitsTreeItem>;
-  #workItemLinkedBranchesTreeItem: Constructor<WorkItemLinkedBranchesTreeItem>;
   #workItemAttachmentsTreeItem: Constructor<WorkItemAttachmentsTreeItem>;
+  #workItemLinkedBranchesTreeItem: Constructor<WorkItemLinkedBranchesTreeItem>;
+  #workItemLinkedCommitsTreeItem: Constructor<WorkItemLinkedCommitsTreeItem>;
+  #assignedToMeTreeItem: Constructor<AssignedToMeTreeItem>;
   #mentionedTreeItem: Constructor<MentionedTreeItem>;
-  #recentlyModifiedByMeTreeItem: Constructor<RecentlyModifiedByMeTreeItem>;
+  #workItemLinkedBuildsTreeItem: Constructor<WorkItemLinkedBuildsTreeItem>;
+  #workItemBacklogTreeItem: Constructor<WorkItemBacklogTreeItem>;
   #workItemLinkedPullRequestsTreeItem: Constructor<WorkItemLinkedPullRequestsTreeItem>;
+  #workItemCommentsTreeItem: Constructor<WorkItemCommentsTreeItem>;
+  #recentlyModifiedByMeTreeItem: Constructor<RecentlyModifiedByMeTreeItem>;
 
-  myWorkStaticTreePartProvider: TreePartProvider<any, any> | undefined;
-  workItemDetailStaticTreePartProvider: TreePartProvider<any, any> | undefined;
-  accountRootUnwrappingTreePartProvider: TreePartProvider<any, any> | undefined;
-  workItemContentsCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
-  teamContentsCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
   backlogStaticTreePartProvider: TreePartProvider<any, any> | undefined;
-  workItemRootCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
-  areaPathNodeCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
-  projectUnwrappingTreePartProvider: TreePartProvider<any, any> | undefined;
+  teamContentsCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
+  workItemContentsCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
   currentSprintUnwrappingTreePartProvider: TreePartProvider<any, any> | undefined;
+  myWorkStaticTreePartProvider: TreePartProvider<any, any> | undefined;
+  accountRootUnwrappingTreePartProvider: TreePartProvider<any, any> | undefined;
+  workItemDetailStaticTreePartProvider: TreePartProvider<any, any> | undefined;
+  workItemRootCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
+  projectUnwrappingTreePartProvider: TreePartProvider<any, any> | undefined;
+  areaPathNodeCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
 
   constructor(
     @inject(types.SettingsService) settingsService: SettingsService,
-    @inject(types.QueryFolderChildrenTreePartProvider) queryFolderChildrenTreePartProvider: QueryFolderChildrenTreePartProvider,
-    @inject(types.AccountTreePartProvider) accountTreePartProvider: AccountTreePartProvider,
-    @inject(types.WorkItemHistoryTreePartProvider) workItemHistoryTreePartProvider: WorkItemHistoryTreePartProvider,
-    @inject(types.AreaPathsContentTreePartProvider) areaPathsContentTreePartProvider: AreaPathsContentTreePartProvider,
-    @inject(types.BacklogContentTreePartProvider) backlogContentTreePartProvider: BacklogContentTreePartProvider,
-    @inject(types.CurrentSprintScopeTreePartProvider) currentSprintScopeTreePartProvider: CurrentSprintScopeTreePartProvider,
-    @inject(types.ProjectRootTreePartProvider) projectRootTreePartProvider: ProjectRootTreePartProvider,
-    @inject(types.WorkItemLinkedWorkItemGroupsTreePartProvider) workItemLinkedWorkItemGroupsTreePartProvider: WorkItemLinkedWorkItemGroupsTreePartProvider,
-    @inject(types.MyTeamsTreePartProvider) myTeamsTreePartProvider: MyTeamsTreePartProvider,
-    @inject(types.WorkItemRevisionFieldsTreePartProvider) workItemRevisionFieldsTreePartProvider: WorkItemRevisionFieldsTreePartProvider,
-    @inject(types.QueryResultsTreePartProvider) queryResultsTreePartProvider: QueryResultsTreePartProvider,
-    @inject(types.PinnedWorkItemAreaPathTreePartProvider) pinnedWorkItemAreaPathTreePartProvider: PinnedWorkItemAreaPathTreePartProvider,
-    @inject(types.PinnedWorkItemTreePartProvider) pinnedWorkItemTreePartProvider: PinnedWorkItemTreePartProvider,
-    @inject(types.QueriesContentTreePartProvider) queriesContentTreePartProvider: QueriesContentTreePartProvider,
-    @inject(types.HierarchyRootContentTreePartProvider) hierarchyRootContentTreePartProvider: HierarchyRootContentTreePartProvider,
-    @inject(types.RecentlyModifiedByMeTreePartProvider) recentlyModifiedByMeTreePartProvider: RecentlyModifiedByMeTreePartProvider,
-    @inject(types.WorkItemLinkedBuildsTreePartProvider) workItemLinkedBuildsTreePartProvider: WorkItemLinkedBuildsTreePartProvider,
-    @inject(types.AreaPathChildrenTreePartProvider) areaPathChildrenTreePartProvider: AreaPathChildrenTreePartProvider,
-    @inject(types.WorkItemLinkedPullRequestsTreePartProvider) workItemLinkedPullRequestsTreePartProvider: WorkItemLinkedPullRequestsTreePartProvider,
-    @inject(types.AreaPathHierarchyRootTreePartProvider) areaPathHierarchyRootTreePartProvider: AreaPathHierarchyRootTreePartProvider,
-    @inject(types.WorkItemCommentsTreePartProvider) workItemCommentsTreePartProvider: WorkItemCommentsTreePartProvider,
-    @inject(types.CurrentSprintScopeContentTreePartProvider) currentSprintScopeContentTreePartProvider: CurrentSprintScopeContentTreePartProvider,
-    @inject(types.HierarchyChildrenTreePartProvider) hierarchyChildrenTreePartProvider: HierarchyChildrenTreePartProvider,
     @inject(types.PinnedWorkItemTeamTreePartProvider) pinnedWorkItemTeamTreePartProvider: PinnedWorkItemTeamTreePartProvider,
-    @inject(types.CurrentSprintGroupWorkItemTreePartProvider) currentSprintGroupWorkItemTreePartProvider: CurrentSprintGroupWorkItemTreePartProvider,
     @inject(types.AssignedToMeTreePartProvider) assignedToMeTreePartProvider: AssignedToMeTreePartProvider,
-    @inject(types.MentionedTreePartProvider) mentionedTreePartProvider: MentionedTreePartProvider,
-    @inject(types.WorkItemLinkedWorkItemsTreePartProvider) workItemLinkedWorkItemsTreePartProvider: WorkItemLinkedWorkItemsTreePartProvider,
-    @inject(types.PinnedWorkItemQueryLeafTreePartProvider) pinnedWorkItemQueryLeafTreePartProvider: PinnedWorkItemQueryLeafTreePartProvider,
-    @inject(types.ProjectTreePartProvider) projectTreePartProvider: ProjectTreePartProvider,
-    @inject(types.CurrentSprintTreePartProvider) currentSprintTreePartProvider: CurrentSprintTreePartProvider,
-    @inject(types.AttachmentTreePartProvider) attachmentTreePartProvider: AttachmentTreePartProvider,
     @inject(types.WorkItemLinkedCommitsTreePartProvider) workItemLinkedCommitsTreePartProvider: WorkItemLinkedCommitsTreePartProvider,
+    @inject(types.PinnedWorkItemAreaPathTreePartProvider) pinnedWorkItemAreaPathTreePartProvider: PinnedWorkItemAreaPathTreePartProvider,
+    @inject(types.MyTeamsTreePartProvider) myTeamsTreePartProvider: MyTeamsTreePartProvider,
+    @inject(types.CurrentSprintGroupWorkItemTreePartProvider) currentSprintGroupWorkItemTreePartProvider: CurrentSprintGroupWorkItemTreePartProvider,
+    @inject(types.WorkItemRevisionFieldsTreePartProvider) workItemRevisionFieldsTreePartProvider: WorkItemRevisionFieldsTreePartProvider,
+    @inject(types.BacklogContentTreePartProvider) backlogContentTreePartProvider: BacklogContentTreePartProvider,
+    @inject(types.AreaPathHierarchyRootTreePartProvider) areaPathHierarchyRootTreePartProvider: AreaPathHierarchyRootTreePartProvider,
+    @inject(types.AccountTreePartProvider) accountTreePartProvider: AccountTreePartProvider,
+    @inject(types.PinnedWorkItemQueryLeafTreePartProvider) pinnedWorkItemQueryLeafTreePartProvider: PinnedWorkItemQueryLeafTreePartProvider,
+    @inject(types.ProjectRootTreePartProvider) projectRootTreePartProvider: ProjectRootTreePartProvider,
+    @inject(types.CurrentSprintScopeTreePartProvider) currentSprintScopeTreePartProvider: CurrentSprintScopeTreePartProvider,
+    @inject(types.AreaPathChildrenTreePartProvider) areaPathChildrenTreePartProvider: AreaPathChildrenTreePartProvider,
+    @inject(types.QueriesContentTreePartProvider) queriesContentTreePartProvider: QueriesContentTreePartProvider,
+    @inject(types.WorkItemCommentsTreePartProvider) workItemCommentsTreePartProvider: WorkItemCommentsTreePartProvider,
+    @inject(types.WorkItemLinkedPullRequestsTreePartProvider) workItemLinkedPullRequestsTreePartProvider: WorkItemLinkedPullRequestsTreePartProvider,
+    @inject(types.QueryFolderChildrenTreePartProvider) queryFolderChildrenTreePartProvider: QueryFolderChildrenTreePartProvider,
+    @inject(types.WorkItemLinkedWorkItemGroupsTreePartProvider) workItemLinkedWorkItemGroupsTreePartProvider: WorkItemLinkedWorkItemGroupsTreePartProvider,
+    @inject(types.QueryResultsTreePartProvider) queryResultsTreePartProvider: QueryResultsTreePartProvider,
+    @inject(types.AreaPathsContentTreePartProvider) areaPathsContentTreePartProvider: AreaPathsContentTreePartProvider,
+    @inject(types.CurrentSprintScopeContentTreePartProvider) currentSprintScopeContentTreePartProvider: CurrentSprintScopeContentTreePartProvider,
+    @inject(types.ProjectTreePartProvider) projectTreePartProvider: ProjectTreePartProvider,
     @inject(types.AllTeamsTreePartProvider) allTeamsTreePartProvider: AllTeamsTreePartProvider,
+    @inject(types.WorkItemLinkedBuildsTreePartProvider) workItemLinkedBuildsTreePartProvider: WorkItemLinkedBuildsTreePartProvider,
+    @inject(types.WorkItemLinkedWorkItemsTreePartProvider) workItemLinkedWorkItemsTreePartProvider: WorkItemLinkedWorkItemsTreePartProvider,
+    @inject(types.RecentlyModifiedByMeTreePartProvider) recentlyModifiedByMeTreePartProvider: RecentlyModifiedByMeTreePartProvider,
+    @inject(types.MentionedTreePartProvider) mentionedTreePartProvider: MentionedTreePartProvider,
     @inject(types.WorkItemLinkedBranchesTreePartProvider) workItemLinkedBranchesTreePartProvider: WorkItemLinkedBranchesTreePartProvider,
-    @inject(types.AssignedToMeTreeItem) assignedToMeTreeItem: Constructor<AssignedToMeTreeItem>,
-    @inject(types.WorkItemBacklogTreeItem) workItemBacklogTreeItem: Constructor<WorkItemBacklogTreeItem>,
-    @inject(types.WorkItemLinkedBuildsTreeItem) workItemLinkedBuildsTreeItem: Constructor<WorkItemLinkedBuildsTreeItem>,
-    @inject(types.WorkItemCommentsTreeItem) workItemCommentsTreeItem: Constructor<WorkItemCommentsTreeItem>,
-    @inject(types.WorkItemLinkedCommitsTreeItem) workItemLinkedCommitsTreeItem: Constructor<WorkItemLinkedCommitsTreeItem>,
-    @inject(types.WorkItemLinkedBranchesTreeItem) workItemLinkedBranchesTreeItem: Constructor<WorkItemLinkedBranchesTreeItem>,
+    @inject(types.PinnedWorkItemTreePartProvider) pinnedWorkItemTreePartProvider: PinnedWorkItemTreePartProvider,
+    @inject(types.WorkItemHistoryTreePartProvider) workItemHistoryTreePartProvider: WorkItemHistoryTreePartProvider,
+    @inject(types.AttachmentTreePartProvider) attachmentTreePartProvider: AttachmentTreePartProvider,
+    @inject(types.HierarchyChildrenTreePartProvider) hierarchyChildrenTreePartProvider: HierarchyChildrenTreePartProvider,
+    @inject(types.HierarchyRootContentTreePartProvider) hierarchyRootContentTreePartProvider: HierarchyRootContentTreePartProvider,
+    @inject(types.CurrentSprintTreePartProvider) currentSprintTreePartProvider: CurrentSprintTreePartProvider,
     @inject(types.WorkItemAttachmentsTreeItem) workItemAttachmentsTreeItem: Constructor<WorkItemAttachmentsTreeItem>,
+    @inject(types.WorkItemLinkedBranchesTreeItem) workItemLinkedBranchesTreeItem: Constructor<WorkItemLinkedBranchesTreeItem>,
+    @inject(types.WorkItemLinkedCommitsTreeItem) workItemLinkedCommitsTreeItem: Constructor<WorkItemLinkedCommitsTreeItem>,
+    @inject(types.AssignedToMeTreeItem) assignedToMeTreeItem: Constructor<AssignedToMeTreeItem>,
     @inject(types.MentionedTreeItem) mentionedTreeItem: Constructor<MentionedTreeItem>,
-    @inject(types.RecentlyModifiedByMeTreeItem) recentlyModifiedByMeTreeItem: Constructor<RecentlyModifiedByMeTreeItem>,
+    @inject(types.WorkItemLinkedBuildsTreeItem) workItemLinkedBuildsTreeItem: Constructor<WorkItemLinkedBuildsTreeItem>,
+    @inject(types.WorkItemBacklogTreeItem) workItemBacklogTreeItem: Constructor<WorkItemBacklogTreeItem>,
     @inject(types.WorkItemLinkedPullRequestsTreeItem) workItemLinkedPullRequestsTreeItem: Constructor<WorkItemLinkedPullRequestsTreeItem>,
+    @inject(types.WorkItemCommentsTreeItem) workItemCommentsTreeItem: Constructor<WorkItemCommentsTreeItem>,
+    @inject(types.RecentlyModifiedByMeTreeItem) recentlyModifiedByMeTreeItem: Constructor<RecentlyModifiedByMeTreeItem>,
   ) {
     this.#settingsService = settingsService;
-    this.#queryFolderChildrenTreePartProvider = queryFolderChildrenTreePartProvider;
-    this.#accountTreePartProvider = accountTreePartProvider;
-    this.#workItemHistoryTreePartProvider = workItemHistoryTreePartProvider;
-    this.#areaPathsContentTreePartProvider = areaPathsContentTreePartProvider;
-    this.#backlogContentTreePartProvider = backlogContentTreePartProvider;
-    this.#currentSprintScopeTreePartProvider = currentSprintScopeTreePartProvider;
-    this.#projectRootTreePartProvider = projectRootTreePartProvider;
-    this.#workItemLinkedWorkItemGroupsTreePartProvider = workItemLinkedWorkItemGroupsTreePartProvider;
-    this.#myTeamsTreePartProvider = myTeamsTreePartProvider;
-    this.#workItemRevisionFieldsTreePartProvider = workItemRevisionFieldsTreePartProvider;
-    this.#queryResultsTreePartProvider = queryResultsTreePartProvider;
-    this.#pinnedWorkItemAreaPathTreePartProvider = pinnedWorkItemAreaPathTreePartProvider;
-    this.#pinnedWorkItemTreePartProvider = pinnedWorkItemTreePartProvider;
-    this.#queriesContentTreePartProvider = queriesContentTreePartProvider;
-    this.#hierarchyRootContentTreePartProvider = hierarchyRootContentTreePartProvider;
-    this.#recentlyModifiedByMeTreePartProvider = recentlyModifiedByMeTreePartProvider;
-    this.#workItemLinkedBuildsTreePartProvider = workItemLinkedBuildsTreePartProvider;
-    this.#areaPathChildrenTreePartProvider = areaPathChildrenTreePartProvider;
-    this.#workItemLinkedPullRequestsTreePartProvider = workItemLinkedPullRequestsTreePartProvider;
-    this.#areaPathHierarchyRootTreePartProvider = areaPathHierarchyRootTreePartProvider;
-    this.#workItemCommentsTreePartProvider = workItemCommentsTreePartProvider;
-    this.#currentSprintScopeContentTreePartProvider = currentSprintScopeContentTreePartProvider;
-    this.#hierarchyChildrenTreePartProvider = hierarchyChildrenTreePartProvider;
     this.#pinnedWorkItemTeamTreePartProvider = pinnedWorkItemTeamTreePartProvider;
-    this.#currentSprintGroupWorkItemTreePartProvider = currentSprintGroupWorkItemTreePartProvider;
     this.#assignedToMeTreePartProvider = assignedToMeTreePartProvider;
-    this.#mentionedTreePartProvider = mentionedTreePartProvider;
-    this.#workItemLinkedWorkItemsTreePartProvider = workItemLinkedWorkItemsTreePartProvider;
-    this.#pinnedWorkItemQueryLeafTreePartProvider = pinnedWorkItemQueryLeafTreePartProvider;
-    this.#projectTreePartProvider = projectTreePartProvider;
-    this.#currentSprintTreePartProvider = currentSprintTreePartProvider;
-    this.#attachmentTreePartProvider = attachmentTreePartProvider;
     this.#workItemLinkedCommitsTreePartProvider = workItemLinkedCommitsTreePartProvider;
+    this.#pinnedWorkItemAreaPathTreePartProvider = pinnedWorkItemAreaPathTreePartProvider;
+    this.#myTeamsTreePartProvider = myTeamsTreePartProvider;
+    this.#currentSprintGroupWorkItemTreePartProvider = currentSprintGroupWorkItemTreePartProvider;
+    this.#workItemRevisionFieldsTreePartProvider = workItemRevisionFieldsTreePartProvider;
+    this.#backlogContentTreePartProvider = backlogContentTreePartProvider;
+    this.#areaPathHierarchyRootTreePartProvider = areaPathHierarchyRootTreePartProvider;
+    this.#accountTreePartProvider = accountTreePartProvider;
+    this.#pinnedWorkItemQueryLeafTreePartProvider = pinnedWorkItemQueryLeafTreePartProvider;
+    this.#projectRootTreePartProvider = projectRootTreePartProvider;
+    this.#currentSprintScopeTreePartProvider = currentSprintScopeTreePartProvider;
+    this.#areaPathChildrenTreePartProvider = areaPathChildrenTreePartProvider;
+    this.#queriesContentTreePartProvider = queriesContentTreePartProvider;
+    this.#workItemCommentsTreePartProvider = workItemCommentsTreePartProvider;
+    this.#workItemLinkedPullRequestsTreePartProvider = workItemLinkedPullRequestsTreePartProvider;
+    this.#queryFolderChildrenTreePartProvider = queryFolderChildrenTreePartProvider;
+    this.#workItemLinkedWorkItemGroupsTreePartProvider = workItemLinkedWorkItemGroupsTreePartProvider;
+    this.#queryResultsTreePartProvider = queryResultsTreePartProvider;
+    this.#areaPathsContentTreePartProvider = areaPathsContentTreePartProvider;
+    this.#currentSprintScopeContentTreePartProvider = currentSprintScopeContentTreePartProvider;
+    this.#projectTreePartProvider = projectTreePartProvider;
     this.#allTeamsTreePartProvider = allTeamsTreePartProvider;
+    this.#workItemLinkedBuildsTreePartProvider = workItemLinkedBuildsTreePartProvider;
+    this.#workItemLinkedWorkItemsTreePartProvider = workItemLinkedWorkItemsTreePartProvider;
+    this.#recentlyModifiedByMeTreePartProvider = recentlyModifiedByMeTreePartProvider;
+    this.#mentionedTreePartProvider = mentionedTreePartProvider;
     this.#workItemLinkedBranchesTreePartProvider = workItemLinkedBranchesTreePartProvider;
-    this.#assignedToMeTreeItem = assignedToMeTreeItem;
-    this.#workItemBacklogTreeItem = workItemBacklogTreeItem;
-    this.#workItemLinkedBuildsTreeItem = workItemLinkedBuildsTreeItem;
-    this.#workItemCommentsTreeItem = workItemCommentsTreeItem;
-    this.#workItemLinkedCommitsTreeItem = workItemLinkedCommitsTreeItem;
-    this.#workItemLinkedBranchesTreeItem = workItemLinkedBranchesTreeItem;
+    this.#pinnedWorkItemTreePartProvider = pinnedWorkItemTreePartProvider;
+    this.#workItemHistoryTreePartProvider = workItemHistoryTreePartProvider;
+    this.#attachmentTreePartProvider = attachmentTreePartProvider;
+    this.#hierarchyChildrenTreePartProvider = hierarchyChildrenTreePartProvider;
+    this.#hierarchyRootContentTreePartProvider = hierarchyRootContentTreePartProvider;
+    this.#currentSprintTreePartProvider = currentSprintTreePartProvider;
     this.#workItemAttachmentsTreeItem = workItemAttachmentsTreeItem;
+    this.#workItemLinkedBranchesTreeItem = workItemLinkedBranchesTreeItem;
+    this.#workItemLinkedCommitsTreeItem = workItemLinkedCommitsTreeItem;
+    this.#assignedToMeTreeItem = assignedToMeTreeItem;
     this.#mentionedTreeItem = mentionedTreeItem;
-    this.#recentlyModifiedByMeTreeItem = recentlyModifiedByMeTreeItem;
+    this.#workItemLinkedBuildsTreeItem = workItemLinkedBuildsTreeItem;
+    this.#workItemBacklogTreeItem = workItemBacklogTreeItem;
     this.#workItemLinkedPullRequestsTreeItem = workItemLinkedPullRequestsTreeItem;
+    this.#workItemCommentsTreeItem = workItemCommentsTreeItem;
+    this.#recentlyModifiedByMeTreeItem = recentlyModifiedByMeTreeItem;
   }
 
 
   @postConstruct()
   private initializeWorkItemTreeProvider() {
+    this.backlogStaticTreePartProvider = new StaticTreePartProvider({
+      backlog: {
+        treeItem: this.#workItemBacklogTreeItem,
+      },
+    });
+    this.currentSprintUnwrappingTreePartProvider = new UnwrappingTreePartProvider(
+      this.#currentSprintTreePartProvider,
+      (items) => of(items.size === 1 && !items.has('exception')),
+      () => this.#currentSprintScopeTreePartProvider,
+    );
     this.myWorkStaticTreePartProvider = new StaticTreePartProvider({
       assignedToMe: {
         treeItem: this.#assignedToMeTreeItem,
@@ -831,39 +841,29 @@ export class WorkItemTreeProviderResolver {
         condition: (itemObservable) => itemObservable.pipe(map((item) => (item.workItem?.relations?.some((relation: any) => relation.rel === 'AttachedFile') ?? false))),
       },
     });
-    this.workItemContentsCombiningTreePartProvider = new CombiningTreePartProvider({
-      children: this.#hierarchyChildrenTreePartProvider,
-      details: this.workItemDetailStaticTreePartProvider,
-      linkedWorkItemGroups: this.#workItemLinkedWorkItemGroupsTreePartProvider,
-    });
-    this.backlogStaticTreePartProvider = new StaticTreePartProvider({
-      backlog: {
-        treeItem: this.#workItemBacklogTreeItem,
-      },
-    });
-    this.areaPathNodeCombiningTreePartProvider = new CombiningTreePartProvider({
-      areaPathChildren: this.#areaPathChildrenTreePartProvider,
-      hierarchy: this.#areaPathHierarchyRootTreePartProvider,
-    });
     this.projectUnwrappingTreePartProvider = new UnwrappingTreePartProvider(
       this.#projectTreePartProvider,
       shouldUnwrapAccountOrProject(this.#settingsService.unwrapProjects()),
       (i) => this.getTreePartProvider(i),
     );
-    this.currentSprintUnwrappingTreePartProvider = new UnwrappingTreePartProvider(
-      this.#currentSprintTreePartProvider,
-      (items) => of(items.size === 1 && !items.has('exception')),
-      () => this.#currentSprintScopeTreePartProvider,
-    );
+    this.areaPathNodeCombiningTreePartProvider = new CombiningTreePartProvider({
+      areaPathChildren: this.#areaPathChildrenTreePartProvider,
+      hierarchy: this.#areaPathHierarchyRootTreePartProvider,
+    });
+    this.teamContentsCombiningTreePartProvider = new CombiningTreePartProvider({
+      sprints: this.currentSprintUnwrappingTreePartProvider,
+      backlog: this.backlogStaticTreePartProvider,
+    });
+    this.workItemContentsCombiningTreePartProvider = new CombiningTreePartProvider({
+      children: this.#hierarchyChildrenTreePartProvider,
+      details: this.workItemDetailStaticTreePartProvider,
+      linkedWorkItemGroups: this.#workItemLinkedWorkItemGroupsTreePartProvider,
+    });
     this.accountRootUnwrappingTreePartProvider = new UnwrappingTreePartProvider(
       this.#accountTreePartProvider,
       shouldUnwrapAccountOrProject(this.#settingsService.unwrapAccounts()),
       () => this.projectUnwrappingTreePartProvider,
     );
-    this.teamContentsCombiningTreePartProvider = new CombiningTreePartProvider({
-      sprints: this.currentSprintUnwrappingTreePartProvider,
-      backlog: this.backlogStaticTreePartProvider,
-    });
     this.workItemRootCombiningTreePartProvider = new CombiningTreePartProvider({
       pinnedWorkItems: this.#pinnedWorkItemTreePartProvider,
       pinnedAreaPaths: this.#pinnedWorkItemAreaPathTreePartProvider,
@@ -1078,47 +1078,47 @@ export class TestPlanTreeProviderResolver {
 export class AgentsTreeProviderResolver {
   #settingsService: SettingsService;
 
-  #accountTreePartProvider: AccountTreePartProvider;
-  #agentTreePartProvider: AgentTreePartProvider;
   #agentJobTreePartProvider: AgentJobTreePartProvider;
-  #pinnedAgentPoolTreePartProvider: PinnedAgentPoolTreePartProvider;
-  #pinnedAgentTreePartProvider: PinnedAgentTreePartProvider;
   #agentPoolTreePartProvider: AgentPoolTreePartProvider;
+  #agentTreePartProvider: AgentTreePartProvider;
+  #pinnedAgentTreePartProvider: PinnedAgentTreePartProvider;
+  #accountTreePartProvider: AccountTreePartProvider;
+  #pinnedAgentPoolTreePartProvider: PinnedAgentPoolTreePartProvider;
   #projectTreePartProvider: ProjectTreePartProvider;
 
-  #agentsContainerTreeItem: Constructor<AgentsContainerTreeItem>;
   #agentJobsContainerTreeItem: Constructor<AgentJobsContainerTreeItem>;
+  #agentsContainerTreeItem: Constructor<AgentsContainerTreeItem>;
   #jobsContainerTreeItem: Constructor<JobsContainerTreeItem>;
 
   accountRootUnwrappingTreePartProvider: TreePartProvider<any, any> | undefined;
-  agentsRootCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
   agentChildrenStaticTreePartProvider: TreePartProvider<any, any> | undefined;
-  agentPoolChildrenStaticTreePartProvider: TreePartProvider<any, any> | undefined;
   projectUnwrappingTreePartProvider: TreePartProvider<any, any> | undefined;
+  agentsRootCombiningTreePartProvider: TreePartProvider<any, any> | undefined;
+  agentPoolChildrenStaticTreePartProvider: TreePartProvider<any, any> | undefined;
 
   constructor(
     @inject(types.SettingsService) settingsService: SettingsService,
-    @inject(types.AccountTreePartProvider) accountTreePartProvider: AccountTreePartProvider,
-    @inject(types.AgentTreePartProvider) agentTreePartProvider: AgentTreePartProvider,
     @inject(types.AgentJobTreePartProvider) agentJobTreePartProvider: AgentJobTreePartProvider,
-    @inject(types.PinnedAgentPoolTreePartProvider) pinnedAgentPoolTreePartProvider: PinnedAgentPoolTreePartProvider,
-    @inject(types.PinnedAgentTreePartProvider) pinnedAgentTreePartProvider: PinnedAgentTreePartProvider,
     @inject(types.AgentPoolTreePartProvider) agentPoolTreePartProvider: AgentPoolTreePartProvider,
+    @inject(types.AgentTreePartProvider) agentTreePartProvider: AgentTreePartProvider,
+    @inject(types.PinnedAgentTreePartProvider) pinnedAgentTreePartProvider: PinnedAgentTreePartProvider,
+    @inject(types.AccountTreePartProvider) accountTreePartProvider: AccountTreePartProvider,
+    @inject(types.PinnedAgentPoolTreePartProvider) pinnedAgentPoolTreePartProvider: PinnedAgentPoolTreePartProvider,
     @inject(types.ProjectTreePartProvider) projectTreePartProvider: ProjectTreePartProvider,
-    @inject(types.AgentsContainerTreeItem) agentsContainerTreeItem: Constructor<AgentsContainerTreeItem>,
     @inject(types.AgentJobsContainerTreeItem) agentJobsContainerTreeItem: Constructor<AgentJobsContainerTreeItem>,
+    @inject(types.AgentsContainerTreeItem) agentsContainerTreeItem: Constructor<AgentsContainerTreeItem>,
     @inject(types.JobsContainerTreeItem) jobsContainerTreeItem: Constructor<JobsContainerTreeItem>,
   ) {
     this.#settingsService = settingsService;
-    this.#accountTreePartProvider = accountTreePartProvider;
-    this.#agentTreePartProvider = agentTreePartProvider;
     this.#agentJobTreePartProvider = agentJobTreePartProvider;
-    this.#pinnedAgentPoolTreePartProvider = pinnedAgentPoolTreePartProvider;
-    this.#pinnedAgentTreePartProvider = pinnedAgentTreePartProvider;
     this.#agentPoolTreePartProvider = agentPoolTreePartProvider;
+    this.#agentTreePartProvider = agentTreePartProvider;
+    this.#pinnedAgentTreePartProvider = pinnedAgentTreePartProvider;
+    this.#accountTreePartProvider = accountTreePartProvider;
+    this.#pinnedAgentPoolTreePartProvider = pinnedAgentPoolTreePartProvider;
     this.#projectTreePartProvider = projectTreePartProvider;
-    this.#agentsContainerTreeItem = agentsContainerTreeItem;
     this.#agentJobsContainerTreeItem = agentJobsContainerTreeItem;
+    this.#agentsContainerTreeItem = agentsContainerTreeItem;
     this.#jobsContainerTreeItem = jobsContainerTreeItem;
   }
 
@@ -1130,6 +1130,11 @@ export class AgentsTreeProviderResolver {
         treeItem: this.#agentJobsContainerTreeItem,
       },
     });
+    this.projectUnwrappingTreePartProvider = new UnwrappingTreePartProvider(
+      this.#projectTreePartProvider,
+      shouldUnwrapAccountOrProject(this.#settingsService.unwrapProjects()),
+      (i) => this.getTreePartProvider(i),
+    );
     this.agentPoolChildrenStaticTreePartProvider = new StaticTreePartProvider({
       jobs: {
         treeItem: this.#jobsContainerTreeItem,
@@ -1138,11 +1143,6 @@ export class AgentsTreeProviderResolver {
         treeItem: this.#agentsContainerTreeItem,
       },
     });
-    this.projectUnwrappingTreePartProvider = new UnwrappingTreePartProvider(
-      this.#projectTreePartProvider,
-      shouldUnwrapAccountOrProject(this.#settingsService.unwrapProjects()),
-      (i) => this.getTreePartProvider(i),
-    );
     this.accountRootUnwrappingTreePartProvider = new UnwrappingTreePartProvider(
       this.#accountTreePartProvider,
       shouldUnwrapAccountOrProject(this.#settingsService.unwrapAccounts()),

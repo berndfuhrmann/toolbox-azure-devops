@@ -138,7 +138,7 @@
       <parameter name="project" type="string" />
     </serviceMethod>
   </service>
-  <service name="Cix" />
+  <service name="Cix" importName="CIX" typeImportName="CIX"/>
   <service name="Core">
     <serviceMethod
       name="projects"
@@ -397,10 +397,10 @@
       <parameter name="completedRequestCount" type="number | undefined" />
     </serviceMethod>
   </service>
-  <service name="Task" typeImport="TaskAgent" />
+  <service name="Task" typeImport="TaskAgent" typeImportName="TaskAgent" />
   <service name="Test" />
   <service name="TestPlan" />
-  <service name="TestResults" typeImport="Test" />
+  <service name="TestResults" typeImport="Test" typeImportName="Test" />
   <service name="Wiki" />
   <service name="Work">
     <serviceMethod
@@ -605,8 +605,10 @@
   <service name="WorkItemTrackingProcess" />
   <service
     name="WorkItemTrackingProcessDefinition"
+    importName="WorkItemTrackingProcessDefinitions"
     type="WorkItemTrackingProcessDefinitions"
     typeImport="WorkItemTrackingProcessDefinitions"
+    typeImportName="WorkItemTrackingProcessDefinitions"
   />
   <treeProvider
     name="RepositoryTreeProvider"

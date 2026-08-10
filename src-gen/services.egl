@@ -23,12 +23,12 @@ import {
 } from "../common/informationStream";
 import { types } from "./types";
 
-[%for (service in Service.all){%]
-import { I[%=service.getType()%] } from "azure-devops-node-api/[%=service.getType()%]";
+[%for (apiImport in Service.all.collect(service: Service | service.getApiImport()).asSet().sortBy(s|s)){%]
+[%=apiImport%]
 [%}%]
 import type * as VSSInterfaces from "azure-devops-node-api/interfaces/common/VSSInterfaces";
 
-[%for (serviceImport in Service.all.collect(service: Service | service.getTypeImport()).asSet()){%]
+[%for (serviceImport in Service.all.collect(service: Service | service.getTypeImport()).asSet().sortBy(s|s)){%]
 [%=serviceImport%]
 [%}%]
 

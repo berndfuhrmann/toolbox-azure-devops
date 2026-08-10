@@ -8,7 +8,7 @@ import { Mock, vi } from "vitest";
 // Import the real interfaces to extend them
 import type { IAlertApi } from "azure-devops-node-api/AlertApi";
 import type { IBuildApi } from "azure-devops-node-api/BuildApi";
-import type { ICixApi } from "azure-devops-node-api/CixApi";
+import type { ICixApi } from "azure-devops-node-api/CIXApi";
 import type { ICoreApi } from "azure-devops-node-api/CoreApi";
 import type { IDashboardApi } from "azure-devops-node-api/DashboardApi";
 import type { IExtensionManagementApi } from "azure-devops-node-api/ExtensionManagementApi";

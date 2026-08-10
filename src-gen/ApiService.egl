@@ -3,8 +3,8 @@ import "common.eol";
 %]
 // generated
 import { getPersonalAccessTokenHandler, WebApi } from "azure-devops-node-api";
-[%for (service in Service.all){%]
-import { I[%=service.getType()%] } from "azure-devops-node-api/[%=service.getType()%]";
+[%for (apiImport in Service.all.collect(service: Service | service.getApiImport()).asSet().sortBy(s|s)){%]
+[%=apiImport%]
 [%}%]
 import { injectable } from "inversify";
 import {
