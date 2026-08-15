@@ -4,17 +4,23 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "Dry run (build and package only, skip publishing)"
+        description: "Create draft release (for review) instead of publishing"
         required: false
-        default: "false"
+        default: "true"
         type: choice
         options:
-          - "false"
           - "true"
+          - "false"
+      release_description:
+        description: "Custom release notes (optional - leave blank to auto-generate)"
+        required: false
+        type: string
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -43,6 +49,30 @@ jobs:
         id: version
         run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
+      - name: Verify VSIX exists
+        id: vsix
+        run: |
+          VSIX_FILE=$(ls build/*.vsix 2>/dev/null | head -n 1)
+          if [ -z "$VSIX_FILE" ]; then
+            echo "ERROR: No VSIX file found in build/"
+            exit 1
+          fi
+          echo "VSIX file: $VSIX_FILE"
+          echo "path=$VSIX_FILE" >> $GITHUB_OUTPUT
+
+      - name: Prepare release notes
+        id: notes
+        if: ${{ github.event.inputs.release_description != '' }}
+        env:
+          RELEASE_NOTES: ${{ github.event.inputs.release_description }}
+        run: |
+          # Escape notes for safe use in gh release create
+          NOTES="${RELEASE_NOTES//$'\n'/\\n}"
+          NOTES="${NOTES//\"/\\\"}"
+          NOTES="${NOTES//\`/\\\`}"
+          NOTES="${NOTES//\$/\\\$}"
+          echo "notes=$NOTES" >> $GITHUB_OUTPUT
+
       # - name: Publish to VSCode Marketplace
       #   if: ${{ github.event.inputs.dry_run != 'true' }}
       #   run: pnpm exec vsce publish --no-dependencies --packagePath build/*.vsix
@@ -57,11 +87,36 @@ jobs:
       #     OVSX_PAT: ${{ secrets.OVSX_PAT }}
 
       - name: Create GitHub Release
-        if: ${{ github.event.inputs.dry_run != 'true' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VSIX_FILE: ${{ steps.vsix.outputs.path }}
+          VERSION: ${{ steps.version.outputs.version }}
+          NOTES: ${{ steps.notes.outputs.notes }}
         run: |
-          gh release create "v${{ steps.version.outputs.version }}" \
-            build/*.vsix \
-            --title "v${{ steps.version.outputs.version }}" \
-            --generate-notes
+          DRAFT_FLAG=""
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            DRAFT_FLAG="--draft"
+          fi
+          
+          if [ -n "$NOTES" ]; then
+            gh release create "v${VERSION}" \
+              "$VSIX_FILE" \
+              --title "v${VERSION}" \
+              --notes "$NOTES" \
+              $DRAFT_FLAG
+          else
+            gh release create "v${VERSION}" \
+              "$VSIX_FILE" \
+              --title "v${VERSION}" \
+              --generate-notes \
+              $DRAFT_FLAG
+          fi
+          
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            echo "📋 Draft release created for review:"
+            echo "https://github.com/${{ github.repository }}/releases/tag/v${VERSION}"
+            echo ""
+            echo "After review, manually publish and create a tag:"
+            echo "  git tag v${VERSION}"
+            echo "  git push origin v${VERSION}"
+          fi
