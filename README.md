@@ -1,89 +1,83 @@
-# Toolbox for Azure Devops
+# Toolbox for Azure DevOps
 
-This extension provides an intuitive way to access Microsoft Azure Devops from inside of Visual Studio Code and similar code editors. This allows you to do simple tasks in Azure Devops without having to leave VS Code.
+This extension provides convenient access to Microsoft Azure DevOps from within Visual Studio Code and similar code editors. Perform common Azure DevOps tasks without leaving your IDE.
 
-Please note that this is a third-party project, I have no affiliation with Microsoft. This is not an official extension.
+**Note**: This is a third-party project with no affiliation to Microsoft.
 
-## Usage
+## Getting Started
 
-After installing the extension, click `Add Organiztion`. Three text inputs will appear.
+After installing the extension:
 
-1. enter your TFS server address or use the default (https://dev.azure.com)
-2. enter your organization name
-3. enter your personal access token
+1. Click **Add Organization** in any of the Azure DevOps views
+2. Enter your server address (defaults to `https://dev.azure.com`)
+3. Enter your organization name
+4. Enter your personal access token
 
-![Screenshot](docs/user-security.png)
+![Setup screenshot](docs/user-security.png)
 
-If you don't have a personal access token yet, you can create one in Azure Devops:
-Login to Azure Devops and click your user icon in the top right corner. Then click "Security" and create a new token.
-Use that token when adding the organization. You will need to provide a new token, once the old one expires.
+### Creating a Personal Access Token
 
-## Features
+In Azure DevOps, click your user icon in the top right corner → **Security** → **Personal access tokens** → **New Token**. Grant appropriate scopes and use the token when adding your organization. Tokens expire and must be renewed.
 
-### General properties
+## Tree Views
 
-- Multiple accounts and projects per account are supported.
-- Some items can be pinned to keep them visible in the tree view.
-- Some items can be directly opened in the browser.
-- Items will be automatically refreshed after a configurable interval or when manually triggered.
-
-Currently four views are supported:
+The extension provides four views into your Azure DevOps data.
 
 ### Work Items
 
-- View items currently assigned to you and your team(s).
-- View queries, area paths and work item hierarchy
+- Work items assigned to you and your teams
+- Saved queries, area paths, and work item hierarchy
+- Work item details: comments, history, and attachments
+- Linked items: commits, pull requests, branches, builds, and related work items
+- Edit work items: change state, title, effort, and assignee
 
 ### Repositories
 
-- View repositories, including files, commits, tags and pull requests
+- Repository files, commits, branches, and tags
+- Pull requests with reviewers, statuses, comments, and linked work items
+- Open files in the editor or in the Azure DevOps web portal
 
 ### Pipelines
 
-- View pipeline folders, pipelines, run and build logs
-- Create, rename and delete folders
-- Run/Cancel pipeline
+- Pipeline folders, pipelines, and runs
+- Run artifacts and timeline records
+- Create, rename, and delete folders
+- Run, cancel, and re-run pipelines
+- Rename and delete pipelines
 
 ### Agents
 
-- View Agent pools and agents
-- View jobs running on agents
+- Agent pools and individual agents
+- Jobs running on agents
 
-Authentication to Azure Devops Server (Cloud or On-Premise) is done via Personal Access Token.
+## Common Actions
 
-# Example
+Some tree items support:
 
-![Screenshot](docs/screenshot1.png)
+- **Pin/Unpin**: Keep frequently accessed items at the top of their tree
+- **Open in Web**: View items in the Azure DevOps web portal
+- **Refresh**: Manually refresh tree data (configurable auto-refresh is also available)
+
+## Configuration
+
+Extension settings (Ctrl+, → Extensions → Azure DevOps Toolbox):
+
+- **Auto-refresh interval**: How often to automatically refresh tree data (in milliseconds)
+- **Unwrap accounts**: Show account items directly when only one account exists
+- **Unwrap projects**: Show project items directly when only one project exists per account
 
 ## Requirements
 
-This extension was tested with:
+Tested with:
+- Azure DevOps (Cloud)
+- Azure DevOps Server Express (Local)
 
-- Azure Devops (Cloud)
-- Azure Devops Server Express (Local)
-
-It should also work with:
-
-- Azure Devops Server (Local)
-
-## Extension Settings
-
-- `toolbox-azure-devops-by-bf.autoRefreshInterval`: Interval in milliseconds, specifying refresh cadence. After this time has passed, information will be refetched.
-- `toolbox-azure-devops-by-bf.unwrapAccounts`: When you have only one account, you can set this to true to unwrap all items in that account and display them as root items.
-- `toolbox-azure-devops-by-bf.unwrapProjects`: When you have only one project, you can set this to true to unwrap all items in that project and display them as account items or maybe root items (see previous setting).
+Should also work with:
+- Azure DevOps Server (Local)
+- Team Foundation Server (TFS)
 
 ## Contributing
 
-When you encounter an issue or have a feature request, please open an issue on GitHub.
+Report issues or request features on [GitHub](https://github.com/berndfuhrmann/toolbox-azure-devops).
 
-If you want to contribute code, please see `DEVELOPMENT.md`.
-
-## Known Issues
-
-None at the moment.
-
-## Release Notes
-
-### 0.0.4
-
-Initial release to the public. Features views for work items, repositories, pipelines and agents.
+For code contributions, see `DEVELOPMENT.md`.
