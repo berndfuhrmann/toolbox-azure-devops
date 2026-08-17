@@ -1,4 +1,3 @@
-import { beforeEach, expect, test } from "vitest";
 import * as vscode from "vscode";
 import {
   StatusFileDecorationProvider,

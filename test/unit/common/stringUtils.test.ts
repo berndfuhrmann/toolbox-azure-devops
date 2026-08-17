@@ -1,5 +1,4 @@
 import { createCodeSpan, formatDuration } from "../../../src/common/stringUtils";
-import { describe, test, expect } from "vitest";
 
 describe("formatDuration", () => {
   const d = (iso: string) => new Date(iso);

@@ -4,7 +4,7 @@
   "displayName": "Toolbox for Azure Devops - by Bernd Fuhrmann",
   "description": "Access Azure Devops from within VSCode and similar",
   "license": "MIT",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/berndfuhrmann/toolbox-azure-devops"
@@ -33,9 +33,9 @@
     "src-gen": "mvn -f src-gen compile",
     "package": "pnpm run check-types && pnpm run lint && node scripts/esbuild.cjs --production",
     "compile-tests": "tsc -p . --outDir out && tsc -p test/integration/tsconfig.json",
-    "watch-tests": "tsc -p . -w --outDir out && tsc -p test/integration/tsconfig.json -w",
+    "watch-tests": "tsc -p . -w --outDir out && tsc -p test/unit/tsconfig.json -w && tsc -p test/component/tsconfig.json -w && tsc -p test/integration/tsconfig.json -w",
     "preinttest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
-    "check-types": "tsc --noEmit && tsc -p test/integration/tsconfig.json --noEmit",
+    "check-types": "tsc --noEmit && tsc -p test/unit/tsconfig.json --noEmit && tsc -p test/component/tsconfig.json --noEmit && tsc -p test/integration/tsconfig.json --noEmit",
     "fix": "prettier . --write && pnpm run format:ps1",
     "format:ps1": "pwsh -ExecutionPolicy Bypass -File scripts/format-ps1.ps1",
     "lint": "eslint src",

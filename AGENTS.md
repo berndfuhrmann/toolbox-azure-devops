@@ -111,6 +111,7 @@ To add a new command to the extension, follow these steps:
 ## Testing using vitest
 
 - Use `test` instead of `it`.
+- Vitest globals are enabled (`globals: true` in `vitest.config.ts`). Do not import `describe`, `test`, `expect`, `vi`, etc. from `vitest`. Named type exports like `Mock` still need `import type { Mock } from "vitest"`.
 
 ## Testing with vscode-test
 

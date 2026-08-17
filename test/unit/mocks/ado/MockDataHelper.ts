@@ -1,4 +1,4 @@
-import { Mock } from "vitest";
+import type { Mock } from "vitest";
 import { PromiseController } from "./PromiseController";
 
 // Generic helper function for configuring mocks with promise controllers

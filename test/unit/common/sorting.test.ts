@@ -1,5 +1,4 @@
 import { sorter, sortByNumber, sortByString, sortByDate, sortByBoolean, sortByType } from "../../../src/common/sorting";
-import { describe, test, expect } from "vitest";
 describe("sortByNumber", () => {
   test("sorts numbers correctly", () => {
     const items = [{ value: 3 }, { value: 1 }, { value: 2 }, { value: 2 }, { value: 1 }];

@@ -2,7 +2,6 @@ import { GitRepository } from "azure-devops-node-api/interfaces/GitInterfaces";
 import { randomUUID } from "crypto";
 import { BehaviorSubject, ReplaySubject, Subject } from "rxjs";
 import { setTimeout } from "timers/promises";
-import { describe, expect, test, vi } from "vitest";
 import { ApiService } from "../../../src/generated/ApiService";
 import { GitService } from "../../../src/generated/services";
 import { Account } from "../../../src/modules/core/account";

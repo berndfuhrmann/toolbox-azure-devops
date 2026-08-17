@@ -3,7 +3,7 @@ import type * as GitInterfaces from "azure-devops-node-api/interfaces/GitInterfa
 import type * as CoreInterfaces from "azure-devops-node-api/interfaces/CoreInterfaces";
 import type * as PipelinesInterfaces from "azure-devops-node-api/interfaces/PipelinesInterfaces";
 import type * as VsoBaseInterfaces from "azure-devops-node-api/interfaces/common/VsoBaseInterfaces";
-import { Mock, vi } from "vitest";
+import type { Mock } from "vitest";
 
 // Import the real interfaces to extend them
 import type { IAlertApi } from "azure-devops-node-api/AlertApi";

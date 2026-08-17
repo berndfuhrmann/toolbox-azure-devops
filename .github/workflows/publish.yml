@@ -11,6 +11,21 @@ on:
         options:
           - "true"
           - "false"
+      publish_github:
+        description: "Publish GitHub Release"
+        required: false
+        default: true
+        type: boolean
+      publish_vscode_marketplace:
+        description: "Publish to VSCode Marketplace"
+        required: false
+        default: true
+        type: boolean
+      publish_open_vsx:
+        description: "Publish to Open VSX"
+        required: false
+        default: true
+        type: boolean
       release_description:
         description: "Custom release notes (optional - leave blank to auto-generate)"
         required: false
@@ -73,20 +88,8 @@ jobs:
           NOTES="${NOTES//\$/\\\$}"
           echo "notes=$NOTES" >> $GITHUB_OUTPUT
 
-      # - name: Publish to VSCode Marketplace
-      #   if: ${{ github.event.inputs.dry_run != 'true' }}
-      #   run: pnpm exec vsce publish --no-dependencies --packagePath build/*.vsix
-      #   env:
-      #     VSCE_PAT: ${{ secrets.VSCE_PAT }}
-
-      # - name: Publish to Open VSX
-      #   if: ${{ github.event.inputs.dry_run != 'true' }}
-      #   run: |
-      #     npx --yes ovsx publish build/*.vsix --pat "$OVSX_PAT"
-      #   env:
-      #     OVSX_PAT: ${{ secrets.OVSX_PAT }}
-
       - name: Create GitHub Release
+        if: ${{ github.event.inputs.publish_github == 'true' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VSIX_FILE: ${{ steps.vsix.outputs.path }}
@@ -120,3 +123,16 @@ jobs:
             echo "  git tag v${VERSION}"
             echo "  git push origin v${VERSION}"
           fi
+
+      - name: Publish to VSCode Marketplace
+        if: ${{ github.event.inputs.dry_run != 'true' && github.event.inputs.publish_vscode_marketplace == 'true' }}
+        run: pnpm exec vsce publish --no-dependencies --packagePath build/*.vsix
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: Publish to Open VSX
+        if: ${{ github.event.inputs.dry_run != 'true' && github.event.inputs.publish_open_vsx == 'true' }}
+        run: |
+          npx --yes ovsx publish build/*.vsix --pat "$OVSX_PAT"
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}

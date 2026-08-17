@@ -247,6 +247,7 @@ Based on the service model, the extension has infrastructure for (but may not fu
 ### Testing
 
 - **Unit Tests**: Vitest-based unit testing
+- **Component Tests**: Vitest-based component testing
 - **Integration Tests**: VSCode test framework integration
 - **Mocking**: Comprehensive mocking for VSCode APIs
 

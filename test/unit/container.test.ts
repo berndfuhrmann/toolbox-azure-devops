@@ -1,4 +1,3 @@
-import { describe, it, expect, vi } from "vitest";
 import { MemoryStorageService } from "./helper/MemoryStorageService";
 
 vi.mock("../../src/common/storage/VSCodeStorageService", () => ({
@@ -28,7 +27,7 @@ const mockContext = {
 } as any;
 
 describe("createContainer", () => {
-  it("should create a container and bind expected services (with MemoryStorageService)", () => {
+  test("should create a container and bind expected services (with MemoryStorageService)", () => {
     const container = createContainer(mockContext);
     expect(container).toBeDefined();
     expect(container.get(types.vscodeContext)).toBe(mockContext);

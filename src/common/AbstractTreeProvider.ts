@@ -176,6 +176,7 @@ export abstract class AbstractTreeProvider<TreeItem extends AbstractTreeItem<any
       subscription: Subscription;
       replaySubject: ReplaySubject<{ items: TreeItem[]; refreshObservables: Record<string, Subject<number>> }>;
       updateSubscription: Subscription;
+      itemInput: BehaviorSubject<any>;
     }
   > = new Map();
 
@@ -245,6 +246,11 @@ export abstract class AbstractTreeProvider<TreeItem extends AbstractTreeItem<any
             // update items
             for (const item of changeSet.updated.values()) {
               this.notifyTreeDataChange(item);
+              // Update child subscription context only when item data actually changed
+              const childSubscription = this.#subscriptions.get(item);
+              if (childSubscription) {
+                childSubscription.itemInput.next(item.data);
+              }
             }
           }),
           map((changeSet) => ({
@@ -263,6 +269,7 @@ export abstract class AbstractTreeProvider<TreeItem extends AbstractTreeItem<any
         subscription,
         replaySubject,
         updateSubscription,
+        itemInput,
       };
     } else {
       return undefined;
@@ -480,9 +487,7 @@ export abstract class AbstractTreeProvider<TreeItem extends AbstractTreeItem<any
     if (element) {
       this.#treeItemRegistry.notifyChange(element);
     }
-    // FIXME: Find out, why this setTimeout is necessary.
-    // console.log("FIRE", element?.id);
-    //setTimeout(() => this.#onDidChangeTreeData.fire(element), 0);
+
     this.#onDidChangeTreeData.fire(element);
   }
 

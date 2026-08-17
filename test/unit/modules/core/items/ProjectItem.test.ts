@@ -1,4 +1,3 @@
-import { describe, test, expect, vi } from "vitest";
 import { compareProjectContext, createProjectItem } from "../../../../../src/modules/core/items/ProjectItem";
 
 vi.mock("../../../../../src/modules/core/items/AccountItem", async (importOriginal) => ({

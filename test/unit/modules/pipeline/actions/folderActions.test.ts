@@ -1,4 +1,3 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
 import { Container } from "inversify";
 import vscode from "vscode";
 import {

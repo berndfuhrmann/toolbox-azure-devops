@@ -1,6 +1,5 @@
 import { firstValueFrom, of, ReplaySubject, Subject } from "rxjs";
 import { skip, take } from "rxjs/operators";
-import { expect, describe, test, vi, beforeEach } from "vitest";
 import { BatchCoordinator } from "../../../src/common/BatchCoordinator";
 
 type Params = [id: number, group: string];

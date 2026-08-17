@@ -1,5 +1,4 @@
 import { BehaviorSubject, of, Subject } from "rxjs";
-import { beforeEach, describe, expect, test, vi } from "vitest";
 import type { MapChangeSet } from "../../../../src/common/collections/observableMap";
 import type { AbstractTreeItem } from "../../../../src/common/treeItems/AbstractTreeItem";
 import { UnwrappingTreePartProvider } from "../../../../src/common/treePartProvider/UnwrappingTreePartProvider";

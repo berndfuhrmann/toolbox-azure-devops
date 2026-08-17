@@ -1,4 +1,3 @@
-import { expect, test, describe, beforeEach } from "vitest";
 import { IconService } from "../../../../src/common/icons/IconService";
 import { AbstractTreeItem } from "../../../../src/common/treeItems/AbstractTreeItem";
 import { MarkdownString, TreeItemCollapsibleState, TreeItemLabel, Uri } from "vscode";

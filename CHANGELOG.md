@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.0.5] - Fixed Bug When Expanding Work Items
+
+This release fixes a bug where expanding a work item before it finished loading would cause some of its children to not appear. The children now show up correctly even if the work item is expanded during loading.
+
 ## [0.0.4] - Initial Release
 
 ### What This Extension Does

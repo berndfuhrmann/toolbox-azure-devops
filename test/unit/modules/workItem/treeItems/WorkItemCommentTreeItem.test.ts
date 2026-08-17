@@ -1,4 +1,3 @@
-import { describe, test, expect, beforeEach } from "vitest";
 import { MarkdownString, Uri } from "vscode";
 import { WorkItemCommentTreeItem } from "../../../../../src/modules/workItem/treeItems/WorkItemCommentTreeItem";
 import { WorkItemCommentItem } from "../../../../../src/modules/workItem/items/WorkItemCommentItem";

@@ -1,5 +1,4 @@
 import { Observable } from "rxjs";
-import { vi } from "vitest";
 import { ItemInformation } from "../../../src/common/treePartProvider/TreePartProvider";
 export const error = Symbol("error");
 export const complete = Symbol("complete");

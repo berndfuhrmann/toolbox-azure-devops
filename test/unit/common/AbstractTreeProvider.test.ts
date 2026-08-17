@@ -1,35 +1,21 @@
-import { describe, expect, test, beforeEach, vi } from "vitest";
-import { of, Subject, firstValueFrom } from "rxjs";
+import { Subject, firstValueFrom } from "rxjs";
 import { createTestContainer } from "../helper/testContainer";
 import { TestTreeProvider } from "../helper/TestTreeProvider";
 import { AbstractTreeItem } from "../../../src/common/treeItems/AbstractTreeItem";
-import { TestTreePartProvider } from "../helper/TestTreePartProvider";
+import { TestTreePartProvider, UpdatingTestTreeItem } from "../helper/TestTreePartProvider";
 import { combineChangeSetsToTreeItemUpdate } from "../../../src/common/AbstractTreeProvider";
 import { MapChangeSet } from "../../../src/common/collections/observableMap";
-import { ItemInformation, TreePartProvider } from "../../../src/common/treePartProvider/TreePartProvider";
+import { ItemInformation } from "../../../src/common/treePartProvider/TreePartProvider";
 import { TestItem, createTestItemWithEmptyContainer, createTestItem } from "../helper/TestItem";
 import { TestTreeItem } from "../helper/TestTreeItem";
 import { injectable, injectFromHierarchy } from "inversify";
 
-class MockTreePartProvider extends TreePartProvider<TestItem, any> {
-  getItems(context: any) {
-    return of();
-  }
-
-  updateTreeItem(item: TestItem, key: string, oldTreeItem: AbstractTreeItem<any> | undefined) {
-    return {
-      treeItem: oldTreeItem ?? new TestTreeItem(item),
-      updated: oldTreeItem ? false : true,
-    };
-  }
-}
-
 describe("combineChangeSetsToTreeItemUpdate", () => {
-  let mockTreePartProvider: MockTreePartProvider;
+  let mockTreePartProvider: TestTreePartProvider;
   let updateTreeItemSpy: any;
 
   beforeEach(() => {
-    mockTreePartProvider = new MockTreePartProvider();
+    mockTreePartProvider = new TestTreePartProvider();
     updateTreeItemSpy = vi.spyOn(mockTreePartProvider, "updateTreeItem");
   });
 
@@ -110,7 +96,7 @@ describe("combineChangeSetsToTreeItemUpdate", () => {
     const subject = new Subject<ItemInformation<TestItem>[]>();
     const testData: TestItem = createTestItemWithEmptyContainer("Item 1");
 
-    const customProvider = new MockTreePartProvider();
+    const customProvider = new TestTreePartProvider();
     vi.spyOn(customProvider, "updateTreeItem").mockImplementation((item, key, oldTreeItem) => {
       const treeItem = oldTreeItem ?? new TestTreeItem(item);
       const updated = oldTreeItem !== undefined;
@@ -144,7 +130,7 @@ describe("combineChangeSetsToTreeItemUpdate", () => {
     const subject = new Subject<ItemInformation<TestItem>[]>();
     const testData: TestItem = createTestItemWithEmptyContainer("Item 1");
 
-    const customProvider = new MockTreePartProvider();
+    const customProvider = new TestTreePartProvider();
     vi.spyOn(customProvider, "updateTreeItem").mockImplementation((item, key, oldTreeItem) => ({
       treeItem: oldTreeItem ?? new TestTreeItem(item),
       updated: true,
@@ -340,7 +326,7 @@ describe("combineChangeSetsToTreeItemUpdate", () => {
     const oldTreeItem = new TestTreeItem(testData);
     const newTreeItem = new TestTreeItem(testData);
 
-    const customProvider = new MockTreePartProvider();
+    const customProvider = new TestTreePartProvider();
     let callCount = 0;
     vi.spyOn(customProvider, "updateTreeItem").mockImplementation((item, key, oldItem) => {
       callCount++;
@@ -377,7 +363,7 @@ describe("combineChangeSetsToTreeItemUpdate", () => {
     const subject = new Subject<ItemInformation<TestItem>[]>();
     const testData: TestItem = createTestItemWithEmptyContainer("Item 1");
 
-    const customProvider = new MockTreePartProvider();
+    const customProvider = new TestTreePartProvider();
     const errorSpy = vi.spyOn(customProvider, "updateTreeItem").mockImplementation(() => {
       throw new Error("intentional error for testing");
     });
@@ -406,7 +392,7 @@ describe("combineChangeSetsToTreeItemUpdate", () => {
     const subject = new Subject<ItemInformation<TestItem>[]>();
     const testData: TestItem = createTestItemWithEmptyContainer("Item 1");
 
-    const customProvider = new MockTreePartProvider();
+    const customProvider = new TestTreePartProvider();
     vi.spyOn(customProvider, "updateTreeItem").mockImplementation((item, key, oldTreeItem) => {
       // Simulate tree item changing on update
       const newTreeItem = new TestTreeItem(item);
@@ -441,7 +427,7 @@ describe("combineChangeSetsToTreeItemUpdate", () => {
     const subject = new Subject<ItemInformation<TestItem>[]>();
     const testData: TestItem = createTestItemWithEmptyContainer("Item 1");
 
-    const customProvider = new MockTreePartProvider();
+    const customProvider = new TestTreePartProvider();
     let callCount = 0;
     const oldTreeItem = new TestTreeItem(testData);
     const newTreeItem = new TestTreeItem(testData);
@@ -586,6 +572,60 @@ describe("AbstractTreeProvider", () => {
 
       const children = await subject.getChildren(undefined);
       expect(children?.map((treeItem) => treeItem.data)).toEqual([item1, item2]);
+    });
+  });
+
+  describe("itemInput", () => {
+    test("should call itemInput.next when parent data changes", async () => {
+      const container = createTestContainer();
+      const itemInputUpdates = vi.fn();
+
+      const rootProvider = new TestTreePartProvider({ manual: true, treeItemType: UpdatingTestTreeItem });
+      const childProvider = new TestTreePartProvider({ onItemInput: itemInputUpdates });
+
+      const item1 = createTestItem(container, "test1");
+      const item1Updated = createTestItem(container, "test2");
+
+      rootProvider.emit({
+        changes: { added: new Map([["item1", item1]]), removed: new Map() },
+      });
+
+      @injectable()
+      @injectFromHierarchy({
+        extendConstructorArguments: false,
+        extendProperties: true,
+      })
+      class ItemInputTreeProvider extends TestTreeProvider {
+        protected getTreePartProvider(element: AbstractTreeItem<any> | undefined) {
+          if (element === undefined) {
+            return rootProvider;
+          }
+          return childProvider;
+        }
+      }
+
+      container.bind<TestTreeProvider>("subject").to(ItemInputTreeProvider).inSingletonScope();
+      const subject = container.get<TestTreeProvider>("subject");
+
+      const rootItems = await subject.getChildren(undefined);
+      expect(rootItems).toHaveLength(1);
+
+      // Expand the root item before its data changes. The child provider
+      // subscribes to itemInput and receives the initial data.
+      await subject.getChildren(rootItems![0]);
+      expect(itemInputUpdates).toHaveBeenCalledTimes(1);
+      expect(itemInputUpdates.mock.calls[0][0]).toBe(item1);
+
+      // Update the parent item's data. The changed tree item is moved to the
+      // "updated" change set, which triggers itemInput.next with the new data.
+      rootProvider.emit({
+        changes: { added: new Map([["item1", item1Updated]]), removed: new Map([["item1", item1]]) },
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(itemInputUpdates).toHaveBeenCalledTimes(2);
+      expect(itemInputUpdates.mock.calls[1][0]).toBe(item1Updated);
     });
   });
 });

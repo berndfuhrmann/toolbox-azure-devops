@@ -1,4 +1,3 @@
-import { expect, test } from "vitest";
 import { pagedLoader } from "../../../src/common/pagedLoader";
 import { PagedList } from "azure-devops-node-api/interfaces/common/VSSInterfaces";
 

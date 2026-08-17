@@ -1,5 +1,3 @@
-import { describe, test, expect, beforeEach } from "vitest";
-import { vi } from "vitest";
 import {
   PinnedTreeItemMixin,
   handlePinAction,

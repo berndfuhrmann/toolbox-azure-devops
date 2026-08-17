@@ -1,4 +1,3 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
 import { Container } from "inversify";
 import vscode from "vscode";
 import { of } from "rxjs";

@@ -601,12 +601,12 @@ export function registerTreeItem(container: Container) {
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(OpenInWebTreeItemMixin(injectable, openInWebGetUrlGitRepository)), context.get<IconService>(types.IconService));
         });
-  container
+    container
         .bind<Constructor<GitRepositoryTreeItem<GitRepositoryItem & PinnedItem>>>(types.PinnableGitRepositoryTreeItem)
         .toConstantValue(GitRepositoryTreeItem)
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(OpenInWebTreeItemMixin(PinnedTreeItemMixin(injectable, (data: GitRepositoryItem & PinnedItem) => 
-            context.get<PinnedGitRepositoryTreePartProvider>(types.PinnedGitRepositoryTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService)), openInWebGetUrlGitRepository)), context.get<IconService>(types.IconService));
+              context.get<PinnedGitRepositoryTreePartProvider>(types.PinnedGitRepositoryTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService)), openInWebGetUrlGitRepository)), context.get<IconService>(types.IconService));
         });
   container
         .bind<Constructor<GitRepositoryBranchTreeItem<GitRepositoryBranchItem>>>(types.GitRepositoryBranchTreeItem)
@@ -668,12 +668,12 @@ export function registerTreeItem(container: Container) {
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(OpenInWebTreeItemMixin(injectable, openInWebGetUrlGitRepositoryPullRequest)), context.get<IconService>(types.IconService));
         });
-  container
+    container
         .bind<Constructor<GitRepositoryPullRequestTreeItem<GitRepositoryPullRequestItem & PinnedItem>>>(types.PinnableGitRepositoryPullRequestTreeItem)
         .toConstantValue(GitRepositoryPullRequestTreeItem)
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(OpenInWebTreeItemMixin(PinnedTreeItemMixin(injectable, (data: GitRepositoryPullRequestItem & PinnedItem) => 
-            context.get<PinnedGitRepositoryPullRequestTreePartProvider>(types.PinnedGitRepositoryPullRequestTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService)), openInWebGetUrlGitRepositoryPullRequest)), context.get<IconService>(types.IconService));
+              context.get<PinnedGitRepositoryPullRequestTreePartProvider>(types.PinnedGitRepositoryPullRequestTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService)), openInWebGetUrlGitRepositoryPullRequest)), context.get<IconService>(types.IconService));
         });
   container
         .bind<Constructor<GitRepositoryPullRequestReviewerTreeItem<GitRepositoryPullRequestReviewerItem>>>(types.GitRepositoryPullRequestReviewerTreeItem)
@@ -705,12 +705,12 @@ export function registerTreeItem(container: Container) {
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(injectable), context.get<IconService>(types.IconService));
         });
-  container
+    container
         .bind<Constructor<PipelineFolderTreeItem<PipelineFolderItem & PinnedItem>>>(types.PinnablePipelineFolderTreeItem)
         .toConstantValue(PipelineFolderTreeItem)
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(PinnedTreeItemMixin(injectable, (data: PipelineFolderItem & PinnedItem) => 
-            context.get<PinnedPipelineFolderTreePartProvider>(types.PinnedPipelineFolderTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService))), context.get<IconService>(types.IconService));
+              context.get<PinnedPipelineFolderTreePartProvider>(types.PinnedPipelineFolderTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService))), context.get<IconService>(types.IconService));
         });
   container
         .bind<Constructor<PipelineTreeItem<PipelineItem>>>(types.PipelineTreeItem)
@@ -718,12 +718,12 @@ export function registerTreeItem(container: Container) {
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(OpenInWebTreeItemMixin(injectable, openInWebGetUrlPipeline)), context.get<IconService>(types.IconService));
         });
-  container
+    container
         .bind<Constructor<PipelineTreeItem<PipelineItem & PinnedItem>>>(types.PinnablePipelineTreeItem)
         .toConstantValue(PipelineTreeItem)
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(OpenInWebTreeItemMixin(PinnedTreeItemMixin(injectable, (data: PipelineItem & PinnedItem) => 
-            context.get<PinnedPipelineTreePartProvider>(types.PinnedPipelineTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService)), openInWebGetUrlPipeline)), context.get<IconService>(types.IconService));
+              context.get<PinnedPipelineTreePartProvider>(types.PinnedPipelineTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService)), openInWebGetUrlPipeline)), context.get<IconService>(types.IconService));
         });
   container
         .bind<Constructor<PipelineRunTreeItem<PipelineRunItem>>>(types.PipelineRunTreeItem)
@@ -755,12 +755,12 @@ export function registerTreeItem(container: Container) {
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(OpenInWebTreeItemMixin(injectable, openInWebGetUrlWorkItem)), context.get<IconService>(types.IconService));
         });
-  container
+    container
         .bind<Constructor<WorkItemTreeItem<WorkItemItem & PinnedItem>>>(types.PinnableWorkItemTreeItem)
         .toConstantValue(WorkItemTreeItem)
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(OpenInWebTreeItemMixin(PinnedTreeItemMixin(injectable, (data: WorkItemItem & PinnedItem) => 
-            context.get<PinnedWorkItemTreePartProvider>(types.PinnedWorkItemTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService)), openInWebGetUrlWorkItem)), context.get<IconService>(types.IconService));
+              context.get<PinnedWorkItemTreePartProvider>(types.PinnedWorkItemTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService)), openInWebGetUrlWorkItem)), context.get<IconService>(types.IconService));
         });
   container
         .bind<Constructor<MyWorkTreeItem<MyWorkItem>>>(types.MyWorkTreeItem)
@@ -822,12 +822,12 @@ export function registerTreeItem(container: Container) {
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(injectable), context.get<IconService>(types.IconService));
         });
-  container
+    container
         .bind<Constructor<WorkItemTeamTreeItem<WorkItemTeamItem & PinnedItem>>>(types.PinnableWorkItemTeamTreeItem)
         .toConstantValue(WorkItemTeamTreeItem)
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(PinnedTreeItemMixin(injectable, (data: WorkItemTeamItem & PinnedItem) => 
-            context.get<PinnedWorkItemTeamTreePartProvider>(types.PinnedWorkItemTeamTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService))), context.get<IconService>(types.IconService));
+              context.get<PinnedWorkItemTeamTreePartProvider>(types.PinnedWorkItemTeamTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService))), context.get<IconService>(types.IconService));
         });
   container
         .bind<Constructor<WorkItemCurrentSprintTreeItem<WorkItemCurrentSprintItem>>>(types.WorkItemCurrentSprintTreeItem)
@@ -877,12 +877,12 @@ export function registerTreeItem(container: Container) {
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(injectable), context.get<IconService>(types.IconService));
         });
-  container
+    container
         .bind<Constructor<WorkItemQueryLeafTreeItem<WorkItemQueryItem & PinnedItem>>>(types.PinnableWorkItemQueryLeafTreeItem)
         .toConstantValue(WorkItemQueryLeafTreeItem)
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(PinnedTreeItemMixin(injectable, (data: WorkItemQueryItem & PinnedItem) => 
-            context.get<PinnedWorkItemQueryLeafTreePartProvider>(types.PinnedWorkItemQueryLeafTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService))), context.get<IconService>(types.IconService));
+              context.get<PinnedWorkItemQueryLeafTreePartProvider>(types.PinnedWorkItemQueryLeafTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService))), context.get<IconService>(types.IconService));
         });
   container
         .bind<Constructor<WorkItemAreaPathTreeItem<WorkItemAreaPathItem>>>(types.WorkItemAreaPathTreeItem)
@@ -890,12 +890,12 @@ export function registerTreeItem(container: Container) {
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(injectable), context.get<IconService>(types.IconService));
         });
-  container
+    container
         .bind<Constructor<WorkItemAreaPathTreeItem<WorkItemAreaPathItem & PinnedItem>>>(types.PinnableWorkItemAreaPathTreeItem)
         .toConstantValue(WorkItemAreaPathTreeItem)
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(PinnedTreeItemMixin(injectable, (data: WorkItemAreaPathItem & PinnedItem) => 
-            context.get<PinnedWorkItemAreaPathTreePartProvider>(types.PinnedWorkItemAreaPathTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService))), context.get<IconService>(types.IconService));
+              context.get<PinnedWorkItemAreaPathTreePartProvider>(types.PinnedWorkItemAreaPathTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService))), context.get<IconService>(types.IconService));
         });
   container
         .bind<Constructor<AttachmentTreeItem<AttachmentItem>>>(types.AttachmentTreeItem)
@@ -1005,12 +1005,12 @@ export function registerTreeItem(container: Container) {
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(injectable), context.get<IconService>(types.IconService));
         });
-  container
+    container
         .bind<Constructor<AgentPoolTreeItem<AgentPoolItem & PinnedItem>>>(types.PinnableAgentPoolTreeItem)
         .toConstantValue(AgentPoolTreeItem)
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(PinnedTreeItemMixin(injectable, (data: AgentPoolItem & PinnedItem) => 
-            context.get<PinnedAgentPoolTreePartProvider>(types.PinnedAgentPoolTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService))), context.get<IconService>(types.IconService));
+              context.get<PinnedAgentPoolTreePartProvider>(types.PinnedAgentPoolTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService))), context.get<IconService>(types.IconService));
         });
   container
         .bind<Constructor<AgentsContainerTreeItem<AgentPoolItem>>>(types.AgentsContainerTreeItem)
@@ -1024,12 +1024,12 @@ export function registerTreeItem(container: Container) {
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(injectable), context.get<IconService>(types.IconService));
         });
-  container
+    container
         .bind<Constructor<AgentTreeItem<AgentItem & PinnedItem>>>(types.PinnableAgentTreeItem)
         .toConstantValue(AgentTreeItem)
         .onActivation((context, injectable) => {
           return ExtensionContextTreeItemMixin(RefreshableTreeItemMixin(PinnedTreeItemMixin(injectable, (data: AgentItem & PinnedItem) => 
-            context.get<PinnedAgentTreePartProvider>(types.PinnedAgentTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService))), context.get<IconService>(types.IconService));
+              context.get<PinnedAgentTreePartProvider>(types.PinnedAgentTreePartProvider).getPinInfo(data), context.get<any>(types.StorageService))), context.get<IconService>(types.IconService));
         });
   container
         .bind<Constructor<JobsContainerTreeItem<AgentPoolItem>>>(types.JobsContainerTreeItem)

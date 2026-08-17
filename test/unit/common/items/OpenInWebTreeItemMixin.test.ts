@@ -1,4 +1,3 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
 import { handleOpenInWebAction, OpenInWebTreeItemMixin } from "../../../../src/common/items/OpenInWebTreeItemMixin";
 import { AbstractTreeItem } from "../../../../src/common/treeItems/AbstractTreeItem";
 import { env, Uri } from "vscode";

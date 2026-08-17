@@ -1,4 +1,3 @@
-import { vi } from "vitest";
 import { AbstractTreeProvider } from "../../../src/common/AbstractTreeProvider";
 import { AbstractTreeItem } from "../../../src/common/treeItems/AbstractTreeItem";
 import { TreePartProvider } from "../../../src/common/treePartProvider/TreePartProvider";

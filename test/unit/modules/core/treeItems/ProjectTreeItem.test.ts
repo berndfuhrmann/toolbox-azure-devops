@@ -1,4 +1,3 @@
-import { expect, test, beforeEach } from "vitest";
 import { ProjectTreeItem } from "../../../../../src/modules/core/treeItems/ProjectTreeItem";
 import { createProjectItem } from "../../../../../src/modules/core/items/ProjectItem";
 import { createAccountItem } from "../../../../../src/modules/core/items/AccountItem";

@@ -1,5 +1,4 @@
 import { Observable } from "rxjs";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { TreePartProvider } from "../../../../src/common/treePartProvider/TreePartProvider";
 import { AbstractTreeItem } from "../../../../src/common/treeItems/AbstractTreeItem";
 

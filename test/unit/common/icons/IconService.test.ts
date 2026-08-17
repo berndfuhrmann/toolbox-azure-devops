@@ -1,4 +1,3 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import * as fs from "fs";
 import { Uri } from "vscode";
 import { IconService } from "../../../../src/common/icons/IconService";

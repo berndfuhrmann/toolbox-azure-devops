@@ -1,4 +1,3 @@
-import { describe, test, expect } from "vitest";
 import { MissingTreeItem } from "../../../../src/common/treeItems/MissingTreeItem";
 import { missingSymbol } from "../../../../src/common/items/MissingItem";
 import { Uri } from "vscode";

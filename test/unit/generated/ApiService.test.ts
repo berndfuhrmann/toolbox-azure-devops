@@ -1,5 +1,4 @@
 import { setTimeout } from "timers/promises";
-import { beforeEach, describe, expect, test, vi } from "vitest";
 import { ApiService } from "../../../src/generated/ApiService";
 import { createTestObserver } from "../helper/observables";
 import { MockGitApi } from "../mocks/ado/WebApi";
