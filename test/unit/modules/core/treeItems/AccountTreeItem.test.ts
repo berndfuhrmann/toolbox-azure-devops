@@ -9,7 +9,8 @@ const sampleAccount: Account = {
   accountId: "acc-123",
   url: "https://dev.azure.com/org",
   organization: "TestOrg",
-  personalAccessToken: "token123",
+  authentication: { type: "personalAccessToken" },
+  secrets: { personalAccessToken: "token123" },
 };
 
 const createTestAccountItem = () => createAccountItem(sampleAccount, new Container());

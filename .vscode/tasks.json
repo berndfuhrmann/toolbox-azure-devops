@@ -13,10 +13,14 @@
         "kind": "build",
         "isDefault": true
       },
-      "options": {
-        "shell": {
-          "executable": "C:\\Windows\\System32\\cmd.exe",
-          "args": ["/c"]
+      "windows": {
+        "options": {
+          "shell": {
+            "executable": "C:\\Windows\\System32\\cmd.exe",
+            "args": [
+              "/c"
+            ]
+          }
         }
       }
     },
@@ -51,10 +55,14 @@
         "reveal": "never"
       },
 
-      "options": {
-        "shell": {
-          "executable": "C:\\Windows\\System32\\cmd.exe",
-          "args": ["/c"]
+      "windows": {
+        "options": {
+          "shell": {
+            "executable": "C:\\Windows\\System32\\cmd.exe",
+            "args": [
+              "/c"
+            ]
+          }
         }
       }
     },
@@ -69,10 +77,14 @@
         "group": "watch",
         "reveal": "never"
       },
-      "options": {
-        "shell": {
-          "executable": "C:\\Windows\\System32\\cmd.exe",
-          "args": ["/c"]
+      "windows": {
+        "options": {
+          "shell": {
+            "executable": "C:\\Windows\\System32\\cmd.exe",
+            "args": [
+              "/c"
+            ]
+          }
         }
       }
     },
@@ -86,10 +98,14 @@
         "group": "watchers"
       },
       "group": "build",
-      "options": {
-        "shell": {
-          "executable": "C:\\Windows\\System32\\cmd.exe",
-          "args": ["/c"]
+      "windows": {
+        "options": {
+          "shell": {
+            "executable": "C:\\Windows\\System32\\cmd.exe",
+            "args": [
+              "/c"
+            ]
+          }
         }
       }
     },

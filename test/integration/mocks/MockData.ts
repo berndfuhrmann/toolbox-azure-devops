@@ -84,6 +84,7 @@ export const samplePipelineRuns: PipelinesInterfaces.Run[] = [
 export const createTestAccount = (): Account => ({
   accountId: randomUUID(),
   organization: "test-org",
-  personalAccessToken: "test-token",
+  authentication: { type: "personalAccessToken" },
+  secrets: { personalAccessToken: "test-token" },
   url: "https://dev.azure.com/test-org",
 });

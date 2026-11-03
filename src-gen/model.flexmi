@@ -1520,14 +1520,15 @@
     <menuLocation location="view/title" when="toolbox-azure-devops-by-bf.accounts-unwrapped" group="navigation" />
   </command>
   <command
-    name="updatePersonalAccessToken"
-    handler="updatePersonalAccessTokenAction"
-    importPath="/modules/core/actions/updatePersonalAccessTokenAction"
+    name="updateCredentials"
+    handler="updateCredentialsAction"
+    importPath="/modules/core/actions/updateCredentialsAction"
     needsContainer="true"
-    title="Update Personal Access Token (PAT)"
-    icon="pat-update"
+    title="Update Credentials"
+    icon="credentials-update"
   >
     <menuLocation location="view/item/context" when="viewItem =~ /,account,/" />
+    <menuLocation location="view/item/context" when="viewItem =~ /,authentication-error,/" group="inline" />
     <menuLocation location="view/title" when="toolbox-azure-devops-by-bf.accounts-unwrapped" group="navigation" />
   </command>
   <command

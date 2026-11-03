@@ -4,13 +4,18 @@ const baseAccount: Account = {
   accountId: "1",
   url: "https://dev.azure.com/org",
   organization: "org",
-  personalAccessToken: "token123",
+  authentication: { type: "personalAccessToken" },
+  secrets: { personalAccessToken: "token123" },
 };
 
 describe("compareAccount", () => {
-  test("returns true for accounts with same url, organization, and personalAccessToken", () => {
+  test("returns true for accounts with same url, organization, authentication and secrets", () => {
     const a = { ...baseAccount };
-    const b = { ...baseAccount };
+    const b = {
+      ...baseAccount,
+      authentication: { ...baseAccount.authentication },
+      secrets: { personalAccessToken: "token123" },
+    };
     expect(compareAccount(a, b)).toBeTruthy();
   });
 
@@ -26,9 +31,15 @@ describe("compareAccount", () => {
     expect(compareAccount(a, b)).toBeFalsy();
   });
 
-  test("returns false if personalAccessToken differs", () => {
+  test("returns false if secrets differ", () => {
     const a = { ...baseAccount };
-    const b = { ...baseAccount, personalAccessToken: "otherToken" };
+    const b = { ...baseAccount, secrets: { personalAccessToken: "otherToken" } };
+    expect(compareAccount(a, b)).toBeFalsy();
+  });
+
+  test("returns false if secrets are missing on one side", () => {
+    const a = { ...baseAccount };
+    const b = { ...baseAccount, secrets: undefined };
     expect(compareAccount(a, b)).toBeFalsy();
   });
 
@@ -44,7 +55,7 @@ describe("buildAccountUrl", () => {
     accountId: "1",
     url,
     organization,
-    personalAccessToken: "token",
+    authentication: { type: "personalAccessToken" },
   });
 
   test("joins url with trailing slash and organization without leading slash", () => {

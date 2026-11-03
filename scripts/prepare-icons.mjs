@@ -8,7 +8,7 @@ const icons = {
   organization: "@tabler/icons/icons/outline/building.svg",
   "organization-add": "@tabler/icons/icons/outline/building-plus.svg",
   "organization-remove": "@tabler/icons/icons/outline/building-minus.svg",
-  "pat-update": "@tabler/icons/icons/outline/key.svg",
+  "credentials-update": "@tabler/icons/icons/outline/key.svg",
   project: "@tabler/icons/icons/outline/box.svg",
   folder: "@tabler/icons/icons/outline/folder.svg",
   file: "@tabler/icons/icons/outline/file.svg",

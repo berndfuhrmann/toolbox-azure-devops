@@ -19,6 +19,9 @@ import { getPinInfo as getMissingItemPinInfo, MissingTreeItem } from "./common/t
 import { registerTreeItem, registerTreePartProvider, registerTreeProvider } from "./generated/register";
 import { types } from "./generated/types";
 import { AccountContextProvider } from "./modules/core/AccountContextProvider";
+import { AuthenticationMethod } from "./modules/core/authentication/AuthenticationMethod";
+import { AuthenticationMethodRegistry } from "./modules/core/authentication/AuthenticationMethodRegistry";
+import { PersonalAccessTokenAuthenticationMethod } from "./modules/core/authentication/PersonalAccessTokenAuthenticationMethod";
 import { BuildLogTextDocumentContentProviderPart } from "./modules/pipeline/BuildLogTextDocumentContentProviderPart";
 import { PipelineDefinitionTextDocumentContentProviderPart } from "./modules/pipeline/PipelineDefinitionTextDocumentContentProviderPart";
 import { RepositoryItemTextDocumentContentProviderPart } from "./modules/repository/RepositoryItemTextDocumentContentProviderPart";
@@ -38,6 +41,14 @@ export function createContainer(context: vscode.ExtensionContext) {
     .toDynamicValue((ctx) => new IconService(ctx.get<vscode.ExtensionContext>(types.vscodeContext).extensionUri))
     .inSingletonScope();
   container.bind<AbstractStorageService>(types.StorageService).to(VSCodeStorageService).inSingletonScope();
+  container
+    .bind<AuthenticationMethod>(types.AuthenticationMethod)
+    .to(PersonalAccessTokenAuthenticationMethod)
+    .inSingletonScope();
+  container
+    .bind<AuthenticationMethodRegistry>(types.AuthenticationMethodRegistry)
+    .to(AuthenticationMethodRegistry)
+    .inSingletonScope();
   container
     .bind<TreeItemRegistry<AbstractTreeItem<any>>>(types.TreeItemRegistry)
     .to(TreeItemRegistry)

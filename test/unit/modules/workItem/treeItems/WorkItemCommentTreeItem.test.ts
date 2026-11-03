@@ -8,7 +8,8 @@ const sampleAccount = {
   accountId: "acc-123",
   url: "https://dev.azure.com/org",
   organization: "TestOrg",
-  personalAccessToken: "token123",
+  authentication: { type: "personalAccessToken" as const },
+  secrets: { personalAccessToken: "token123" },
 };
 
 function createTestCommentItem(comment: Partial<WorkItemCommentItem["comment"]> = {}): WorkItemCommentItem {

@@ -70,7 +70,8 @@ function createWorkItemItem(state: string, extraFields: Record<string, unknown> 
     accountId: "account-1",
     url: "https://dev.azure.com/org",
     organization: "org",
-    personalAccessToken: "pat",
+    authentication: { type: "personalAccessToken" },
+    secrets: { personalAccessToken: "pat" },
   };
 
   const projectItem = createProjectItemFactory(
