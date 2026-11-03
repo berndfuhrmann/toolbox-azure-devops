@@ -54,7 +54,8 @@ describe("pipelineCancelRunAction", () => {
       accountId: "account-1",
       url: "https://dev.azure.com/org",
       organization: "org",
-      personalAccessToken: "pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "pat" },
     };
     return createPipelineRunItemFactory(
       {
@@ -169,7 +170,8 @@ describe("pipelineCancelRunAction", () => {
       accountId: "account-xyz",
       url: "https://dev.azure.com/other-org",
       organization: "other-org",
-      personalAccessToken: "other-pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "other-pat" },
     };
 
     const data = createPipelineRunItemFactory(
@@ -234,7 +236,8 @@ describe("pipelineRerunRunAction", () => {
       accountId: "account-1",
       url: "https://dev.azure.com/org",
       organization: "org",
-      personalAccessToken: "pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "pat" },
     };
     return createPipelineRunItemFactory(
       {
@@ -334,7 +337,8 @@ describe("pipelineRerunRunAction", () => {
       accountId: "account-xyz",
       url: "https://dev.azure.com/other-org",
       organization: "other-org",
-      personalAccessToken: "other-pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "other-pat" },
     };
 
     const data = createPipelineRunItemFactory(

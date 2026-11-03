@@ -3,6 +3,7 @@ import { injectable } from "inversify";
 import { map, Observable, ReplaySubject } from "rxjs";
 import { AbstractStorageService } from "../../../src/common/storage/AbstractStorageService";
 import { Account } from "../../../src/modules/core/account";
+import { AuthenticationConfiguration } from "../../../src/modules/core/authentication/AuthenticationMethod";
 
 @injectable()
 export class MemoryStorageService extends AbstractStorageService {
@@ -10,6 +11,7 @@ export class MemoryStorageService extends AbstractStorageService {
   #pinnedItemsObservable = new ReplaySubject<undefined>(1);
   #accounts: Account[] = [];
   #accountsObservable = new ReplaySubject<undefined>(1);
+  #accountData = new Map<string, unknown>();
 
   constructor() {
     super();
@@ -57,13 +59,39 @@ export class MemoryStorageService extends AbstractStorageService {
   override async deleteAccount(accountId: string) {
     this.#accounts = this.#accounts.filter((a) => a.accountId !== accountId);
     this.#accountsObservable.next(undefined);
+    for (const key of [...this.#accountData.keys()]) {
+      if (key.startsWith(accountId + "/")) {
+        this.#accountData.delete(key);
+      }
+    }
+    const pinnedKeys: [string, string][] = [];
+    this.#pinnedItems.forEach((_, key) => {
+      if (key[0] === accountId) {
+        pinnedKeys.push(key);
+      }
+    });
+    pinnedKeys.forEach((key) => this.#pinnedItems.delete(key));
+    this.#pinnedItemsObservable.next(undefined);
   }
 
-  override async updateAccountPersonalAccessToken(accountId: string, personalAccessToken: string) {
-    const account = this.#accounts.find((account) => account.accountId === accountId);
-    if (account) {
-      account.personalAccessToken = personalAccessToken;
-    }
+  override async updateAccountAuthentication(accountId: string, configuration: AuthenticationConfiguration) {
+    this.#accounts = this.#accounts.map((account) =>
+      account.accountId === accountId
+        ? { ...account, authentication: configuration.authentication, secrets: configuration.secrets }
+        : account,
+    );
     this.#accountsObservable.next(undefined);
+  }
+
+  override getAccountData(accountId: string, name: string): unknown {
+    return this.#accountData.get(accountId + "/" + name);
+  }
+
+  override async updateAccountData(accountId: string, name: string, value: unknown) {
+    if (value === undefined) {
+      this.#accountData.delete(accountId + "/" + name);
+    } else {
+      this.#accountData.set(accountId + "/" + name, value);
+    }
   }
 }

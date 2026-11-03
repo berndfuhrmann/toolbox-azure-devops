@@ -9,7 +9,8 @@ const sampleAccount: Account = {
   accountId: "acc-123",
   url: "https://dev.azure.com/org",
   organization: "TestOrg",
-  personalAccessToken: "token123",
+  authentication: { type: "personalAccessToken" },
+  secrets: { personalAccessToken: "token123" },
 };
 
 const createTestAccountItem = () => createAccountItem(sampleAccount, new Container());
@@ -50,4 +51,18 @@ test("updateFrom returns false if nothing changes", () => {
   subject.updateFrom(data);
   const result = subject.updateFrom(data);
   expect(result).toBeFalsy();
+});
+
+test("updateFrom tags the authentication method", () => {
+  subject.updateFrom(createTestAccountItem());
+  expect(subject.contextValue).toContain(",auth-personalAccessToken,");
+});
+
+test("updateFrom replaces the authentication tag when the method changes", () => {
+  subject.updateFrom(createTestAccountItem());
+  const otherAccount = { ...sampleAccount, authentication: { type: "other" } } as unknown as Account;
+
+  expect(subject.updateFrom(createAccountItem(otherAccount, new Container()))).toBe(true);
+  expect(subject.contextValue).toContain(",auth-other,");
+  expect(subject.contextValue).not.toContain("auth-personalAccessToken");
 });

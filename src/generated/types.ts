@@ -15,6 +15,8 @@ export const types = {
   AccountContextProvider: Symbol("AccountContextProvider"),
   IconService: Symbol("IconService"),
   WorkItemTypeIconService: Symbol("WorkItemTypeIconService"),
+  AuthenticationMethod: Symbol("AuthenticationMethod"),
+  AuthenticationMethodRegistry: Symbol("AuthenticationMethodRegistry"),
   AlertService: Symbol("AlertService"),
   BuildService: Symbol("BuildService"),
   CixService: Symbol("CixService"),

@@ -15,7 +15,7 @@ The Azure DevOps Helper extension provides an intuitive way to access Microsoft 
   - Organization name
   - Personal Access Token (PAT) for authentication
 - **Remove Organization**: Disconnect organizations from the extension with confirmation dialog
-- **Update Personal Access Token**: Update PAT credentials for existing organizations
+- **Update Credentials**: Update the credentials (e.g. the PAT) of existing organizations, also offered on authentication errors
 
 ### Configuration
 
@@ -207,7 +207,7 @@ All available commands (prefixed with `azure-devops-helper.`):
 
 - `addOrganization` - Add new organization
 - `removeOrganization` - Remove organization
-- `updatePersonalAccessToken` - Update PAT credentials
+- `updateCredentials` - Update the credentials of an organization
 - `refresh` - Refresh tree item
 - `openInWeb` - Open in external browser
 - `pin` - Pin item

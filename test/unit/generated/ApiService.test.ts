@@ -1,5 +1,7 @@
 import { setTimeout } from "timers/promises";
 import { ApiService } from "../../../src/generated/ApiService";
+import { createTestAuthenticationMethodRegistry } from "../helper/authentication";
+import { AuthenticationMethodRegistry } from "../../../src/modules/core/authentication/AuthenticationMethodRegistry";
 import { createTestObserver } from "../helper/observables";
 import { MockGitApi } from "../mocks/ado/WebApi";
 import { Account } from "../../../src/modules/core/account";
@@ -22,19 +24,20 @@ describe("ApiService", () => {
 
   test("nothing happens", () => {
     const accountObservable = new Subject<Account>();
-    const subject = new ApiService(accountObservable);
+    const subject = new ApiService(accountObservable, createTestAuthenticationMethodRegistry());
     subject.gitApi().subscribe(observer);
     expect(observer.combined.mock.calls).toEqual([]);
   });
 
   test("get value once", async () => {
     const accountObservable = new Subject<Account>();
-    const subject = new ApiService(accountObservable);
+    const subject = new ApiService(accountObservable, createTestAuthenticationMethodRegistry());
     subject.gitApi().subscribe(observer);
     accountObservable.next({
       accountId: randomUUID(),
       organization: "some-org",
-      personalAccessToken: "some-pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "some-pat" },
       url: "some-url",
     });
     await setTimeout(1);
@@ -43,19 +46,21 @@ describe("ApiService", () => {
 
   test("get new value after change", async () => {
     const accountObservable = new Subject<Account>();
-    const subject = new ApiService(accountObservable);
+    const subject = new ApiService(accountObservable, createTestAuthenticationMethodRegistry());
     subject.gitApi().subscribe(observer);
     accountObservable.next({
       accountId: randomUUID(),
       organization: "some-org",
-      personalAccessToken: "some-pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "some-pat" },
       url: "some-url",
     });
     await setTimeout(1);
     accountObservable.next({
       accountId: randomUUID(),
       organization: "some-org2",
-      personalAccessToken: "some-pat2",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "some-pat2" },
       url: "some-url2",
     });
     await setTimeout(1);
@@ -64,11 +69,12 @@ describe("ApiService", () => {
 
   test("late subscribers get a value", async () => {
     const accountObservable = new ReplaySubject<Account>(1);
-    const subject = new ApiService(accountObservable);
+    const subject = new ApiService(accountObservable, createTestAuthenticationMethodRegistry());
     accountObservable.next({
       accountId: randomUUID(),
       organization: "some-org",
-      personalAccessToken: "some-pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "some-pat" },
       url: "some-url",
     });
     await setTimeout(1);
@@ -76,5 +82,55 @@ describe("ApiService", () => {
     await setTimeout(1);
 
     expect(observer.combined.mock.calls).toEqual([[expect.any(MockGitApi)]]);
+  });
+
+  test("does not reconnect if nothing relevant for the connection changed", async () => {
+    const accountObservable = new Subject<Account>();
+    const subject = new ApiService(accountObservable, createTestAuthenticationMethodRegistry());
+    subject.gitApi().subscribe(observer);
+    const account: Account = {
+      accountId: randomUUID(),
+      organization: "some-org",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "some-pat" },
+      url: "some-url",
+    };
+    accountObservable.next(account);
+    await setTimeout(1);
+    accountObservable.next({ ...account, secrets: { personalAccessToken: "some-pat" } });
+    await setTimeout(1);
+    expect(observer.combined.mock.calls).toEqual([[expect.any(MockGitApi)]]);
+  });
+
+  test("reconnects if the secrets changed", async () => {
+    const accountObservable = new Subject<Account>();
+    const subject = new ApiService(accountObservable, createTestAuthenticationMethodRegistry());
+    subject.gitApi().subscribe(observer);
+    const account: Account = {
+      accountId: randomUUID(),
+      organization: "some-org",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "some-pat" },
+      url: "some-url",
+    };
+    accountObservable.next(account);
+    await setTimeout(1);
+    accountObservable.next({ ...account, secrets: { personalAccessToken: "other-pat" } });
+    await setTimeout(1);
+    expect(observer.combined.mock.calls).toEqual([[expect.any(MockGitApi)], [expect.any(MockGitApi)]]);
+  });
+
+  test("emits an exception for an unknown authentication method", async () => {
+    const accountObservable = new Subject<Account>();
+    const subject = new ApiService(accountObservable, new AuthenticationMethodRegistry([]));
+    subject.gitApi().subscribe(observer);
+    accountObservable.next({
+      accountId: randomUUID(),
+      organization: "some-org",
+      authentication: { type: "personalAccessToken" },
+      url: "some-url",
+    });
+    await setTimeout(1);
+    expect(observer.combined.mock.calls).toEqual([[expect.objectContaining({ error: expect.any(Error) })]]);
   });
 });

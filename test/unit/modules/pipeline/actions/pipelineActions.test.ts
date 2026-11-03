@@ -72,7 +72,8 @@ describe("pipelineRevealRepositoryAction", () => {
       accountId: "account-1",
       url: "https://dev.azure.com/org",
       organization: "org",
-      personalAccessToken: "pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "pat" },
     };
     return createPipelineItemFactory(
       { account, container: new Container(), refreshObservables: {}, projectId: "project-1" },
@@ -151,7 +152,8 @@ describe("pipelineRevealRepositoryAction", () => {
       accountId: "account-xyz",
       url: "https://dev.azure.com/other-org",
       organization: "other-org",
-      personalAccessToken: "other-pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "other-pat" },
     };
 
     const data = createPipelineItemFactory(
@@ -241,7 +243,8 @@ describe("pipelineRenamePipelineAction", () => {
       accountId: "account-1",
       url: "https://dev.azure.com/org",
       organization: "org",
-      personalAccessToken: "pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "pat" },
     };
     return createPipelineItemFactory(
       { account, container: new Container(), refreshObservables: {}, projectId: "project-1" },
@@ -344,7 +347,8 @@ describe("pipelineDeletePipelineAction", () => {
       accountId: "account-1",
       url: "https://dev.azure.com/org",
       organization: "org",
-      personalAccessToken: "pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "pat" },
     };
     return createPipelineItemFactory(
       { account, container: new Container(), refreshObservables: {}, projectId: "project-1" },
@@ -438,7 +442,8 @@ describe("pipelineMovePipeline", () => {
       accountId: "account-1",
       url: "https://dev.azure.com/org",
       organization: "org",
-      personalAccessToken: "pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "pat" },
     };
     return createPipelineItemFactory(
       { account, container: new Container(), refreshObservables: {}, projectId: "project-1" },
@@ -452,7 +457,8 @@ describe("pipelineMovePipeline", () => {
       accountId: "account-1",
       url: "https://dev.azure.com/org",
       organization: "org",
-      personalAccessToken: "pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "pat" },
     };
     return createPipelineFolderItemFactory(
       { account, container: new Container(), refreshObservables: {}, projectId: "project-1" },
@@ -466,7 +472,8 @@ describe("pipelineMovePipeline", () => {
       accountId: "account-1",
       url: "https://dev.azure.com/org",
       organization: "org",
-      personalAccessToken: "pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "pat" },
     };
     return createProjectItemFactory(
       { account, container: new Container(), refreshObservables: {} },
@@ -592,7 +599,8 @@ describe("pipelineRunPipelineAction", () => {
       accountId: "account-1",
       url: "https://dev.azure.com/org",
       organization: "org",
-      personalAccessToken: "pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "pat" },
     };
     return createPipelineItemFactory(
       { account, container: new Container(), refreshObservables: {}, projectId: "project-1" },

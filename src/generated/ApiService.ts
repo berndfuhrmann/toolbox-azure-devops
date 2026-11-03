@@ -1,5 +1,5 @@
 // generated
-import { getPersonalAccessTokenHandler, WebApi } from "azure-devops-node-api";
+import { WebApi } from "azure-devops-node-api";
 import { IAlertApi } from "azure-devops-node-api/AlertApi";
 import { IBuildApi } from "azure-devops-node-api/BuildApi";
 import { ICixApi } from "azure-devops-node-api/CIXApi";
@@ -32,6 +32,7 @@ import { IWorkItemTrackingProcessDefinitionsApi } from "azure-devops-node-api/Wo
 import { injectable } from "inversify";
 import {
   catchError,
+  distinctUntilChanged,
   from,
   map,
   Observable,
@@ -40,10 +41,12 @@ import {
   switchMap,
 } from "rxjs";
 import { isException, Exception, createException } from "../common/Exception";
-import { Account, buildAccountUrl } from "../modules/core/account";
+import { Account, buildAccountUrl, compareAccount } from "../modules/core/account";
+import { AuthenticationMethodRegistry } from "../modules/core/authentication/AuthenticationMethodRegistry";
 
 @injectable()
 export class ApiService {
+  #authenticationMethodRegistry: AuthenticationMethodRegistry;
   #webApi: Observable<WebApi | Exception>;
 	#alertApi: Observable<IAlertApi | Exception>;
 	#buildApi: Observable<IBuildApi | Exception>;
@@ -76,14 +79,18 @@ export class ApiService {
 	#workItemTrackingProcessDefinitionApi: Observable<IWorkItemTrackingProcessDefinitionsApi | Exception>;
 
   constructor(
-    accountObservable: Observable<Account>
+    accountObservable: Observable<Account>,
+    authenticationMethodRegistry: AuthenticationMethodRegistry,
   ) {
+    this.#authenticationMethodRegistry = authenticationMethodRegistry;
     this.#webApi = accountObservable.pipe(
+      // only reconnect if something changed that is needed for the connection
+      distinctUntilChanged(compareAccount),
       map((account) => {
-        if (isException(account)) {
-          return account;
-        } else {
+        try {
           return this.#WebApi(account);
+        } catch (error) {
+          return createException(error as Error);
         }
       }),
       shareReplay(1),
@@ -223,9 +230,7 @@ export class ApiService {
   }
 
   #WebApi(account: Account) {
-    return new WebApi(
-      buildAccountUrl(account),
-      getPersonalAccessTokenHandler(account.personalAccessToken!),
-    );
+    const authenticationMethod = this.#authenticationMethodRegistry.get(account.authentication.type);
+    return new WebApi(buildAccountUrl(account), authenticationMethod.createRequestHandler(account));
   }
 }

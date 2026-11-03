@@ -13,6 +13,16 @@ const errorMessageSchema = Type.Object({
   errorCode: Type.Number(),
   eventId: Type.Number(),
 });
+/** Tags errors that can be fixed by updating the credentials. */
+export const authenticationErrorContextTag = "authentication-error";
+
+/**
+ * Only 401 means the credentials were not accepted. 403 means the credentials are fine, but permissions are missing.
+ */
+export function isAuthenticationError(error: unknown) {
+  return typeof error === "object" && error !== null && "statusCode" in error && error.statusCode === 401;
+}
+
 export class ExceptionTreeItem<Data extends Exception = Exception> extends AbstractTreeItem<Data> {
   constructor() {
     super();
@@ -25,10 +35,14 @@ export class ExceptionTreeItem<Data extends Exception = Exception> extends Abstr
   }
 
   updateFromException() {
+    const authenticationErrorChanged = this.updateTag(
+      authenticationErrorContextTag,
+      isAuthenticationError(this.data.error),
+    );
     if (this.data.error instanceof Error) {
-      return this.loadHttpException(this.data.error);
+      return [authenticationErrorChanged, ...this.loadHttpException(this.data.error)];
     } else {
-      return [];
+      return [authenticationErrorChanged];
     }
   }
 

@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { BehaviorSubject, ReplaySubject, Subject } from "rxjs";
 import { setTimeout } from "timers/promises";
 import { ApiService } from "../../../src/generated/ApiService";
+import { createTestAuthenticationMethodRegistry } from "../helper/authentication";
 import { GitService } from "../../../src/generated/services";
 import { Account } from "../../../src/modules/core/account";
 import { createTestObserver } from "../helper/observables";
@@ -32,7 +33,7 @@ const createTestSetup = () => {
 const createGitServiceWithAccount = (account: Account) => {
   const accountObservable = new ReplaySubject<Account>();
   accountObservable.next(account);
-  const apiService = new ApiService(accountObservable);
+  const apiService = new ApiService(accountObservable, createTestAuthenticationMethodRegistry());
   return {
     subject: new GitService(apiService, vscode.window.createOutputChannel("test")),
     accountObservable,
@@ -41,7 +42,7 @@ const createGitServiceWithAccount = (account: Account) => {
 
 const createGitServiceWithoutAccount = () => {
   const accountObservable = new Subject<Account>();
-  const apiService = new ApiService(accountObservable);
+  const apiService = new ApiService(accountObservable, createTestAuthenticationMethodRegistry());
   return {
     subject: new GitService(apiService, vscode.window.createOutputChannel("test")),
     accountObservable,
@@ -107,7 +108,11 @@ describe("GitService - getRepositories", () => {
     controller1.resolve([]);
     controller2.resolve(sampleGitRepositories);
     await waitForNextTick();
-    accountObservable.next({ ...account, personalAccessToken: "new-token" });
+    accountObservable.next({
+      ...account,
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "new-token" },
+    });
     await waitForNextTick();
 
     expect(observer.combined).toHaveBeenCalledTimes(2);

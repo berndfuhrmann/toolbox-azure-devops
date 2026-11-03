@@ -61,7 +61,8 @@ describe("pipelineRenameFolderAction", () => {
       accountId: "account-1",
       url: "https://dev.azure.com/org",
       organization: "org",
-      personalAccessToken: "pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "pat" },
     };
     const project = createProjectItemFactory(
       { account, container: new Container(), refreshObservables: {} },
@@ -200,7 +201,8 @@ describe("pipelineCreateFolderAction", () => {
       accountId: "account-1",
       url: "https://dev.azure.com/org",
       organization: "org",
-      personalAccessToken: "pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "pat" },
     };
     return createProjectItemFactory(
       { account, container: new Container(), refreshObservables: {} },
@@ -214,7 +216,8 @@ describe("pipelineCreateFolderAction", () => {
       accountId: "account-1",
       url: "https://dev.azure.com/org",
       organization: "org",
-      personalAccessToken: "pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "pat" },
     };
     const project = createProjectItemFactory(
       { account, container: new Container(), refreshObservables: {} },
@@ -360,7 +363,8 @@ describe("pipelineDeleteFolderAction", () => {
       accountId: "account-1",
       url: "https://dev.azure.com/org",
       organization: "org",
-      personalAccessToken: "pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "pat" },
     };
     const project = createProjectItemFactory(
       { account, container: new Container(), refreshObservables: {} },
@@ -509,7 +513,8 @@ describe("pipelineMoveFolder", () => {
       accountId: "account-1",
       url: "https://dev.azure.com/org",
       organization: "org",
-      personalAccessToken: "pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "pat" },
     };
     const project = createProjectItemFactory(
       { account, container: new Container(), refreshObservables: {} },
@@ -524,7 +529,8 @@ describe("pipelineMoveFolder", () => {
       accountId: "account-1",
       url: "https://dev.azure.com/org",
       organization: "org",
-      personalAccessToken: "pat",
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: "pat" },
     };
     return createProjectItemFactory(
       { account, container: new Container(), refreshObservables: {} },

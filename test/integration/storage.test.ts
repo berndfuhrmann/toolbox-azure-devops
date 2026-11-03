@@ -60,7 +60,7 @@ suite("Storage Service Integration Tests", () => {
     assert.strictEqual(accounts.length, 0, "Expected no accounts after deletion");
   });
 
-  test("should update account PAT", async () => {
+  test("should update account credentials", async () => {
     const container = getExtensionContainer();
     const storageService = container.get<AbstractStorageService>(types.StorageService);
 
@@ -68,10 +68,13 @@ suite("Storage Service Integration Tests", () => {
     await storageService.addAccount(account);
 
     const newPat = "new-token-value";
-    await storageService.updateAccountPersonalAccessToken(account.accountId, newPat);
+    await storageService.updateAccountAuthentication(account.accountId, {
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken: newPat },
+    });
 
     const accounts = await firstValueFrom(storageService.getAccounts());
 
-    assert.strictEqual(accounts[0].personalAccessToken, newPat, "PAT should be updated");
+    assert.deepStrictEqual(accounts[0].secrets, { personalAccessToken: newPat }, "PAT should be updated");
   });
 });

@@ -5,7 +5,13 @@ import { AccountItem, compareAccountItem, createAccountItem } from "../../../../
 
 describe("compareAccountItem", () => {
   function createAccount(accountId: string, url: string, organization: string, personalAccessToken: string): Account {
-    return { accountId, url, organization, personalAccessToken };
+    return {
+      accountId,
+      url,
+      organization,
+      authentication: { type: "personalAccessToken" },
+      secrets: { personalAccessToken },
+    };
   }
 
   function createContainer(): Container {
