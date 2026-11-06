@@ -7,6 +7,7 @@ import { types } from "../../../generated/types";
 import { Account, buildAccountUrl } from "../account";
 import { AuthenticationMethod } from "../authentication/AuthenticationMethod";
 import { AuthenticationMethodRegistry } from "../authentication/AuthenticationMethodRegistry";
+import { pickAuthenticationMethod } from "./accountUtilities";
 
 const azureDevOpsHost = "dev.azure.com";
 
@@ -102,23 +103,6 @@ async function promptForOrganization() {
   return organization?.trim();
 }
 
-async function pickAuthenticationMethod(methods: readonly AuthenticationMethod[], url: string) {
-  if (methods.length <= 1) {
-    return methods[0];
-  }
-  const suggested = methods.find((method) => method.isSuggestedFor(url));
-  const items = methods.map((method) => ({
-    label: method.label,
-    description: method === suggested ? "suggested" : undefined,
-    method,
-  }));
-  if (suggested) {
-    items.sort((a, b) => Number(b.method === suggested) - Number(a.method === suggested));
-  }
-  const picked = await vscode.window.showQuickPick(items, { title: "Select Sign-in Method", ignoreFocusOut: true });
-  return picked?.method;
-}
-
 /**
  * Tests the connection. If it fails, the user can still save the organization, e.g. if the server is not reachable right now.
  */
@@ -127,7 +111,10 @@ async function confirmConnection(account: Account, authenticationMethod: Authent
   try {
     await vscode.window.withProgress(
       { location: vscode.ProgressLocation.Notification, title: `Connecting to ${accountUrl}` },
-      () => new WebApi(accountUrl, authenticationMethod.createRequestHandler(account)).connect(),
+      async () => {
+        const requestHandler = await authenticationMethod.createRequestHandler(account);
+        await new WebApi(accountUrl, requestHandler).connect();
+      },
     );
     return true;
   } catch (error) {

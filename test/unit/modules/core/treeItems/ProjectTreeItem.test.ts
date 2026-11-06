@@ -20,7 +20,7 @@ const sampleProject: TeamProjectReference = {
 };
 
 const createTestProjectItem = () =>
-  createProjectItem(createAccountItem(sampleAccount, new Container()), sampleProject, {});
+  createProjectItem(createAccountItem(sampleAccount, new Container(), "signedIn"), sampleProject, {});
 
 let subject: ProjectTreeItem;
 

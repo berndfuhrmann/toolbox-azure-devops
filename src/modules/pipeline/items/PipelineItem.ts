@@ -15,7 +15,7 @@ export function comparePipelineContext(a: PipelineContext, b: PipelineContext) {
 }
 
 export function comparePipelineItem(a: PipelineItem, b: PipelineItem) {
-  if (!compareProjectContext(a, b)) {
+  if (!comparePipelineContext(a, b)) {
     return false;
   }
   return isDeepStrictEqual(a.pipeline, b.pipeline);

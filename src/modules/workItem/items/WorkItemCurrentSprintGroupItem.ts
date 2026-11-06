@@ -1,6 +1,6 @@
 import { isDeepStrictEqual } from "node:util";
 import { Subject } from "rxjs";
-import { compareWorkItemCurrentSprintItem, WorkItemCurrentSprintContext } from "./WorkItemCurrentSprintItem";
+import { compareWorkItemCurrentSprintContext, WorkItemCurrentSprintContext } from "./WorkItemCurrentSprintItem";
 import { WorkItemItem } from "./WorkItemItem";
 
 export type WorkItemCurrentSprintGroupType = "assignee" | "state";
@@ -41,7 +41,7 @@ export function compareWorkItemCurrentSprintGroupItem(
   a: WorkItemCurrentSprintGroupItem,
   b: WorkItemCurrentSprintGroupItem,
 ) {
-  if (!compareWorkItemCurrentSprintItem(a, b)) {
+  if (!compareWorkItemCurrentSprintContext(a, b)) {
     return false;
   }
 

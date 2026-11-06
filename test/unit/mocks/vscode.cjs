@@ -7,6 +7,11 @@ vscodeMock.env = {
   openExternal: vi.fn(),
 };
 
+vscodeMock.authentication = {
+  getSession: vi.fn(),
+  onDidChangeSessions: vi.fn(() => ({ dispose: vi.fn() })),
+};
+
 vscodeMock.window.createQuickPick = vi.fn(() => {
   const eventHandlers = {
     onDidAccept: [],

@@ -1,6 +1,6 @@
 import { isDeepStrictEqual } from "node:util";
 import { injectable, injectFromHierarchy } from "inversify";
-import { BehaviorSubject, concat, delay, map, of, Subject, take } from "rxjs";
+import { BehaviorSubject, concat, delayWhen, map, of, ReplaySubject, Subject, take } from "rxjs";
 import { AbstractTreeItem } from "../../../src/common/treeItems/AbstractTreeItem";
 import { CombiningTreePartProvider } from "../../../src/common/treePartProvider/CombiningTreePartProvider";
 import { fromArray } from "../../../src/common/treePartProvider/fromArray";
@@ -57,13 +57,19 @@ class AsyncDataChildTreeItem extends AbstractTreeItem<AsyncDataItem> {
 
 /**
  * TreePartProvider that emits items with undefined data first,
- * then loads the full data asynchronously (simulates work item loading)
+ * then loads the full data once the test calls `finishLoading` (simulates work item loading).
+ * Controlled by the test instead of a timer, so that the test decides what happens before and after loading.
  */
 class AsyncLoadingTreePartProvider extends TreePartProvider<AsyncDataItem, undefined> {
   #items: AsyncDataItem[] = [];
+  #loaded = new ReplaySubject<void>(1);
 
   setItems(items: AsyncDataItem[]) {
     this.#items = items;
+  }
+
+  finishLoading() {
+    this.#loaded.next();
   }
 
   getItems(_context: any): any {
@@ -78,10 +84,10 @@ class AsyncLoadingTreePartProvider extends TreePartProvider<AsyncDataItem, undef
             concat(
               // Emit the item as-is (data undefined) first, then complete
               source.pipe(take(1)),
-              // After a delay, emit the item with its full data loaded
+              // Once loading finished, emit the item with its full data loaded
               source.pipe(
                 take(1),
-                delay(10),
+                delayWhen(() => this.#loaded),
                 map((item) => {
                   const asyncDataItem = item as AsyncDataItem;
                   return {
@@ -164,19 +170,15 @@ describe("AbstractTreeProvider - Async Data Loading with StaticTreePartProvider"
     // No children yet because data is undefined and conditions evaluate to false
     expect(item1Children).toHaveLength(0);
 
-    // Step 3: Wait for async data to load AND for reactive chain to process
-    // The delay(10) in AsyncLoadingTreePartProvider plus processing time
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    // Step 3: Finish loading the data
+    rootProvider.finishLoading();
 
-    // Step 4: Wait a tick for the replaySubject to emit after itemInput.next()
-    await new Promise((resolve) => setTimeout(resolve, 10));
-
-    // Step 5: Get children again - now they should appear!
+    // Step 4: Get children again - once the reactive chain processed the data, they should appear!
+    await vi.waitFor(async () => expect(await subject.getChildren(rootItems![0])).toHaveLength(1));
     const item1ChildrenAfterLoad = await subject.getChildren(rootItems![0]);
-    expect(item1ChildrenAfterLoad).toHaveLength(1);
     expect(item1ChildrenAfterLoad![0].label).toContain("Child");
 
-    // Step 6: Check item2 which should have different children
+    // Step 5: Check item2 which should have different children
     const item2Children = await subject.getChildren(rootItems![1]);
     expect(item2Children).toHaveLength(1);
     expect(item2Children![0].label).toContain("Child");
@@ -239,14 +241,11 @@ describe("AbstractTreeProvider - Async Data Loading with StaticTreePartProvider"
     expect(itemInputUpdatesSpy).toHaveBeenCalled();
     expect(itemInputUpdatesSpy.mock.calls[0][0].data).toBeUndefined();
 
-    // Wait for async load and reactive chain processing
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    rootProvider.finishLoading();
 
-    // Should have received updated data
+    // Should receive the updated data once the reactive chain processed it
+    await vi.waitFor(() => expect(itemInputUpdatesSpy.mock.lastCall?.[0].data?.title).toBe("Item 1"));
     expect(itemInputUpdatesSpy.mock.calls.length).toBeGreaterThan(1);
-    const lastCall = itemInputUpdatesSpy.mock.calls[itemInputUpdatesSpy.mock.calls.length - 1][0];
-    expect(lastCall.data).toBeDefined();
-    expect(lastCall.data?.title).toBe("Item 1");
   });
 
   test("should not update itemInput when parent receives child update notifications", async () => {
@@ -376,13 +375,11 @@ describe("AbstractTreeProvider - Async Data Loading with StaticTreePartProvider"
     // Expand item1 before data loads
     await subject.getChildren(rootItems![0]);
 
-    // Wait for data and reactive chain
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    rootProvider.finishLoading();
 
-    // Item1 should have both children
+    // Item1 should have both children once the reactive chain processed the data
+    await vi.waitFor(async () => expect(await subject.getChildren(rootItems![0])).toHaveLength(2));
     const item1Children = await subject.getChildren(rootItems![0]);
-    expect(item1Children).toHaveLength(2);
     expect(item1Children!.map((c) => c.label)).toContain("Comments");
     expect(item1Children!.map((c) => c.label)).toContain("Attachments");
 
@@ -452,13 +449,11 @@ describe("AbstractTreeProvider - Async Data Loading with StaticTreePartProvider"
     expect(childrenBefore).toHaveLength(1); // Only "Always Visible"
     expect(childrenBefore![0].label).toBe("Always Visible");
 
-    // Wait for data and reactive chain
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    rootProvider.finishLoading();
 
-    // Now should have both
+    // Now should have both, once the reactive chain processed the data
+    await vi.waitFor(async () => expect(await subject.getChildren(rootItems![0])).toHaveLength(2));
     const childrenAfter = await subject.getChildren(rootItems![0]);
-    expect(childrenAfter).toHaveLength(2);
     expect(childrenAfter!.map((c) => c.label)).toContain("Comments");
     expect(childrenAfter!.map((c) => c.label)).toContain("Always Visible");
   });

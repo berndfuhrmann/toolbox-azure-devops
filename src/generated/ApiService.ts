@@ -86,13 +86,20 @@ export class ApiService {
     this.#webApi = accountObservable.pipe(
       // only reconnect if something changed that is needed for the connection
       distinctUntilChanged(compareAccount),
-      map((account) => {
-        try {
-          return this.#WebApi(account);
-        } catch (error) {
-          return createException(error as Error);
-        }
-      }),
+      // also reconnect when signing in or out, so that results that failed while signed out are fetched again
+      switchMap((account) =>
+        authenticationMethodRegistry.signInStatus(account).pipe(
+          distinctUntilChanged(),
+          map((signInStatus) => ({ account, signInStatus })),
+        ),
+      ),
+      // switchMap drops a handler that is still being created for an outdated account
+      switchMap(({ account, signInStatus }) =>
+        signInStatus === "signedOut"
+          ? // requests without credentials would only fail, as an anonymous user
+            of(createException(new Error(`Signed out of ${account.organization}`)))
+          : from(this.#WebApi(account)).pipe(catchError((error) => of(createException(error as Error)))),
+      ),
       shareReplay(1),
     );
     this.#alertApi = this.#makeApi((webApi) => webApi?.getAlertApi());
@@ -229,8 +236,8 @@ export class ApiService {
     );
   }
 
-  #WebApi(account: Account) {
+  async #WebApi(account: Account) {
     const authenticationMethod = this.#authenticationMethodRegistry.get(account.authentication.type);
-    return new WebApi(buildAccountUrl(account), authenticationMethod.createRequestHandler(account));
+    return new WebApi(buildAccountUrl(account), await authenticationMethod.createRequestHandler(account));
   }
 }

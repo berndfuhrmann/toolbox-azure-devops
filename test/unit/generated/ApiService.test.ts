@@ -5,8 +5,10 @@ import { AuthenticationMethodRegistry } from "../../../src/modules/core/authenti
 import { createTestObserver } from "../helper/observables";
 import { MockGitApi } from "../mocks/ado/WebApi";
 import { Account } from "../../../src/modules/core/account";
-import { ReplaySubject, Subject } from "rxjs";
+import { BehaviorSubject, Observable, of, ReplaySubject, Subject } from "rxjs";
 import { randomUUID } from "crypto";
+import type { IRequestHandler } from "azure-devops-node-api/interfaces/common/VsoBaseInterfaces";
+import { AuthenticationMethod, SignInStatus } from "../../../src/modules/core/authentication/AuthenticationMethod";
 
 vi.mock("azure-devops-node-api", async (importOriginal) => {
   return {
@@ -15,6 +17,33 @@ vi.mock("azure-devops-node-api", async (importOriginal) => {
     getPersonalAccessTokenHandler: (token: string) => "token:" + token,
   };
 });
+
+function createAccount(organization = "some-org"): Account {
+  return {
+    accountId: randomUUID(),
+    organization,
+    authentication: { type: "personalAccessToken" },
+    secrets: { personalAccessToken: "some-pat" },
+    url: "some-url",
+  };
+}
+
+function createRegistry(
+  createRequestHandler: AuthenticationMethod["createRequestHandler"],
+  status: Observable<SignInStatus> = of("signedIn"),
+) {
+  const method: AuthenticationMethod = {
+    type: "personalAccessToken",
+    label: "Test",
+    isAvailableFor: () => true,
+    isSuggestedFor: () => false,
+    configure: vi.fn(),
+    updateCredentials: vi.fn(),
+    createRequestHandler,
+    signInStatus: () => status,
+  };
+  return new AuthenticationMethodRegistry([method]);
+}
 
 describe("ApiService", () => {
   let observer: ReturnType<typeof createTestObserver>;
@@ -118,6 +147,88 @@ describe("ApiService", () => {
     accountObservable.next({ ...account, secrets: { personalAccessToken: "other-pat" } });
     await setTimeout(1);
     expect(observer.combined.mock.calls).toEqual([[expect.any(MockGitApi)], [expect.any(MockGitApi)]]);
+  });
+
+  test("waits for the request handler before creating the connection", async () => {
+    const accountObservable = new Subject<Account>();
+    const { promise, resolve } = Promise.withResolvers<IRequestHandler>();
+    const subject = new ApiService(
+      accountObservable,
+      createRegistry(() => promise),
+    );
+    subject.gitApi().subscribe(observer);
+    accountObservable.next(createAccount());
+    await setTimeout(1);
+    expect(observer.combined.mock.calls).toEqual([]);
+    resolve({} as IRequestHandler);
+    await setTimeout(1);
+    expect(observer.combined.mock.calls).toEqual([[expect.any(MockGitApi)]]);
+  });
+
+  test("ignores a request handler for an outdated account", async () => {
+    const accountObservable = new Subject<Account>();
+    const outdated = Promise.withResolvers<IRequestHandler>();
+    const current = Promise.withResolvers<IRequestHandler>();
+    const createRequestHandler = vi
+      .fn<AuthenticationMethod["createRequestHandler"]>()
+      .mockReturnValueOnce(outdated.promise)
+      .mockReturnValueOnce(current.promise);
+    const subject = new ApiService(accountObservable, createRegistry(createRequestHandler));
+    subject.gitApi().subscribe(observer);
+    accountObservable.next(createAccount("outdated"));
+    accountObservable.next(createAccount("current"));
+    current.resolve({} as IRequestHandler);
+    await setTimeout(1);
+    outdated.resolve({} as IRequestHandler);
+    await setTimeout(1);
+    expect(observer.combined.mock.calls).toEqual([[expect.any(MockGitApi)]]);
+  });
+
+  test("emits an exception if the request handler cannot be created", async () => {
+    const accountObservable = new Subject<Account>();
+    const subject = new ApiService(
+      accountObservable,
+      createRegistry(() => Promise.reject(new Error("no token"))),
+    );
+    subject.gitApi().subscribe(observer);
+    accountObservable.next(createAccount());
+    await setTimeout(1);
+    expect(observer.combined.mock.calls).toEqual([[expect.objectContaining({ error: expect.any(Error) })]]);
+  });
+
+  test("reconnects when the sign-in status changes", async () => {
+    const accountObservable = new Subject<Account>();
+    const status = new BehaviorSubject<SignInStatus>("signedIn");
+    const createRequestHandler = vi.fn(async () => ({}) as IRequestHandler);
+    const subject = new ApiService(accountObservable, createRegistry(createRequestHandler, status));
+    subject.gitApi().subscribe(observer);
+    accountObservable.next(createAccount());
+    await setTimeout(1);
+    status.next("signedIn");
+    await setTimeout(1);
+    status.next("signedOut");
+    await setTimeout(1);
+    status.next("signedIn");
+    await setTimeout(1);
+    expect(createRequestHandler).toHaveBeenCalledTimes(2);
+    expect(observer.combined.mock.calls).toEqual([
+      [expect.any(MockGitApi)],
+      [expect.objectContaining({ error: expect.any(Error) })],
+      [expect.any(MockGitApi)],
+    ]);
+  });
+
+  test("does not connect while signed out", async () => {
+    const accountObservable = new Subject<Account>();
+    const createRequestHandler = vi.fn(async () => ({}) as IRequestHandler);
+    const subject = new ApiService(accountObservable, createRegistry(createRequestHandler, of("signedOut")));
+    subject.gitApi().subscribe(observer);
+    accountObservable.next(createAccount("my-org"));
+    await setTimeout(1);
+    expect(createRequestHandler).not.toHaveBeenCalled();
+    expect(observer.combined.mock.calls).toEqual([
+      [expect.objectContaining({ error: new Error("Signed out of my-org") })],
+    ]);
   });
 
   test("emits an exception for an unknown authentication method", async () => {

@@ -4,7 +4,7 @@ import vscode from "vscode";
 import { AbstractStorageService } from "../../../../../src/common/storage/AbstractStorageService";
 import { types } from "../../../../../src/generated/types";
 import { Account } from "../../../../../src/modules/core/account";
-import { updateCredentialsAction } from "../../../../../src/modules/core/actions/updateCredentialsAction";
+import { signInAction, updateCredentialsAction } from "../../../../../src/modules/core/actions/updateCredentialsAction";
 import { createAccountItem } from "../../../../../src/modules/core/items/AccountItem";
 import { AccountTreeItem } from "../../../../../src/modules/core/treeItems/AccountTreeItem";
 import { ExceptionTreeItem } from "../../../../../src/common/treeItems/ExceptionTreeItem";
@@ -32,7 +32,7 @@ const getSecrets = async () => (await firstValueFrom(storageService.getAccounts(
 
 function createAccountTreeItem(account: Account) {
   const treeItem = new AccountTreeItem();
-  (treeItem as any).data = createAccountItem(account, container);
+  (treeItem as any).data = createAccountItem(account, container, "signedIn");
   return treeItem;
 }
 
@@ -80,4 +80,16 @@ test("does nothing if the account picker is cancelled", async () => {
   await updateCredentialsAction(container)(undefined);
 
   expect(vscode.window.showInputBox).not.toHaveBeenCalled();
+});
+
+test("signs in to the account of the tree item", async () => {
+  await storageService.addAccount(createAccount("2"));
+  vi.mocked(vscode.window.showInputBox).mockResolvedValue("new-pat");
+  const treeItem = new AccountTreeItem();
+  (treeItem as any).data = createAccountItem(createAccount("2"), container, "signedOut");
+
+  await signInAction(container)(treeItem);
+
+  expect(vscode.window.showQuickPick).not.toHaveBeenCalled();
+  expect(await getSecrets()).toEqual([{ personalAccessToken: "old-pat" }, { personalAccessToken: "new-pat" }]);
 });

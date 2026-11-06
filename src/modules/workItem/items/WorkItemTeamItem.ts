@@ -7,11 +7,15 @@ export function isWorkItemTeamItem(item: { type: string }): item is WorkItemTeam
   return item.type === "workItemTeam";
 }
 
-export function compareWorkItemTeamItem(a: WorkItemTeamContext, b: WorkItemTeamContext) {
+export function compareWorkItemTeamContext(a: WorkItemTeamContext, b: WorkItemTeamContext) {
   if (!compareProjectContext(a, b)) {
     return false;
   }
   return isDeepStrictEqual(a.team, b.team);
+}
+
+export function compareWorkItemTeamItem(a: WorkItemTeamItem, b: WorkItemTeamItem) {
+  return compareWorkItemTeamContext(a, b);
 }
 
 export interface WorkItemTeamContext extends ProjectContext {

@@ -35,6 +35,14 @@ operation DeduplicatingTreePartProvider producedTreeItems() {
   return items;
 }
 
+operation SwitchingTreePartProvider producedTreeItems() {
+  var items = self.produces.clone();
+  for (entry in self.entry) {
+    items.addAll(entry.childTreePartProvider.producedTreeItems());
+  }
+  return items;
+}
+
 operation UnwrappingTreePartProvider producedTreeItems() {
   var items = self.produces.clone();
   items.addAll(self.innerTreePartProvider.producedTreeItems());

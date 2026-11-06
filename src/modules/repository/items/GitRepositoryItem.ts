@@ -15,7 +15,7 @@ export function compareGitRepositoryContext(a: GitRepositoryContext, b: GitRepos
 }
 
 export function compareGitRepositoryItem(a: GitRepositoryItem, b: GitRepositoryItem) {
-  if (!compareProjectContext(a, b)) {
+  if (!compareGitRepositoryContext(a, b)) {
     return false;
   }
   return isDeepStrictEqual(a.gitRepository, b.gitRepository);

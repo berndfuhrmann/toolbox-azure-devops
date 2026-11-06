@@ -15,7 +15,7 @@ export function compareDashboardContext(a: DashboardContext, b: DashboardContext
 }
 
 export function compareDashboardItem(a: DashboardItem, b: DashboardItem) {
-  if (!compareProjectContext(a, b)) {
+  if (!compareDashboardContext(a, b)) {
     return false;
   }
   return isDeepStrictEqual(a.dashboard, b.dashboard);

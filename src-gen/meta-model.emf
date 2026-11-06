@@ -115,6 +115,20 @@ class UnwrappingTreePartProvider extends DerivedTreePartProvider {
     attr String[?] unwrapPredicate;
 }
 
+// Switches between child providers, depending on the latest case selected from the context.
+class SwitchingTreePartProvider extends DerivedTreePartProvider {
+    // function that builds an observable of case keys from the context observable
+    attr String selector;
+    attr String[?] selectorImport;
+    val SwitchingTreePartProviderEntry[*] entry;
+}
+
+// A single case used by SwitchingTreePartProvider. Cases without an entry show no items.
+class SwitchingTreePartProviderEntry {
+    attr String key;
+    ref AbstractTreePartProvider childTreePartProvider;
+}
+
 class TreeItem {
     attr String name;
     attr String[?] importPath;

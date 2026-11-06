@@ -58,6 +58,15 @@ if (StaticTreePartProvider.all.size() > 0) {
 if (DeduplicatingTreePartProvider.all.size() > 0) {
   allImports.put("../common/treePartProvider/DeduplicatingTreePartProvider", Set{"DeduplicatingTreePartProvider"});
 }
+if (SwitchingTreePartProvider.all.size() > 0) {
+  allImports.put("../common/treePartProvider/SwitchingTreePartProvider", Set{"SwitchingTreePartProvider"});
+}
+for (switching in SwitchingTreePartProvider.all.select(s | s.selectorImport.isDefined())) {
+  if (not allImports.containsKey(switching.selectorImport)) {
+    allImports.put(switching.selectorImport, Set{});
+  }
+  allImports.get(switching.selectorImport).add(switching.selector);
+}
 
 if (UnwrappingTreePartProvider.all.select(u | u.unwrapPredicate.isDefined()).size() > 0) {
   allImports.put("../common/shouldUnwrapAccountOrProject", Set{"shouldUnwrapAccountOrProject"});

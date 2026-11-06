@@ -15,7 +15,7 @@ export function compareAgentPoolContext(a: AgentPoolContext, b: AgentPoolContext
 }
 
 export function compareAgentPoolItem(a: AgentPoolItem, b: AgentPoolItem) {
-  if (!compareProjectContext(a, b)) {
+  if (!compareAgentPoolContext(a, b)) {
     return false;
   }
   return isDeepStrictEqual(a.agentPool, b.agentPool);

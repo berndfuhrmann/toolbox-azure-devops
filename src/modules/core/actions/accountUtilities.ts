@@ -3,7 +3,8 @@ import { firstValueFrom } from "rxjs";
 import vscode, { TreeItem } from "vscode";
 import { AbstractStorageService } from "../../../common/storage/AbstractStorageService";
 import { types } from "../../../generated/types";
-import { Account } from "../account";
+import { Account, AuthenticationType } from "../account";
+import { AuthenticationMethod } from "../authentication/AuthenticationMethod";
 import { AccountItem } from "../items/AccountItem";
 import { AccountTreeItem } from "../treeItems/AccountTreeItem";
 
@@ -33,4 +34,32 @@ async function pickAccount(accounts: Account[]) {
     { title: "Select Organization", ignoreFocusOut: true },
   );
   return picked?.account;
+}
+
+/**
+ * Lets the user pick one of the methods available for the URL, the suggested one first.
+ * The picker is skipped if only one method is available.
+ */
+export async function pickAuthenticationMethod(
+  allMethods: readonly AuthenticationMethod[],
+  url: string,
+  currentType?: AuthenticationType,
+) {
+  const methods = allMethods.filter((method) => method.isAvailableFor(url));
+  if (methods.length <= 1) {
+    return methods[0];
+  }
+  const suggested = methods.find((method) => method.isSuggestedFor(url));
+  const items = methods.map((method) => ({
+    label: method.label,
+    description:
+      [method.type === currentType && "current", method === suggested && "suggested"].filter(Boolean).join(", ") ||
+      undefined,
+    method,
+  }));
+  if (suggested) {
+    items.sort((a, b) => Number(b.method === suggested) - Number(a.method === suggested));
+  }
+  const picked = await vscode.window.showQuickPick(items, { title: "Select Sign-in Method", ignoreFocusOut: true });
+  return picked?.method;
 }

@@ -5,7 +5,7 @@ import { workItemSetAssignedToAction, workItemCopyIdAction, workItemSetStateActi
 import { handleRefreshAction } from "../common/items/RefreshableTreeItemMixin";
 import { removeOrganizationAction } from "../modules/core/actions/removeOrganizationAction";
 import { gitRepositoryPullRequestSetTitleAction } from "../modules/repository/actions/gitRepositoryPullRequestActions";
-import { updateCredentialsAction } from "../modules/core/actions/updateCredentialsAction";
+import { updateCredentialsAction, signInAction } from "../modules/core/actions/updateCredentialsAction";
 import { handleUnpinAction, handlePinAction } from "../common/items/PinnedTreeItemMixin";
 import { pipelineDeleteFolderAction, pipelineCreateFolderAction, pipelineRenameFolderAction } from "../modules/pipeline/actions/folderActions";
 import { pipelineCancelRunAction, pipelineRerunRunAction } from "../modules/pipeline/actions/pipelineRunActions";
@@ -14,6 +14,7 @@ import { openTextFileAction } from "../common/openTextFileAction";
 import { pipelineRevealRepositoryAction, pipelineRunPipelineAction, pipelineRenamePipelineAction, pipelineDeletePipelineAction } from "../modules/pipeline/actions/pipelineActions";
 import { addOrganizationAction } from "../modules/core/actions/addOrganizationAction";
 import { downloadAttachmentAction } from "../modules/workItem/actions/attachmentActions";
+import { changeSignInMethodAction } from "../modules/core/actions/changeSignInMethodAction";
 
 export function registerCommands(
   context: vscode.ExtensionContext,
@@ -35,6 +36,18 @@ removeOrganizationAction(container),
     vscode.commands.registerCommand(
       extensionName + ".updateCredentials",
 updateCredentialsAction(container),
+    ),
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      extensionName + ".changeSignInMethod",
+changeSignInMethodAction(container),
+    ),
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      extensionName + ".signIn",
+signInAction(container),
     ),
   );
   context.subscriptions.push(

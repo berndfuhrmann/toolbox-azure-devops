@@ -4,7 +4,8 @@ import { getPersonalAccessTokenHandler } from "azure-devops-node-api";
 import { injectable } from "inversify";
 import vscode from "vscode";
 import { Account } from "../account";
-import { AuthenticationConfiguration, AuthenticationMethod } from "./AuthenticationMethod";
+import { of } from "rxjs";
+import { AuthenticationConfiguration, AuthenticationMethod, SignInStatus } from "./AuthenticationMethod";
 
 export const personalAccessTokenSecretsSchema = Type.Object({
   personalAccessToken: Type.String(),
@@ -14,6 +15,10 @@ export const personalAccessTokenSecretsSchema = Type.Object({
 export class PersonalAccessTokenAuthenticationMethod implements AuthenticationMethod {
   readonly type = "personalAccessToken";
   readonly label = "Personal Access Token (PAT)";
+
+  isAvailableFor(_url: string) {
+    return true;
+  }
 
   isSuggestedFor(_url: string) {
     return false;
@@ -27,12 +32,17 @@ export class PersonalAccessTokenAuthenticationMethod implements AuthenticationMe
     return this.#prompt(account.organization);
   }
 
-  createRequestHandler(account: Pick<Account, "secrets">) {
+  async createRequestHandler(account: Pick<Account, "secrets">) {
     // Invalid secrets lead to an authentication error, which offers the user to update the credentials.
     const personalAccessToken = Value.Check(personalAccessTokenSecretsSchema, account.secrets)
       ? account.secrets.personalAccessToken
       : "";
     return getPersonalAccessTokenHandler(personalAccessToken);
+  }
+
+  signInStatus(_account: Account) {
+    // a PAT cannot be signed out; an invalid one shows up as authentication error
+    return of<SignInStatus>("signedIn");
   }
 
   async #prompt(organization: string): Promise<AuthenticationConfiguration | undefined> {
