@@ -3,7 +3,7 @@ import { Observable, of, switchMap } from "rxjs";
 import { Constructor } from "../../../common/constructor";
 import { Exception } from "../../../common/Exception";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -36,15 +36,17 @@ export class WorkItemLinkedBranchesTreePartProvider extends TreePartProvider<
       switchMap((context) => {
         const workItem = context.workItem;
         const relations = workItem?.relations?.filter((relation) => isBranchRelation(relation)) ?? [];
-        return of(
-          relations.map((relation) => {
+        return of({
+          items: relations.map((relation) => {
             const item = createWorkItemLinkedItemItem(context, relation);
             return { ...item, branchName: parseBranchUrl(relation.url ?? "") };
           }),
-        ).pipe(
-          fromArray((item: WorkItemLinkedItemItem) => item.relation.url ?? `linked-branch-${item.workItemId}`, {}),
-        );
+        });
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation(
+        (item: WorkItemLinkedItemItem) => item.relation.url ?? `linked-branch-${item.workItemId}`,
+      ),
     );
   }
 

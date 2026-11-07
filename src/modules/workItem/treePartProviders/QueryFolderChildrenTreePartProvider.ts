@@ -1,5 +1,5 @@
 import { inject } from "inversify";
-import { Observable, switchMap } from "rxjs";
+import { map, Observable, switchMap } from "rxjs";
 import { QueryExpand } from "azure-devops-node-api/interfaces/WorkItemTrackingInterfaces";
 import { Constructor } from "../../../common/constructor";
 import { Exception } from "../../../common/Exception";
@@ -7,7 +7,7 @@ import { mapX } from "../../../common/exceptionOperators";
 import { autoRefresh } from "../../../common/operators";
 import { SettingsService } from "../../../common/SettingsService";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -48,7 +48,6 @@ export class QueryFolderChildrenTreePartProvider extends TreePartProvider<
         const { refreshObservables, refreshObservable } = this.createRefreshObservables("queryFolderChildren");
         const workItemTrackingService = context.container.get<WorkItemTrackingService>(types.WorkItemTrackingService);
         const queryId = context.queryItem.id ?? "";
-
         return workItemTrackingService
           .query(context.projectId, queryId, QueryExpand.Wiql, 1, false, false, refreshObservable)
           .pipe(
@@ -57,11 +56,11 @@ export class QueryFolderChildrenTreePartProvider extends TreePartProvider<
               return children.map((child) => createWorkItemQueryItem(context, child, refreshObservables));
             }),
             autoRefresh(refreshObservable, this.#settingsService.autoRefreshInterval()),
-            fromArray((item: WorkItemQueryItem) => item.queryItem.id ?? item.queryItem.name ?? "", {
-              refreshObservables,
-            }),
+            map((items) => ({ items, refreshObservables })),
           );
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: WorkItemQueryItem) => item.queryItem.id ?? item.queryItem.name ?? ""),
     );
   }
 

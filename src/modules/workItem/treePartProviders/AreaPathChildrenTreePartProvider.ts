@@ -3,7 +3,7 @@ import { Observable, of, switchMap } from "rxjs";
 import { Constructor } from "../../../common/constructor";
 import { Exception } from "../../../common/Exception";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -30,13 +30,15 @@ export class AreaPathChildrenTreePartProvider extends TreePartProvider<
 
   getItems(context: Observable<WorkItemAreaPathItem>): Observable<ItemInformation<WorkItemAreaPathItem | Exception>> {
     return context.pipe(
-      switchMap((context) => {
-        return of(
-          (context.classificationNode.children ?? []).map((child) =>
+      switchMap((context) =>
+        of({
+          items: (context.classificationNode.children ?? []).map((child) =>
             createWorkItemAreaPathItem(context, child, context.leafTypeNames, context.refreshObservables),
           ),
-        ).pipe(fromArray((item: WorkItemAreaPathItem) => `${item.classificationNode.id}`, {}));
-      }),
+        }),
+      ),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: WorkItemAreaPathItem) => `${item.classificationNode.id}`),
     );
   }
 

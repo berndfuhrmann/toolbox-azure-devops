@@ -1,5 +1,5 @@
 import { inject } from "inversify";
-import { Observable, switchMap } from "rxjs";
+import { map, Observable, switchMap } from "rxjs";
 import {
   TreeStructureGroup,
   WorkItemClassificationNode,
@@ -10,7 +10,7 @@ import { combineLatestX, mapX } from "../../../common/exceptionOperators";
 import { autoRefresh } from "../../../common/operators";
 import { SettingsService } from "../../../common/SettingsService";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -49,7 +49,6 @@ export class AreaPathsContentTreePartProvider extends TreePartProvider<
       switchMap((context) => {
         const { refreshObservables, refreshObservable } = this.createRefreshObservables("areaPathsContent");
         const workItemTrackingService = context.container.get<WorkItemTrackingService>(types.WorkItemTrackingService);
-
         return combineLatestX([
           workItemTrackingService.workItemTypeCategories(context.projectId, refreshObservable),
           workItemTrackingService.classificationNode(
@@ -72,9 +71,11 @@ export class AreaPathsContentTreePartProvider extends TreePartProvider<
             return nodes.map((child) => createWorkItemAreaPathItem(context, child, leafTypeNames, refreshObservables));
           }),
           autoRefresh(refreshObservable, this.#settingsService.autoRefreshInterval()),
-          fromArray((item: WorkItemAreaPathItem) => `${item.classificationNode.id}`, { refreshObservables }),
+          map((items) => ({ items, refreshObservables })),
         );
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: WorkItemAreaPathItem) => `${item.classificationNode.id}`),
     );
   }
 

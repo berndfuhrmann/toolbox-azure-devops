@@ -1,11 +1,11 @@
 import { inject } from "inversify";
-import { Observable, switchMap } from "rxjs";
+import { map, Observable, switchMap } from "rxjs";
 import { Constructor } from "../../../common/constructor";
 import { Exception, isException } from "../../../common/Exception";
 import { mapX } from "../../../common/exceptionOperators";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
 import { ExceptionTreeItem } from "../../../common/treeItems/ExceptionTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -34,9 +34,11 @@ export class PipelineRunArtifactTreePartProvider extends TreePartProvider<
             mapX((artifacts) =>
               artifacts.map((artifact) => createPipelineRunArtifactItem(context, artifact, refreshObservables)),
             ),
-            fromArray((item: PipelineRunArtifactItem) => `${item.artifact.id}`, { refreshObservables }),
+            map((items) => ({ items, refreshObservables })),
           );
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: PipelineRunArtifactItem) => `${item.artifact.id}`),
     );
   }
 

@@ -6,7 +6,7 @@ import { mapX, switchMapX } from "../../../common/exceptionOperators";
 import { autoRefresh } from "../../../common/operators";
 import { SettingsService } from "../../../common/SettingsService";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import { withItemObservable } from "../../../common/treePartProvider/withItemObservable";
 import {
   ItemInformation,
@@ -58,7 +58,6 @@ export class CurrentSprintScopeContentTreePartProvider extends TreePartProvider<
         );
 
         const workItemTrackingService = context.container.get<WorkItemTrackingService>(types.WorkItemTrackingService);
-
         return workItemTrackingService
           .queryByWiql(
             CurrentSprintScopeContentTreePartProvider.#createWorkItemQuery(context.sprint.path ?? ""),
@@ -94,30 +93,28 @@ export class CurrentSprintScopeContentTreePartProvider extends TreePartProvider<
               );
             }),
             autoRefresh(refreshObservable, this.#settingsSettings.autoRefreshInterval()),
-            fromArray(
-              (item: CurrentSprintScopeContentItem) => {
-                if (isWorkItemItem(item)) {
-                  return `${item.workItemId}`;
-                }
-                return `${item.grouping}/${item.groupName}`;
-              },
-              { refreshObservables },
-            ),
-            withItemObservable((inputObservable: Observable<CurrentSprintScopeContentItem | Exception>) =>
-              inputObservable.pipe(
-                switchMap((item): Observable<CurrentSprintScopeContentItem | Exception> => {
-                  if (isException(item) || !isWorkItemItem(item)) {
-                    return of(item);
-                  }
-                  return (of(item) as Observable<WorkItemItem>).pipe(
-                    loadWorkItemIcon((i) => this.appendRefreshObservable(i, "workItemIcons")),
-                  );
-                }),
-              ),
-            ),
-            map((info) => ({ ...info, refreshObservables })),
+            map((items) => ({ items, refreshObservables })),
           );
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: CurrentSprintScopeContentItem) => {
+        if (isWorkItemItem(item)) {
+          return `${item.workItemId}`;
+        }
+        return `${item.grouping}/${item.groupName}`;
+      }),
+      withItemObservable((inputObservable: Observable<CurrentSprintScopeContentItem | Exception>) =>
+        inputObservable.pipe(
+          switchMap((item): Observable<CurrentSprintScopeContentItem | Exception> => {
+            if (isException(item) || !isWorkItemItem(item)) {
+              return of(item);
+            }
+            return (of(item) as Observable<WorkItemItem>).pipe(
+              loadWorkItemIcon((i) => this.appendRefreshObservable(i, "workItemIcons")),
+            );
+          }),
+        ),
+      ),
     );
   }
 

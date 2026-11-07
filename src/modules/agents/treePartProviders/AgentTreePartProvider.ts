@@ -1,9 +1,9 @@
 import { inject } from "inversify";
-import { Observable, switchMap } from "rxjs";
+import { map, Observable, switchMap } from "rxjs";
 import { Exception } from "../../../common/Exception";
 import { mapX } from "../../../common/exceptionOperators";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -27,9 +27,11 @@ export class AgentTreePartProvider extends TreePartProvider<AgentItem | Exceptio
           .agents(context.agentPoolId, true, true, refreshObservable)
           .pipe(
             mapX((agents) => agents.map((agent) => createAgentItem(context, agent, refreshObservables))),
-            fromArray((item: AgentItem) => item.agent.id!.toString(), { refreshObservables }),
+            map((items) => ({ items, refreshObservables })),
           );
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: AgentItem) => item.agent.id!.toString()),
     );
   }
 

@@ -4,7 +4,7 @@ import { Constructor } from "../../../common/constructor";
 import { Exception } from "../../../common/Exception";
 import { mapX } from "../../../common/exceptionOperators";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -55,15 +55,17 @@ export class GitRepositoryPullRequestWorkItemTreePartProvider extends TreePartPr
                 createWorkItemItem(context, Number(ref.id!), undefined, undefined, refreshObservables),
               ),
             ),
-            fromArray((item: WorkItemItem) => `${item.workItemId}`, {}),
-            withItemObservable((inputObservable) =>
-              inputObservable.pipe(
-                loadWorkItem((item) => this.appendRefreshObservable(item, "workItem")),
-                loadWorkItemIcon((item) => this.appendRefreshObservable(item, "workItemIcon")),
-              ),
-            ),
+            map((items) => ({ items })),
           );
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: WorkItemItem) => `${item.workItemId}`),
+      withItemObservable((inputObservable) =>
+        inputObservable.pipe(
+          loadWorkItem((item) => this.appendRefreshObservable(item, "workItem")),
+          loadWorkItemIcon((item) => this.appendRefreshObservable(item, "workItemIcon")),
+        ),
+      ),
     );
   }
 

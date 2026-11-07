@@ -1,4 +1,4 @@
-import { defer, map, Observable, pipe, switchMap, tap } from "rxjs";
+import { defer, map, Observable, pipe, tap } from "rxjs";
 import { convertIterableToMap, mapToMapChangeSet } from "../collections/observableMap";
 import { Exception, isException } from "../Exception";
 import { ItemInformation } from "./TreePartProvider";

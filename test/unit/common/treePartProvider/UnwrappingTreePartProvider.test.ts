@@ -394,12 +394,12 @@ describe("getItems", () => {
       observer.errored();
     });
 
-    test("retains existing child output when a parent item changes while staying unwrapped", async () => {
+    test("passes parent item changes to the child provider as context while staying unwrapped", async () => {
       const provider = new UnwrappingTreePartProvider(mockInnerProvider, mockUnwrapPredicate, mockGetTreePartProvider);
 
       const parentChangeSets = new Subject<ItemInformation<TestItem>>();
-      const childItems1 = new Subject<ItemInformation<TestChildItem>>();
-      const childItems2 = new Subject<ItemInformation<TestChildItem>>();
+      const childItems = new Subject<ItemInformation<TestChildItem>>();
+      const childContexts: TestItem[] = [];
 
       vi.mocked(mockInnerProvider.getItems).mockReturnValue(parentChangeSets);
       vi.mocked(mockInnerProvider.updateTreeItem).mockImplementation(
@@ -409,7 +409,10 @@ describe("getItems", () => {
           return { treeItem, updated: true };
         },
       );
-      vi.mocked(mockChildProvider.getItems).mockReturnValueOnce(childItems1).mockReturnValueOnce(childItems2);
+      vi.mocked(mockChildProvider.getItems).mockImplementation((childContext) => {
+        childContext.subscribe((item) => childContexts.push(item));
+        return childItems;
+      });
       vi.mocked(mockGetTreePartProvider).mockReturnValue(mockChildProvider);
       vi.mocked(mockUnwrapPredicate).mockReturnValue(of(true));
 
@@ -423,7 +426,7 @@ describe("getItems", () => {
         },
       });
 
-      childItems1.next({
+      childItems.next({
         changes: {
           added: new Map<string, TestChildItem>([["child1", testChildItem1]]),
           removed: new Map<string, TestChildItem>([]),
@@ -441,21 +444,20 @@ describe("getItems", () => {
         },
       });
 
-      childItems2.next({
+      // the child provider computes its changes relative to its previous items
+      childItems.next({
         changes: {
           added: new Map<string, TestChildItem>([["child2", testChildItem2]]),
-          removed: new Map<string, TestChildItem>([]),
+          removed: new Map<string, TestChildItem>([["child1", testChildItem1]]),
         },
       });
 
       await setTimeout(0);
 
-      expect(observer.getItems()).toEqual(
-        new Map([
-          [createUnwrappedKey("key1", "child1"), testChildItem1],
-          [createUnwrappedKey("key1", "child2"), testChildItem2],
-        ]),
-      );
+      // getItems is not called again for an updated parent item, so the child items are not added a second time
+      expect(mockChildProvider.getItems).toHaveBeenCalledTimes(1);
+      expect(childContexts).toEqual([testItem1, testItem4]);
+      expect(observer.getItems()).toEqual(new Map([[createUnwrappedKey("key1", "child2"), testChildItem2]]));
       observer.errored();
     });
 

@@ -4,7 +4,7 @@ import { Constructor } from "../../../common/constructor";
 import { Exception, isException } from "../../../common/Exception";
 import { mapX, switchMapX } from "../../../common/exceptionOperators";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -68,13 +68,15 @@ export class WorkItemLinkedBuildsTreePartProvider extends TreePartProvider<
       switchMap((context) => {
         const workItem = context.workItem;
         const relations = workItem?.relations?.filter((relation) => isBuildRelation(relation)) ?? [];
-        return of(relations.map((relation) => createWorkItemLinkedItemItem(context, relation))).pipe(
-          fromArray((item: WorkItemLinkedItemItem) => item.relation.url ?? `linked-build-${item.workItemId}`, {}),
-          withItemObservable((inputObservable) =>
-            inputObservable.pipe(loadBuildData((item) => this.appendRefreshObservable(item, "build"))),
-          ),
-        );
+        return of({ items: relations.map((relation) => createWorkItemLinkedItemItem(context, relation)) });
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation(
+        (item: WorkItemLinkedItemItem) => item.relation.url ?? `linked-build-${item.workItemId}`,
+      ),
+      withItemObservable((inputObservable) =>
+        inputObservable.pipe(loadBuildData((item) => this.appendRefreshObservable(item, "build"))),
+      ),
     );
   }
 
