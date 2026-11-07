@@ -1,7 +1,17 @@
 import { Type, type Static } from "@sinclair/typebox";
 import { isDeepStrictEqual } from "node:util";
 
-export const authenticationSchema = Type.Union([Type.Object({ type: Type.Literal("personalAccessToken") })]);
+export const authenticationSchema = Type.Union([
+  Type.Object({ type: Type.Literal("personalAccessToken") }),
+  Type.Object({
+    type: Type.Literal("microsoft"),
+    /** The Microsoft account used for this organization, as known to VS Code. */
+    microsoftAccountId: Type.String(),
+    microsoftAccountLabel: Type.String(),
+    /** Entra ID tenant of the organization. Missing means the home tenant of the Microsoft account. */
+    tenantId: Type.Optional(Type.String()),
+  }),
+]);
 
 /**
  * Non-secret settings of the authentication method used for an account.

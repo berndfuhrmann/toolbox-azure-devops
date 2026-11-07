@@ -8,7 +8,7 @@ import { createAccountItem, compareAccountContext } from "../../../../../src/mod
 import { Account } from "../../../../../src/modules/core/account";
 import { Container } from "inversify";
 
-const accountBase = createAccountItem({} as Account, new Container());
+const accountBase = createAccountItem({} as Account, new Container(), "signedIn");
 
 describe("compareProjectContext", () => {
   test("returns true if both account and project are equal", () => {

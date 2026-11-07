@@ -64,11 +64,11 @@ describe("updateCredentials", () => {
 });
 
 describe("createRequestHandler", () => {
-  test("uses the stored token", () => {
-    expect(subject.createRequestHandler(account)).toEqual({ token: "pat" });
+  test("uses the stored token", async () => {
+    expect(await subject.createRequestHandler(account)).toEqual({ token: "pat" });
   });
 
-  test.each([undefined, "plain", { other: 1 }])("uses an empty token for invalid secrets %s", (secrets) => {
-    expect(subject.createRequestHandler({ ...account, secrets })).toEqual({ token: "" });
+  test.each([undefined, "plain", { other: 1 }])("uses an empty token for invalid secrets %s", async (secrets) => {
+    expect(await subject.createRequestHandler({ ...account, secrets })).toEqual({ token: "" });
   });
 });

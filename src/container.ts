@@ -21,6 +21,7 @@ import { types } from "./generated/types";
 import { AccountContextProvider } from "./modules/core/AccountContextProvider";
 import { AuthenticationMethod } from "./modules/core/authentication/AuthenticationMethod";
 import { AuthenticationMethodRegistry } from "./modules/core/authentication/AuthenticationMethodRegistry";
+import { MicrosoftAuthenticationMethod } from "./modules/core/authentication/MicrosoftAuthenticationMethod";
 import { PersonalAccessTokenAuthenticationMethod } from "./modules/core/authentication/PersonalAccessTokenAuthenticationMethod";
 import { BuildLogTextDocumentContentProviderPart } from "./modules/pipeline/BuildLogTextDocumentContentProviderPart";
 import { PipelineDefinitionTextDocumentContentProviderPart } from "./modules/pipeline/PipelineDefinitionTextDocumentContentProviderPart";
@@ -45,6 +46,7 @@ export function createContainer(context: vscode.ExtensionContext) {
     .bind<AuthenticationMethod>(types.AuthenticationMethod)
     .to(PersonalAccessTokenAuthenticationMethod)
     .inSingletonScope();
+  container.bind<AuthenticationMethod>(types.AuthenticationMethod).to(MicrosoftAuthenticationMethod).inSingletonScope();
   container
     .bind<AuthenticationMethodRegistry>(types.AuthenticationMethodRegistry)
     .to(AuthenticationMethodRegistry)

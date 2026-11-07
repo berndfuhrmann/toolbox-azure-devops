@@ -60,6 +60,10 @@ operation DeduplicatingTreePartProvider referencedTreePartProviders() {
   return result;
 }
 
+operation SwitchingTreePartProvider referencedTreePartProviders() {
+  return self.entry.collect(e | e.childTreePartProvider).asSet();
+}
+
 operation TreeProvider ruleTreeItems() {
   return self.rules.collect(r | r.treeitem).select(t | t.isDefined()).asSet();
 }
@@ -142,6 +146,15 @@ operation AbstractTreePartProvider dependencies() {
     return self.referencedTreePartProviders().select(p | p.isDerived()).asSet();
   }
   return Set{};
+}
+
+operation SwitchingTreePartProvider initializationCode() {
+  var code = "    this." + self.name.toCamelCase() + " = new SwitchingTreePartProvider(" + self.selector + ", {\n";
+  for (entry in self.entry) {
+    code = code + "      " + entry.key + ": " + entry.childTreePartProvider.fieldReference() + ",\n";
+  }
+  code = code + "    });";
+  return code;
 }
 
 operation AbstractTreePartProvider initializationCode() {

@@ -1,5 +1,5 @@
 import { Container } from "inversify";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 import vscode from "vscode";
 import { AbstractStorageService } from "../../../../../src/common/storage/AbstractStorageService";
 import { types } from "../../../../../src/generated/types";
@@ -33,7 +33,12 @@ beforeEach(() => {
   connect.mockResolvedValue({});
   vi.mocked(vscode.window.withProgress).mockImplementation((_options, task) => task({} as any, {} as any) as any);
   container = createTestContainer();
+  // the method picker is tested separately
+  useAuthenticationMethods(new PersonalAccessTokenAuthenticationMethod());
 });
+
+const useAuthenticationMethods = (...methods: AuthenticationMethod[]) =>
+  container.rebindSync(types.AuthenticationMethodRegistry).toConstantValue(new AuthenticationMethodRegistry(methods));
 
 const getAccounts = () => firstValueFrom(container.get<AbstractStorageService>(types.StorageService).getAccounts());
 const mockInputs = (...values: (string | undefined)[]) =>
@@ -148,18 +153,27 @@ describe("addOrganizationAction", () => {
     const otherMethod: AuthenticationMethod = {
       type: "other" as any,
       label: "Other",
+      isAvailableFor: (url) => url.startsWith("https://dev.azure.com"),
       isSuggestedFor: (url) => url.startsWith("https://dev.azure.com"),
       configure: vi.fn(),
       updateCredentials: vi.fn(),
       createRequestHandler: vi.fn(),
+      signInStatus: () => of("signedIn"),
     };
 
     beforeEach(() => {
-      container
-        .rebindSync(types.AuthenticationMethodRegistry)
-        .toConstantValue(
-          new AuthenticationMethodRegistry([new PersonalAccessTokenAuthenticationMethod(), otherMethod]),
-        );
+      useAuthenticationMethods(new PersonalAccessTokenAuthenticationMethod(), otherMethod);
+    });
+
+    test("skips the picker if only one method is available for the URL", async () => {
+      mockInputs("https://tfs.example.com/tfs/", "collection", "pat");
+
+      await addOrganizationAction(container)();
+
+      expect(vscode.window.showQuickPick).not.toHaveBeenCalled();
+      expect(await getAccounts()).toEqual([
+        expect.objectContaining({ authentication: { type: "personalAccessToken" } }),
+      ]);
     });
 
     test("offers the suggested method first", async () => {

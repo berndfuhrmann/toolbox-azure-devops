@@ -9,6 +9,7 @@ const icons = {
   "organization-add": "@tabler/icons/icons/outline/building-plus.svg",
   "organization-remove": "@tabler/icons/icons/outline/building-minus.svg",
   "credentials-update": "@tabler/icons/icons/outline/key.svg",
+  "sign-in": "@tabler/icons/icons/outline/login.svg",
   project: "@tabler/icons/icons/outline/box.svg",
   folder: "@tabler/icons/icons/outline/folder.svg",
   file: "@tabler/icons/icons/outline/file.svg",

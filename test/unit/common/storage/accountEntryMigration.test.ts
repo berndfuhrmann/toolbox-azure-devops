@@ -34,6 +34,17 @@ describe("migrateAccountEntry", () => {
     expect(migrateAccountEntry({ entry: v2Entry, secrets })).toEqual({ kind: "current", entry: v2Entry, secrets });
   });
 
+  test.each([
+    ["without tenant", { type: "microsoft", microsoftAccountId: "ms-id", microsoftAccountLabel: "user@example.com" }],
+    [
+      "with tenant",
+      { type: "microsoft", microsoftAccountId: "ms-id", microsoftAccountLabel: "user@example.com", tenantId: "t" },
+    ],
+  ])("keeps current Microsoft entries unchanged: %s", (_, authentication) => {
+    const entry = { ...v2Entry, authentication };
+    expect(migrateAccountEntry({ entry, secrets: undefined })).toEqual({ kind: "current", entry, secrets: undefined });
+  });
+
   test("reports entries of newer versions", () => {
     expect(migrateAccountEntry({ entry: { ...v2Entry, version: 3 }, secrets: undefined })).toEqual({
       kind: "newer",
@@ -46,6 +57,7 @@ describe("migrateAccountEntry", () => {
     ["missing fields", { accountId: "id-1" }],
     ["non-numeric version", { ...v2Entry, version: "2" }],
     ["unknown authentication", { ...v2Entry, authentication: { type: "unknown" } }],
+    ["Microsoft authentication without account", { ...v2Entry, authentication: { type: "microsoft" } }],
   ])("reports invalid entries: %s", (_, entry) => {
     expect(migrateAccountEntry({ entry, secrets: undefined }).kind).toBe("invalid");
   });

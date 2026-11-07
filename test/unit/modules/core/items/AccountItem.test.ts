@@ -26,7 +26,7 @@ function createTestAccountItem(
   container: Container,
   refreshObservables?: Record<string, Subject<number>>,
 ) {
-  const result = createAccountItem(account, container);
+  const result = createAccountItem(account, container, "signedIn");
   if (refreshObservables) {
     Object.assign(result.refreshObservables, refreshObservables);
   }
@@ -71,14 +71,23 @@ describe("compareAccountContext", () => {
 describe("compareAccountItem", () => {
   test("returns true for identical AccountItems", () => {
     const account = createAccount("1", "url", "org", "pat");
-    const a = createAccountItem(account, createContainer());
-    const b = { ...a };
+    const container = createContainer();
+    const a = createAccountItem(account, container, "signedIn");
+    const b = { ...a, signInStatus: "signedIn" as const };
     expect(compareAccountItem(a, b)).toBe(true);
+  });
+
+  test("returns false if the sign-in status differs", () => {
+    const account = createAccount("1", "url", "org", "pat");
+    const container = createContainer();
+    const a = createAccountItem(account, container, "signedIn");
+    const b = { ...a, signInStatus: "signedOut" as const };
+    expect(compareAccountItem(a, b)).toBe(false);
   });
 
   test("returns false if the context differs", () => {
     const account = createAccount("1", "url", "org", "pat");
-    const a = createAccountItem(account, createContainer());
+    const a = createAccountItem(account, createContainer(), "signedIn");
     const b = { ...a, container: createContainer() };
     expect(compareAccountItem(a, b)).toBe(false);
   });

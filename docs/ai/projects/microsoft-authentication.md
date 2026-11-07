@@ -72,19 +72,23 @@ interface AuthenticationConfiguration {
   secrets?: unknown;
 }
 
+type SignInStatus = "signedIn" | "signedOut";
+
 interface AuthenticationMethod {
   readonly type: AuthenticationType;
   readonly label: string; // shown in the method picker
+  isAvailableFor(url: string): boolean; // e.g. Microsoft only for the host allowlist
   isSuggestedFor(url: string): boolean;
   configure(url: string, organization: string): Promise<AuthenticationConfiguration | undefined>;
   updateCredentials(account: Account): Promise<AuthenticationConfiguration | undefined>;
-  createRequestHandler(account: Pick<Account, "authentication" | "secrets">): IRequestHandler;
-  // PR 2: status(account: Account): Observable<"signedIn" | "signedOut">;
+  createRequestHandler(account: Account): Promise<IRequestHandler>;
+  signInStatus(account: Account): Observable<SignInStatus>; // PR 2, never prompts
 }
 ```
 
 - `updateCredentials` is what "Update Credentials", "Sign in again" and (PR 2) "Sign In" call; for PAT it asks for a new token.
-- `status` is only needed once a method can be signed out, so it is added in PR 2.
+- `signInStatus` is only needed once a method can be signed out, so it is added in PR 2. PAT is always `signedIn`.
+- `createRequestHandler` is asynchronous, so that the Microsoft method can obtain a token before the first request.
 
 - Implementations are bound in inversify under `types.AuthenticationMethod` and looked up through an `AuthenticationMethodRegistry` by `authentication.type`.
 - The add-organization flow, the commands and `ApiService` only talk to this interface.
@@ -93,14 +97,14 @@ interface AuthenticationMethod {
 **Correction to the original plan (request handler):** `typed-rest-client`'s `IRequestHandler.prepareRequest` is synchronous, so a handler cannot asynchronously fetch a token per request. Instead:
 
 - `createRequestHandler` takes an account **snapshot**.
-- `ApiService` rebuilds its `WebApi` only when url, organization, `authentication` or `secrets` of _this_ account change (`distinctUntilChanged`), not on every account emission as today. Rebuilding on a secrets change is needed so that results that failed with the old credentials are fetched again.
+- `ApiService` rebuilds its `WebApi` only when url, organization, `authentication` or `secrets` of _this_ account change (`distinctUntilChanged`), or when its sign-in status changes, not on every account emission as before. Rebuilding on these changes is needed so that results that failed with the old credentials are fetched again.
 - The Microsoft handler (PR 2) keeps a cached token, refreshes it on `vscode.authentication.onDidChangeSessions`, and on a 401 fetches a fresh token silently in `handleAuthentication` and retries once.
 
 ### Commands and UX
 
 - **Add Organization**: URL → organization (taken from the URL when a full `https://dev.azure.com/{org}` URL is pasted) → method picker with the suggested method preselected (skipped while only one method exists) → the method's own steps → connection test (`connectionData`) with "Save anyway" / "Cancel". Cancelling any step ends the flow.
 - **Update Credentials** replaces "Update Personal Access Token (PAT)"; each method decides what it means. The PAT prompt is a password input.
-- **Change Sign-in Method** (PR 2): re-runs the method picker and the method's steps for an existing organization.
+- **Change Sign-in Method** (PR 2): re-runs the method picker (current method marked "current", skipped when only one method is available for the URL) and the method's steps for an existing organization.
 - **Sign In** (PR 2): only shown for signed-out organizations.
 - Account tree items get context tags only where a menu needs them, added explicitly with `updateTag` (e.g. `signed-out` for "Sign In"), not one generated tag per method.
 - **Auth errors**: HTTP 401 errors are tagged (`authentication-error`) and get an "Update Credentials" action. Only 401: a 403 means missing permissions, not bad credentials. Error items do not know their account; the action uses the single account, or asks via a quick pick when there are several.
@@ -109,7 +113,7 @@ interface AuthenticationMethod {
 
 - Uses `vscode.authentication.getSession("microsoft", ["499b84ac-1321-427f-aa17-267ca6975798/.default", …tenant scope])`.
 - Remembers the Microsoft account per organization (`microsoftAccountId`, `microsoftAccountLabel`); the add flow shows an account picker when several sessions exist.
-- Never prompts at startup: tokens are requested silently. Without a session, the organization shows "Signed out", a "Sign in to {org}" child item, and VS Code's Accounts menu badge (`createIfNone: false`). Interactive sign-in only on user action.
+- Never prompts at startup: tokens are requested silently. Without a session, the organization shows "Signed out" and a sign-in icon, cannot be expanded (clicking it signs in), is never unwrapped, and VS Code shows its Accounts menu badge (`createIfNone: false`). Interactive sign-in only on user action.
 - When the remembered Microsoft account is gone, "Sign In" shows the account picker with the previous account preselected.
 - **Host allowlist**: only `https://dev.azure.com/…` and `https://*.visualstudio.com/…`, checked in the method picker and again in the request handler. A Microsoft token for Azure DevOps works for every organization the user can reach, so it must never go to another host.
 - **Tenant**:
@@ -136,11 +140,11 @@ interface AuthenticationMethod {
 
 ## PR 2: Microsoft authentication
 
-- [ ] `status` in `AuthenticationMethod`; `MicrosoftAuthenticationMethod` with account picker, silent token handling, token cache and refresh, 401 retry.
-- [ ] Host allowlist (picker + request time).
-- [ ] Tenant lookup, optional tenant input, single re-lookup on 401.
-- [ ] Signed-out state: account description, "Sign in to {org}" child item, Accounts menu badge, "Sign In" command.
-- [ ] "Change Sign-in Method" command incl. secrets cleanup.
-- [ ] Method picker enabled in Add Organization.
-- [ ] Unit tests with mocked `vscode.authentication`: configure, handler, allowlist, tenant lookup and retry limit, signed-out state.
+- [x] `signInStatus` in `AuthenticationMethod`; `MicrosoftAuthenticationMethod` with account picker, silent token handling, token cache and refresh, 401 retry.
+- [x] Host allowlist (picker + request time).
+- [x] Tenant lookup, optional tenant input, single re-lookup on 401.
+- [x] Signed-out state: account description, non-expandable account that signs in on click, no unwrapping, Accounts menu badge, "Sign In" command.
+- [x] "Change Sign-in Method" command incl. secrets cleanup.
+- [x] Method picker enabled in Add Organization.
+- [x] Unit tests with mocked `vscode.authentication`: configure, handler, allowlist, tenant lookup and retry limit, signed-out state.
 - [ ] Manual test checklist in the PR (real browser sign-in, guest tenant, sign-out, removed account).
