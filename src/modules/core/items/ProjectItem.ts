@@ -1,21 +1,21 @@
 import { TeamProjectReference } from "azure-devops-node-api/interfaces/CoreInterfaces";
 import { isDeepStrictEqual } from "node:util";
 import { Subject } from "rxjs";
-import { AccountContext, compareAccountItem } from "./AccountItem";
+import { AccountContext, compareAccountContext } from "./AccountItem";
 
 export function isProjectItem(item: { type: string }): item is ProjectItem {
   return item.type === "project";
 }
 
 export function compareProjectItem(a: ProjectItem, b: ProjectItem) {
-  if (!compareAccountItem(a, b)) {
+  if (!compareProjectContext(a, b)) {
     return false;
   }
   return isDeepStrictEqual(a.project, b.project);
 }
 
 export function compareProjectContext(a: ProjectContext, b: ProjectContext) {
-  if (!compareAccountItem(a, b)) {
+  if (!compareAccountContext(a, b)) {
     return false;
   }
   return a.projectId === b.projectId;

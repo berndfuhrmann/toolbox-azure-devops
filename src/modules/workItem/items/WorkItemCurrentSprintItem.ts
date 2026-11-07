@@ -4,7 +4,7 @@ import { Subject } from "rxjs";
 import type { WorkItemCurrentSprintByAssigneeScopeItem } from "./WorkItemCurrentSprintByAssigneeScopeItem";
 import type { WorkItemCurrentSprintByStateScopeItem } from "./WorkItemCurrentSprintByStateScopeItem";
 import type { WorkItemCurrentSprintUnassignedScopeItem } from "./WorkItemCurrentSprintUnassignedScopeItem";
-import { compareWorkItemTeamItem, WorkItemTeamContext } from "./WorkItemTeamItem";
+import { compareWorkItemTeamContext, WorkItemTeamContext } from "./WorkItemTeamItem";
 
 export type WorkItemCurrentSprintScopeType = "byAssignee" | "byState" | "unassigned";
 
@@ -41,16 +41,20 @@ export function createWorkItemCurrentSprintItem(
   };
 }
 
-export function compareWorkItemCurrentSprintItem(a: WorkItemCurrentSprintContext, b: WorkItemCurrentSprintContext) {
-  if (!compareWorkItemTeamItem(a, b)) {
+export function compareWorkItemCurrentSprintContext(a: WorkItemCurrentSprintContext, b: WorkItemCurrentSprintContext) {
+  if (!compareWorkItemTeamContext(a, b)) {
     return false;
   }
   return isDeepStrictEqual(a.sprint, b.sprint);
+}
+
+export function compareWorkItemCurrentSprintItem(a: WorkItemCurrentSprintItem, b: WorkItemCurrentSprintItem) {
+  return compareWorkItemCurrentSprintContext(a, b);
 }
 
 export function compareWorkItemCurrentSprintScopeItem(
   a: WorkItemCurrentSprintScopeItem,
   b: WorkItemCurrentSprintScopeItem,
 ) {
-  return compareWorkItemCurrentSprintItem(a, b) && a.scope === b.scope;
+  return compareWorkItemCurrentSprintContext(a, b) && a.scope === b.scope;
 }

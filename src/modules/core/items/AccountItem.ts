@@ -7,7 +7,7 @@ export function isAccountItem(item: { type: string }): item is AccountItem {
   return item.type === "account";
 }
 
-export function compareAccountItem(a: AccountContext, b: AccountContext) {
+export function compareAccountContext(a: AccountContext, b: AccountContext) {
   if (!compareRefreshableItem(a, b)) {
     return false;
   }
@@ -15,6 +15,10 @@ export function compareAccountItem(a: AccountContext, b: AccountContext) {
     return false;
   }
   return isDeepStrictEqual(a.account, b.account);
+}
+
+export function compareAccountItem(a: AccountItem, b: AccountItem) {
+  return compareAccountContext(a, b);
 }
 
 export interface AccountContext extends RefreshableItem {

@@ -2,9 +2,9 @@ import { compareProjectContext, createProjectItem } from "../../../../../src/mod
 
 vi.mock("../../../../../src/modules/core/items/AccountItem", async (importOriginal) => ({
   ...(await importOriginal()),
-  compareAccountItem: vi.fn(),
+  compareAccountContext: vi.fn(),
 }));
-import { createAccountItem, compareAccountItem } from "../../../../../src/modules/core/items/AccountItem";
+import { createAccountItem, compareAccountContext } from "../../../../../src/modules/core/items/AccountItem";
 import { Account } from "../../../../../src/modules/core/account";
 import { Container } from "inversify";
 
@@ -14,21 +14,21 @@ describe("compareProjectContext", () => {
   test("returns true if both account and project are equal", () => {
     const a = createProjectItem(accountBase, { id: "1", name: "A" }, {});
     const b = createProjectItem(accountBase, { id: "1", name: "A" }, {});
-    (compareAccountItem as ReturnType<typeof vi.fn>).mockReturnValue(true);
+    (compareAccountContext as ReturnType<typeof vi.fn>).mockReturnValue(true);
     expect(compareProjectContext(a, b)).toBe(true);
   });
 
-  test("returns false if compareAccountItem is false", () => {
+  test("returns false if compareAccountContext is false", () => {
     const a = createProjectItem(accountBase, { id: "1", name: "A" }, {});
     const b = createProjectItem(accountBase, { id: "2", name: "B" }, {});
-    (compareAccountItem as ReturnType<typeof vi.fn>).mockReturnValue(false);
+    (compareAccountContext as ReturnType<typeof vi.fn>).mockReturnValue(false);
     expect(compareProjectContext(a, b)).toBe(false);
   });
 
   test("returns false if project is not deep equal", () => {
     const a = createProjectItem(accountBase, { id: "1", name: "A" }, {});
     const b = createProjectItem(accountBase, { id: "2", name: "B" }, {});
-    (compareAccountItem as ReturnType<typeof vi.fn>).mockReturnValue(true);
+    (compareAccountContext as ReturnType<typeof vi.fn>).mockReturnValue(true);
     expect(compareProjectContext(a, b)).toBe(false);
   });
 });

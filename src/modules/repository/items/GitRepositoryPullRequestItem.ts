@@ -18,7 +18,7 @@ export function compareGitRepositoryPullRequestContext(
 }
 
 export function compareGitRepositoryPullRequestItem(a: GitRepositoryPullRequestItem, b: GitRepositoryPullRequestItem) {
-  if (!compareGitRepositoryContext(a, b)) {
+  if (!compareGitRepositoryPullRequestContext(a, b)) {
     return false;
   }
   return (
