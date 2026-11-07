@@ -3,7 +3,7 @@ import { Observable, of, switchMap } from "rxjs";
 import { Constructor } from "../../../common/constructor";
 import { Exception } from "../../../common/Exception";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -73,10 +73,12 @@ export class WorkItemLinkedWorkItemGroupsTreePartProvider extends TreePartProvid
           createWorkItemRelationGroupItem(workItemItem, relationType, displayName, ids),
         );
 
-        return of(groups).pipe(
-          fromArray((item: WorkItemRelationGroupItem) => `relation-group-${item.workItemId}-${item.relationType}`, {}),
-        );
+        return of({ items: groups });
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation(
+        (item: WorkItemRelationGroupItem) => `relation-group-${item.workItemId}-${item.relationType}`,
+      ),
     );
   }
 

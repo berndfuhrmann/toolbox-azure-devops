@@ -3,7 +3,7 @@ import { Observable, of, switchMap } from "rxjs";
 import { Constructor } from "../../../common/constructor";
 import { Exception } from "../../../common/Exception";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -28,13 +28,17 @@ export class CurrentSprintScopeTreePartProvider extends TreePartProvider<
     context: Observable<WorkItemCurrentSprintItem>,
   ): Observable<ItemInformation<WorkItemCurrentSprintScopeItem | Exception>> {
     return context.pipe(
-      switchMap((context) => {
-        return of([
-          createWorkItemCurrentSprintByAssigneeScopeItem(context, context.refreshObservables),
-          createWorkItemCurrentSprintByStateScopeItem(context, context.refreshObservables),
-          createWorkItemCurrentSprintUnassignedScopeItem(context, context.refreshObservables),
-        ]).pipe(fromArray((item: WorkItemCurrentSprintScopeItem) => item.scope, {}));
-      }),
+      switchMap((context) =>
+        of({
+          items: [
+            createWorkItemCurrentSprintByAssigneeScopeItem(context, context.refreshObservables),
+            createWorkItemCurrentSprintByStateScopeItem(context, context.refreshObservables),
+            createWorkItemCurrentSprintUnassignedScopeItem(context, context.refreshObservables),
+          ],
+        }),
+      ),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: WorkItemCurrentSprintScopeItem) => item.scope),
     );
   }
 

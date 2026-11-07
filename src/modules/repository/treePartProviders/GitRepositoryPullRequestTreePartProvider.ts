@@ -7,7 +7,7 @@ import { mapX, switchMapX } from "../../../common/exceptionOperators";
 import { autoRefresh } from "../../../common/operators";
 import { SettingsService } from "../../../common/SettingsService";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -88,16 +88,16 @@ export class GitRepositoryPullRequestTreePartProvider extends TreePartProvider<
                 createGitRepositoryPullRequestItem(context, gitRepositoryPullRequest, refreshObservables),
               ),
             ),
-            fromArray((item: GitRepositoryPullRequestItem) => `${item.pullRequestId}`, {}),
-            withItemObservable((inputObservable) =>
-              inputObservable.pipe(
-                loadGitRepositoryPullRequestStatusses((item) =>
-                  this.appendRefreshObservable(item, "pullRequestStatus"),
-                ),
-              ),
-            ),
+            map((items) => ({ items })),
           );
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: GitRepositoryPullRequestItem) => `${item.pullRequestId}`),
+      withItemObservable((inputObservable) =>
+        inputObservable.pipe(
+          loadGitRepositoryPullRequestStatusses((item) => this.appendRefreshObservable(item, "pullRequestStatus")),
+        ),
+      ),
     );
   }
 

@@ -1,10 +1,10 @@
 import { inject } from "inversify";
-import { Observable, switchMap } from "rxjs";
+import { map, Observable, switchMap } from "rxjs";
 import { Constructor } from "../../../common/constructor";
 import { Exception } from "../../../common/Exception";
 import { mapX } from "../../../common/exceptionOperators";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -51,9 +51,11 @@ export class GitRepositoryBranchTreePartProvider extends TreePartProvider<
                 createGitRepositoryBranchItem(context, context.gitRepository, gitRepositoryBranch2, refreshObservables),
               ),
             ),
-            fromArray((item: GitRepositoryBranchItem) => item.branch.name!, { refreshObservables }),
+            map((items) => ({ items, refreshObservables })),
           );
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: GitRepositoryBranchItem) => item.branch.name!),
     );
   }
 

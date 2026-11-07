@@ -1,11 +1,11 @@
 import { inject } from "inversify";
-import { Observable, of, switchMap } from "rxjs";
+import { map, Observable, of, switchMap } from "rxjs";
 import { Constructor } from "../../../common/constructor";
 import { Exception, isException } from "../../../common/Exception";
 import { mapX } from "../../../common/exceptionOperators";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
 import { ExceptionTreeItem } from "../../../common/treeItems/ExceptionTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -31,8 +31,8 @@ export class PipelineRunTimelineTreePartProvider extends TreePartProvider<
         if ("timeline" in context) {
           const timelineContext = context as PipelineRunTimelineItem;
           const records = timelineContext.timeline.records ?? [];
-          return of(
-            records
+          return of({
+            items: records
               .filter((timelineRecord) => timelineRecord.parentId === timelineContext.timelineRecordId)
               .map((timelineRecord) =>
                 createPipelineRunTimelineItem(
@@ -42,7 +42,7 @@ export class PipelineRunTimelineTreePartProvider extends TreePartProvider<
                   timelineContext.refreshObservables,
                 ),
               ),
-          ).pipe(fromArray((item: PipelineRunTimelineItem) => `${item.timelineRecordId ?? "undefined"}`, {}));
+          });
         } else {
           const { refreshObservables, refreshObservable } = this.createRefreshObservables("pipelineRunTimeline");
           return context.container
@@ -57,12 +57,12 @@ export class PipelineRunTimelineTreePartProvider extends TreePartProvider<
                       createPipelineRunTimelineItem(context, timeline, timelineRecord.id, refreshObservables),
                     ) ?? [],
               ),
-              fromArray((item: PipelineRunTimelineItem) => `${item.timelineRecordId ?? "undefined"}`, {
-                refreshObservables,
-              }),
+              map((items) => ({ items, refreshObservables })),
             );
         }
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: PipelineRunTimelineItem) => `${item.timelineRecordId ?? "undefined"}`),
     );
   }
 

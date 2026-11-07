@@ -4,7 +4,7 @@ import { Constructor } from "../../../common/constructor";
 import { Exception } from "../../../common/Exception";
 import { switchMapX } from "../../../common/exceptionOperators";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -45,9 +45,11 @@ export class WorkItemHistoryTreePartProvider extends TreePartProvider<
               ),
             ),
           ),
-          fromArray((item: WorkItemRevisionItem) => `rev-${item.update.rev ?? item.update.id ?? 0}`, {}),
+          map((items) => ({ items })),
         );
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: WorkItemRevisionItem) => `rev-${item.update.rev ?? item.update.id ?? 0}`),
     );
   }
 

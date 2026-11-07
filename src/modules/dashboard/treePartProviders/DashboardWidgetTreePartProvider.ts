@@ -1,10 +1,10 @@
 import { inject } from "inversify";
-import { Observable, switchMap } from "rxjs";
+import { map, Observable, switchMap } from "rxjs";
 import { Constructor } from "../../../common/constructor";
 import { Exception } from "../../../common/Exception";
 import { mapX } from "../../../common/exceptionOperators";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -35,7 +35,6 @@ export class DashboardWidgetTreePartProvider extends TreePartProvider<
     return context.pipe(
       switchMap((context) => {
         const { refreshObservables, refreshObservable } = this.createRefreshObservables("dashboardWidget");
-        // Fetch full dashboard to get widgets (getDashboardsByProject doesn't include them)
         return context.container
           .get<DashboardService>(types.DashboardService)
           .dashboard(
@@ -50,9 +49,11 @@ export class DashboardWidgetTreePartProvider extends TreePartProvider<
               const widgets = fullDashboard.widgets ?? [];
               return widgets.map((widget) => createDashboardWidgetItem(context, widget, refreshObservables));
             }),
-            fromArray((item: DashboardWidgetItem) => item.widget.id ?? "", { refreshObservables }),
+            map((items) => ({ items, refreshObservables })),
           );
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: DashboardWidgetItem) => item.widget.id ?? ""),
     );
   }
 

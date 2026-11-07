@@ -1,5 +1,18 @@
-import { BehaviorSubject, defer, merge, of, Subject, type Observable } from "rxjs";
-import { endWith, filter, map, mergeMap, scan, switchMap, takeUntil, tap, withLatestFrom } from "rxjs/operators";
+import { BehaviorSubject, defer, merge, of, ReplaySubject, Subject, type Observable } from "rxjs";
+import {
+  concatMap,
+  connect,
+  distinctUntilChanged,
+  endWith,
+  filter,
+  map,
+  mergeMap,
+  scan,
+  switchMap,
+  takeUntil,
+  tap,
+  withLatestFrom,
+} from "rxjs/operators";
 import {
   mapChangeSetToMapChangeSetWithItems,
   MapChangeSetWithItems,
@@ -128,6 +141,9 @@ export class UnwrappingTreePartProvider<
     key: string,
     item: Observable<Item>,
   ): Observable<ChildProviderChange<ChildItem, Item>> {
+    // Only switch when the child tree part provider changes. Updates of the item are passed to the child tree part
+    // provider as its context, so that it computes its changes relative to its previous items. Calling getItems for
+    // each update would add all child items again.
     return item.pipe(
       scan<Item, { treeItem: AbstractTreeItem<Item> }, undefined>((accumulated, value) => {
         const { treeItem } = this.#parentTreePartProvider.updateTreeItem(value, key, accumulated?.treeItem);
@@ -136,18 +152,26 @@ export class UnwrappingTreePartProvider<
         };
       }, undefined),
       map((value) => value.treeItem),
-      switchMap((treeItem) => {
-        const treePartProvider = this.#getTreePartProvider(treeItem);
-        if (treePartProvider === undefined) {
-          throw new Error("treePartProvider must not be undefined");
-        }
-        return treePartProvider.getItems(of(treeItem.data)).pipe(
-          map((info) => {
-            const { changes, ...residual } = info;
-            return { changeSet: changes, treePartProvider, residual };
-          }),
-        );
-      }),
+      // the replaying connector passes the current tree item to the context of a newly switched child tree part provider
+      connect(
+        (treeItems) =>
+          treeItems.pipe(
+            map((treeItem) => this.#getTreePartProvider(treeItem)),
+            distinctUntilChanged(),
+            switchMap((treePartProvider) => {
+              if (treePartProvider === undefined) {
+                throw new Error("treePartProvider must not be undefined");
+              }
+              return treePartProvider.getItems(treeItems.pipe(map((treeItem) => treeItem.data))).pipe(
+                map((info) => {
+                  const { changes, ...residual } = info;
+                  return { changeSet: changes, treePartProvider, residual };
+                }),
+              );
+            }),
+          ),
+        { connector: () => new ReplaySubject<AbstractTreeItem<Item>>(1) },
+      ),
     );
   }
 
@@ -156,9 +180,22 @@ export class UnwrappingTreePartProvider<
     const trigger = new Subject<boolean>();
     const observable = defer(() => {
       const items = new Map<string, ChildItem>();
-      let lastTreePartProvider: TreePartProvider<ChildItem, Item>;
+      let lastTreePartProvider: TreePartProvider<ChildItem, Item> | undefined;
       return this.#createChildProviderObservable(key, item).pipe(
         takeUntil(trigger),
+        // a new child tree part provider starts without items, so the items of the previous one are removed first
+        concatMap((change) =>
+          lastTreePartProvider === undefined || lastTreePartProvider === change.treePartProvider
+            ? of(change)
+            : of(
+                {
+                  changeSet: { added: new Map<string, ChildItem>(), removed: new Map(items) },
+                  treePartProvider: lastTreePartProvider,
+                  residual: change.residual,
+                },
+                change,
+              ),
+        ),
         tap(({ changeSet, treePartProvider: treePartProvider }) => {
           changeSet.removed.forEach((_, removed) => items.delete(removed));
           changeSet.added.forEach((addedValue, addedKey) => items.set(addedKey, addedValue));
@@ -261,9 +298,10 @@ export class UnwrappingTreePartProvider<
         trigger.next(true);
         childResiduals.delete(key);
       },
-      updated: (key, updatedValue) => {
+      // processMapChangeSet passes the previous value to updated, the new one is in added
+      updated: (key) => {
         const unwrappedValueObservable = acc.unwrappedValueObservables!.get(key)!;
-        unwrappedValueObservable.next(updatedValue);
+        unwrappedValueObservable.next(value.changeSet.added.get(key)!);
       },
     })(value.changeSet);
 

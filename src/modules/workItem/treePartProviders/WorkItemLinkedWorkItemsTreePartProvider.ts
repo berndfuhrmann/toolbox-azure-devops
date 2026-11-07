@@ -1,9 +1,9 @@
 import { inject } from "inversify";
-import { map, Observable, of, switchMap } from "rxjs";
+import { Observable, of, switchMap } from "rxjs";
 import { Constructor } from "../../../common/constructor";
 import { Exception } from "../../../common/Exception";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -35,20 +35,20 @@ export class WorkItemLinkedWorkItemsTreePartProvider extends TreePartProvider<
   getItems(context: Observable<WorkItemRelationGroupItem>): Observable<ItemInformation<WorkItemItem | Exception>> {
     return context.pipe(
       switchMap((workItemRelationGroup) => {
-        return of(
-          workItemRelationGroup.relatedWorkItemIds.map((id) =>
+        return of({
+          items: workItemRelationGroup.relatedWorkItemIds.map((id) =>
             createWorkItemItem(workItemRelationGroup, id, undefined, undefined, {}),
           ),
-        ).pipe(
-          fromArray((item: WorkItemItem) => `related-${item.workItemId}`, {}),
-          withItemObservable((inputObservable) =>
-            inputObservable.pipe(
-              loadWorkItem((item) => this.appendRefreshObservable(item, "workItem")),
-              loadWorkItemIcon((item) => this.appendRefreshObservable(item, "workItemIcon")),
-            ),
-          ),
-        );
+        });
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: WorkItemItem) => `related-${item.workItemId}`),
+      withItemObservable((inputObservable) =>
+        inputObservable.pipe(
+          loadWorkItem((item) => this.appendRefreshObservable(item, "workItem")),
+          loadWorkItemIcon((item) => this.appendRefreshObservable(item, "workItemIcon")),
+        ),
+      ),
     );
   }
 

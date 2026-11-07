@@ -3,7 +3,7 @@ import { Observable, of, switchMap } from "rxjs";
 import { Constructor } from "../../../common/constructor";
 import { Exception } from "../../../common/Exception";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -53,10 +53,10 @@ export class WorkItemRevisionFieldsTreePartProvider extends TreePartProvider<
           .map(([fieldName, change]) =>
             createWorkItemRevisionFieldChangeItem(revisionContext, fieldName, change.oldValue, change.newValue),
           );
-        return of(items).pipe(
-          fromArray((item: WorkItemRevisionFieldChangeItem) => `${item.rev}-${item.fieldReferenceName}`, {}),
-        );
+        return of({ items: items });
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: WorkItemRevisionFieldChangeItem) => `${item.rev}-${item.fieldReferenceName}`),
     );
   }
 

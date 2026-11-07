@@ -1,11 +1,11 @@
 import { inject } from "inversify";
-import { Observable, of, switchMap } from "rxjs";
+import { map, Observable, of, switchMap } from "rxjs";
 import { CommentExpandOptions } from "azure-devops-node-api/interfaces/WorkItemTrackingInterfaces";
 import { Constructor } from "../../../common/constructor";
 import { Exception } from "../../../common/Exception";
 import { switchMapX } from "../../../common/exceptionOperators";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -37,7 +37,6 @@ export class WorkItemCommentsTreePartProvider extends TreePartProvider<
       switchMap((context) => {
         const { refreshObservables, refreshObservable } = this.createRefreshObservables("workItemComments");
         const workItemTrackingService = context.container.get<WorkItemTrackingService>(types.WorkItemTrackingService);
-
         return workItemTrackingService
           .comments(
             context.projectId,
@@ -54,9 +53,11 @@ export class WorkItemCommentsTreePartProvider extends TreePartProvider<
               const comments = commentList.comments ?? [];
               return of(comments.map((comment) => createWorkItemCommentItem(context, comment, refreshObservables)));
             }),
-            fromArray((item: WorkItemCommentItem) => `${item.comment.id!}`, { refreshObservables }),
+            map((items) => ({ items, refreshObservables })),
           );
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: WorkItemCommentItem) => `${item.comment.id!}`),
     );
   }
 

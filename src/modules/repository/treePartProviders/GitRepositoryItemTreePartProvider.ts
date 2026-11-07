@@ -4,12 +4,12 @@ import {
   VersionControlRecursionType,
 } from "azure-devops-node-api/interfaces/GitInterfaces";
 import { inject } from "inversify";
-import { Observable, switchMap } from "rxjs";
+import { map, Observable, switchMap } from "rxjs";
 import { Constructor } from "../../../common/constructor";
 import { Exception } from "../../../common/Exception";
 import { mapX } from "../../../common/exceptionOperators";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -101,9 +101,11 @@ export class GitRepositoryItemTreePartProvider extends TreePartProvider<
                   createGitRepositoryItemItem(context, gitRepositoryItemItem2, versionDescriptor, refreshObservables),
                 ),
             ),
-            fromArray((item: GitRepositoryItemItem) => item.item.objectId!, { refreshObservables }),
+            map((items) => ({ items, refreshObservables })),
           );
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: GitRepositoryItemItem) => item.item.objectId!),
     );
   }
 

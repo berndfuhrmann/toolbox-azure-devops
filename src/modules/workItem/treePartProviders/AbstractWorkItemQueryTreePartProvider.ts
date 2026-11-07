@@ -6,7 +6,7 @@ import { switchMapX } from "../../../common/exceptionOperators";
 import { autoRefresh } from "../../../common/operators";
 import { SettingsService } from "../../../common/SettingsService";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -49,7 +49,6 @@ export abstract class AbstractWorkItemQueryTreePartProvider<TContext extends Pro
       switchMap((ctx) => {
         const { refreshObservables, refreshObservable } = this.createRefreshObservables(this.getRefreshKey());
         const workItemTrackingService = ctx.container.get<WorkItemTrackingService>(types.WorkItemTrackingService);
-
         return this.buildQuery(ctx, refreshObservable).pipe(
           switchMap((queryParams) => {
             if (isException(queryParams) || !queryParams) {
@@ -75,15 +74,17 @@ export abstract class AbstractWorkItemQueryTreePartProvider<TContext extends Pro
               );
           }),
           autoRefresh(refreshObservable, this.#settingsService.autoRefreshInterval()),
-          fromArray((item: WorkItemItem) => `${item.workItemId}`, { refreshObservables }),
-          withItemObservable((inputObservable) =>
-            inputObservable.pipe(
-              loadWorkItem((item) => this.appendRefreshObservable(item, "workItem")),
-              loadWorkItemIcon((item) => this.appendRefreshObservable(item, "workItemIcons")),
-            ),
-          ),
+          map((items) => ({ items, refreshObservables })),
         );
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: WorkItemItem) => `${item.workItemId}`),
+      withItemObservable((inputObservable) =>
+        inputObservable.pipe(
+          loadWorkItem((item) => this.appendRefreshObservable(item, "workItem")),
+          loadWorkItemIcon((item) => this.appendRefreshObservable(item, "workItemIcons")),
+        ),
+      ),
     );
   }
 

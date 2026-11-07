@@ -282,3 +282,44 @@ describe("async", () => {
     expect(observer.combined).toHaveBeenCalledTimes(call);
   });
 });
+
+describe("item information", () => {
+  test("emits changed item information, even when no keys changed", () => {
+    const inputSubject = new Subject<ItemInformation<number>>();
+    const first = { first: new Subject<number>() };
+    const second = { second: new Subject<number>() };
+    const emissions: ItemInformation<string>[] = [];
+    inputSubject
+      .pipe(withItemObservable<number, string>((x) => x.pipe(map((v) => `${v}`))))
+      .subscribe((information) => emissions.push(information));
+
+    inputSubject.next({ changes: { added: new Map([["key", 1]]), removed: new Map() }, refreshObservables: first });
+    inputSubject.next({ changes: { added: new Map(), removed: new Map() }, refreshObservables: second });
+
+    expect(emissions).toEqual([
+      { changes: { added: new Map([["key", "1"]]), removed: new Map() }, refreshObservables: first },
+      { changes: { added: new Map(), removed: new Map() }, refreshObservables: second },
+    ]);
+  });
+
+  test("emits per-item updates with the latest item information", () => {
+    const inputSubject = new Subject<ItemInformation<number>>();
+    const itemSubject = new Subject<string>();
+    const first = { first: new Subject<number>() };
+    const second = { second: new Subject<number>() };
+    const emissions: ItemInformation<string>[] = [];
+    inputSubject
+      .pipe(withItemObservable<number, string>(() => itemSubject))
+      .subscribe((information) => emissions.push(information));
+
+    inputSubject.next({ changes: { added: new Map([["key", 1]]), removed: new Map() }, refreshObservables: first });
+    itemSubject.next("a");
+    inputSubject.next({ changes: { added: new Map(), removed: new Map() }, refreshObservables: second });
+    itemSubject.next("b");
+
+    expect(emissions.at(-1)).toEqual({
+      changes: { added: new Map([["key", "b"]]), removed: new Map([["key", "a"]]) },
+      refreshObservables: second,
+    });
+  });
+});

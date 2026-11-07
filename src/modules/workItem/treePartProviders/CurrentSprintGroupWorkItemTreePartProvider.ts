@@ -1,9 +1,9 @@
 import { inject } from "inversify";
-import { map, Observable, of, switchMap } from "rxjs";
+import { Observable, of, switchMap } from "rxjs";
 import { Constructor } from "../../../common/constructor";
 import { Exception } from "../../../common/Exception";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import { withItemObservable } from "../../../common/treePartProvider/withItemObservable";
 import {
   ItemInformation,
@@ -23,14 +23,12 @@ export class CurrentSprintGroupWorkItemTreePartProvider extends TreePartProvider
 > {
   getItems(context: Observable<WorkItemCurrentSprintGroupItem>): Observable<ItemInformation<WorkItemItem | Exception>> {
     return context.pipe(
-      switchMap((context) => {
-        return of(context.workItems).pipe(
-          fromArray((item: WorkItemItem) => `${item.workItemId}`, {}),
-          withItemObservable((inputObservable) =>
-            inputObservable.pipe(loadWorkItemIcon((item) => this.appendRefreshObservable(item, "workItemIcons"))),
-          ),
-        );
-      }),
+      switchMap((context) => of({ items: context.workItems })),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: WorkItemItem) => `${item.workItemId}`),
+      withItemObservable((inputObservable) =>
+        inputObservable.pipe(loadWorkItemIcon((item) => this.appendRefreshObservable(item, "workItemIcons"))),
+      ),
     );
   }
 

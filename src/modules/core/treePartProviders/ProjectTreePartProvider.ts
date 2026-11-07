@@ -31,7 +31,7 @@ export class ProjectTreePartProvider extends TreePartProvider<ProjectItem | Exce
             map((items) => ({ items, refreshObservables })),
           );
       }),
-      // outside of switchMap, so that the items of the previous account item are replaced, not added a second time
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
       fromArrayWithItemInformation((item: ProjectItem) => item.projectId),
     );
   }

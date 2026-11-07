@@ -3,7 +3,7 @@ import { Observable, of, switchMap } from "rxjs";
 import { Constructor } from "../../../common/constructor";
 import { Exception } from "../../../common/Exception";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
-import { fromArray } from "../../../common/treePartProvider/fromArray";
+import { fromArrayWithItemInformation } from "../../../common/treePartProvider/fromArray";
 import {
   ItemInformation,
   createOrUpdateTreeItem,
@@ -42,12 +42,15 @@ export class GitRepositoryPullRequestCommentThreadTreePartProvider extends TreeP
   ): Observable<ItemInformation<GitRepositoryPullRequestCommentThreadItem | Exception>> {
     return context.pipe(
       switchMap((context) => {
-        return of(
-          context.pullRequestStatusses?.map((commentThread) =>
-            createGitRepositoryPullRequestCommentThreadItem(context, commentThread),
-          ) ?? [],
-        ).pipe(fromArray((item: GitRepositoryPullRequestCommentThreadItem) => `${item.commentThread.id!}`, {}));
+        return of({
+          items:
+            context.pullRequestStatusses?.map((commentThread) =>
+              createGitRepositoryPullRequestCommentThreadItem(context, commentThread),
+            ) ?? [],
+        });
       }),
+      // outside of switchMap, so that the items of the previous context are removed or updated, not added a second time
+      fromArrayWithItemInformation((item: GitRepositoryPullRequestCommentThreadItem) => `${item.commentThread.id!}`),
     );
   }
 
