@@ -25,11 +25,12 @@ export function addOrganizationAction(container: Container) {
     if (!authenticationMethod) {
       return;
     }
-    const configuration = await authenticationMethod.configure(url, organization);
+    const accountId = randomUUID();
+    const configuration = await authenticationMethod.configure(url, organization, accountId);
     if (!configuration) {
       return;
     }
-    const account: Account = { accountId: randomUUID(), url, organization, ...configuration };
+    const account: Account = { accountId, url, organization, ...configuration };
     if (!(await confirmConnection(account, authenticationMethod))) {
       return;
     }

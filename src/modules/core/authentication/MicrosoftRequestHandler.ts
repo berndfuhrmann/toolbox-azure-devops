@@ -59,23 +59,26 @@ export class MicrosoftRequestHandler implements IRequestHandler {
   }
 
   async handleAuthentication(httpClient: IHttpClient, requestInfo: IRequestInfo, data: any) {
-    const token = await this.#refreshToken();
-    this.#setAuthorization(requestInfo.options, token);
+    const sentToken = this.#setAuthorization(requestInfo.options, await this.#refreshToken());
     // requestRaw does not handle authentication again, so there is at most one retry
     const response = await httpClient.requestRaw(requestInfo, data);
-    if (token && response.message.statusCode === 401) {
-      this.#rejectToken(token);
+    // a host that did not get the token, e.g. one missing from the allowlist, cannot have rejected it
+    if (sentToken && response.message.statusCode === 401) {
+      this.#rejectToken(sentToken);
     }
     return response;
   }
 
+  /** Returns the token if it was set, undefined if there is none or the host must not get it. */
   #setAuthorization(options: RequestOptions, token: string | undefined) {
     const headers = (options.headers ??= {}) as OutgoingHttpHeaders;
     delete headers["Authorization"];
-    if (token && isMicrosoftAuthenticationHost(options.hostname ?? options.host)) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
     // without this, Azure DevOps answers unauthenticated requests with a redirect to the sign-in page
     headers["X-TFS-FedAuthRedirect"] = "Suppress";
+    if (token && isMicrosoftAuthenticationHost(options.hostname ?? options.host)) {
+      headers["Authorization"] = `Bearer ${token}`;
+      return token;
+    }
+    return undefined;
   }
 }

@@ -72,7 +72,7 @@ test("switches to the picked method and deletes the secrets of the previous one"
 
   await changeSignInMethodAction(container)(createAccountTreeItem(account));
 
-  expect(microsoftMethod.configure).toHaveBeenCalledWith("https://dev.azure.com/", "org-1");
+  expect(microsoftMethod.configure).toHaveBeenCalledWith("https://dev.azure.com/", "org-1", "1");
   const [stored] = await getAccounts();
   expect(stored.authentication).toEqual(microsoftAuthentication);
   expect(stored.secrets).toBeUndefined();

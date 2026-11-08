@@ -26,7 +26,7 @@ export function changeSignInMethodAction(container: Container) {
     if (!authenticationMethod) {
       return;
     }
-    const configuration = await authenticationMethod.configure(account.url, account.organization);
+    const configuration = await authenticationMethod.configure(account.url, account.organization, account.accountId);
     if (configuration) {
       const storageService = container.get<AbstractStorageService>(types.StorageService);
       await storageService.updateAccountAuthentication(account.accountId, configuration);

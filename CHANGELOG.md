@@ -1,5 +1,27 @@
 # Change Log
 
+## [Unreleased] - Sign In with a Microsoft Account
+
+### Microsoft Account
+
+Organizations on Azure DevOps Cloud can now sign in with a Microsoft (Entra ID) account instead of a Personal Access Token. The extension uses VS Code's built-in Microsoft authentication, so no token needs to be created or renewed. PAT stays available for every organization, and each organization picks its own method.
+
+- The tenant of an organization is detected automatically; if that fails, a tenant ID can be entered.
+- The extension never asks for a sign-in on startup. Organizations without a session are shown as "Signed out" and sign in when clicked.
+- A Microsoft token is only ever sent to `dev.azure.com` and `visualstudio.com`.
+
+### Organization Management
+
+- **Update Credentials** replaces "Update Personal Access Token (PAT)". It asks for a new PAT, or signs in to the Microsoft account again.
+- **Change Sign-in Method** switches an organization between Microsoft account and PAT.
+- **Add Organization** accepts the full URL of an organization, lets you choose the sign-in method and tests the connection before saving.
+- Items that failed because of invalid credentials (HTTP 401) offer **Update Credentials**.
+
+### Fixes
+
+- Removing an organization now also removes its pinned items.
+- Stored organizations that cannot be read are kept instead of being deleted.
+
 ## [0.0.5] - Fixed Bug When Expanding Work Items
 
 This release fixes a bug where expanding a work item before it finished loading would cause some of its children to not appear. The children now show up correctly even if the work item is expanded during loading.

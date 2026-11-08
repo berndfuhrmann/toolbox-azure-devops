@@ -79,7 +79,7 @@ interface AuthenticationMethod {
   readonly label: string; // shown in the method picker
   isAvailableFor(url: string): boolean; // e.g. Microsoft only for the host allowlist
   isSuggestedFor(url: string): boolean;
-  configure(url: string, organization: string): Promise<AuthenticationConfiguration | undefined>;
+  configure(url: string, organization: string, accountId: string): Promise<AuthenticationConfiguration | undefined>; // when adding: the id the organization will be saved with
   updateCredentials(account: Account): Promise<AuthenticationConfiguration | undefined>;
   createRequestHandler(account: Account): Promise<IRequestHandler>;
   signInStatus(account: Account): Observable<SignInStatus>; // PR 2, never prompts
@@ -115,11 +115,11 @@ interface AuthenticationMethod {
 - Remembers the Microsoft account per organization (`microsoftAccountId`, `microsoftAccountLabel`); the add flow shows an account picker when several sessions exist.
 - Never prompts at startup: tokens are requested silently. Without a session, the organization shows "Signed out" and a sign-in icon, cannot be expanded (clicking it signs in), is never unwrapped, and VS Code shows its Accounts menu badge (`createIfNone: false`). Interactive sign-in only on user action.
 - When the remembered Microsoft account is gone, "Sign In" shows the account picker with the previous account preselected.
-- **Host allowlist**: only `https://dev.azure.com/…` and `https://*.visualstudio.com/…`, checked in the method picker and again in the request handler. A Microsoft token for Azure DevOps works for every organization the user can reach, so it must never go to another host.
+- **Host allowlist**: only `https://dev.azure.com/…`, its service subdomains (`https://*.dev.azure.com/…`, e.g. `vsrm.dev.azure.com`, `vssps.dev.azure.com`) and `https://*.visualstudio.com/…`, checked in the method picker and again in the request handler. A Microsoft token for Azure DevOps works for every organization the user can reach, so it must never go to another host.
 - **Tenant**:
   1. On add: unauthenticated request to `https://dev.azure.com/{org}/_apis/connectionData`; store the `X-VSS-ResourceTenant` header as `tenantId`. If missing, zero or failing: one optional input for a tenant ID (empty = home tenant).
   2. Every request: token for `VSCODE_TENANT:{tenantId}` when a tenant is set.
-  3. On 401: look up once more. Changed tenant → store and retry once. Otherwise mark the organization as needing sign-in; no further automatic retries.
+  3. On 401: look up once more. Changed tenant → store and retry once. Otherwise mark the organization as needing sign-in (only if the retry actually sent the token, so a host outside the allowlist cannot sign it out); no further automatic retries. Sign In and Change Sign-in Method clear the mark.
   4. Sign In / Update Credentials: interactive; shows the tenant input again when the last lookup failed. A successful lookup overrides a typed tenant.
 - **Cleanup**: switching PAT → Microsoft deletes the PAT. Switching Microsoft → PAT and removing an organization leave the VS Code Microsoft session alone.
 
@@ -147,4 +147,10 @@ interface AuthenticationMethod {
 - [x] "Change Sign-in Method" command incl. secrets cleanup.
 - [x] Method picker enabled in Add Organization.
 - [x] Unit tests with mocked `vscode.authentication`: configure, handler, allowlist, tenant lookup and retry limit, signed-out state.
-- [ ] Manual test checklist in the PR (real browser sign-in, guest tenant, sign-out, removed account).
+- [x] Component tests with the real HTTP client against a fake Azure DevOps (`nock`): retries, tenant change, redirects, rejection and restart.
+- [x] User docs: README, CHANGELOG, FEATURES.md.
+- [ ] Manual test with a real browser sign-in ([test plan](../../../test/manual/microsoft-authentication.md)), results in the PR.
+
+## Open points
+
+- `{org}.visualstudio.com` organizations: Add Organization only parses full `dev.azure.com` URLs; for `visualstudio.com` the URL and the collection (e.g. `DefaultCollection`) must be entered separately. Not tested yet.

@@ -9,15 +9,36 @@ This extension provides convenient access to Microsoft Azure DevOps from within 
 After installing the extension:
 
 1. Click **Add Organization** in any of the Azure DevOps views
-2. Enter your server address (defaults to `https://dev.azure.com`)
+2. Enter your server address (defaults to `https://dev.azure.com/`). You can also paste the full URL of your organization, e.g. `https://dev.azure.com/my-organization`, then the next step is skipped.
 3. Enter your organization name
-4. Enter your personal access token
+4. Choose how to sign in (only for Azure DevOps Cloud, see below)
 
-![Setup screenshot](docs/user-security.png)
+The extension then tests the connection. If it fails, you can still save the organization and fix the credentials later.
+
+### Sign-in Methods
+
+Each organization has its own sign-in method:
+
+- **Microsoft Account**: Sign in with your Microsoft (Entra ID) account through VS Code's built-in Microsoft authentication. No token needs to be created or renewed. Only available for Azure DevOps Cloud (`https://dev.azure.com/…` and `https://*.visualstudio.com/…`), and suggested there.
+- **Personal Access Token (PAT)**: Works with Azure DevOps Cloud, Azure DevOps Server and TFS.
+
+With a Microsoft account, the extension never asks you to sign in on startup. If VS Code has no session for the account, the organization is shown as **Signed out**. Click it, or use **Sign In**, to sign in again. VS Code also offers the sign-in in its Accounts menu.
+
+If several Microsoft accounts are signed in to VS Code, you are asked which one to use. The tenant of the organization is detected automatically. If that fails, you are asked for a tenant ID; leave it empty to use the home tenant of your account.
 
 ### Creating a Personal Access Token
 
-In Azure DevOps, click your user icon in the top right corner → **Security** → **Personal access tokens** → **New Token**. Grant appropriate scopes and use the token when adding your organization. Tokens expire and must be renewed.
+In Azure DevOps, click your user icon in the top right corner → **Security** → **Personal access tokens** → **New Token**. Grant appropriate scopes and use the token when adding your organization. Tokens expire and must be renewed with **Update Credentials**.
+
+![Setup screenshot](docs/user-security.png)
+
+### Managing Organizations
+
+Right-click an organization for:
+
+- **Update Credentials**: Enter a new PAT, or sign in to your Microsoft account again. Also offered on items that failed with an authentication error.
+- **Change Sign-in Method**: Switch between Microsoft account and PAT. A stored PAT is deleted when you switch to a Microsoft account.
+- **Remove Organization**: Removes the organization together with its credentials and pinned items. Your Microsoft session in VS Code is left alone.
 
 ## Tree Views
 
@@ -80,4 +101,4 @@ Should also work with:
 
 Report issues or request features on [GitHub](https://github.com/berndfuhrmann/toolbox-azure-devops).
 
-For code contributions, see `DEVELOPMENT.md`.
+For code contributions, see `CONTRIBUTING.md`.

@@ -24,7 +24,7 @@ export class PersonalAccessTokenAuthenticationMethod implements AuthenticationMe
     return false;
   }
 
-  configure(_url: string, organization: string) {
+  configure(_url: string, organization: string, _accountId: string) {
     return this.#prompt(organization);
   }
 

@@ -81,7 +81,7 @@ describe("configure", () => {
   test("lets the user pick an account and remembers it", async () => {
     vi.mocked(vscode.authentication.getSession).mockResolvedValue(session("token"));
 
-    expect(await subject.configure("https://dev.azure.com/", "org")).toEqual({
+    expect(await subject.configure("https://dev.azure.com/", "org", "id-1")).toEqual({
       authentication: account.authentication,
     });
     expect(vscode.authentication.getSession).toHaveBeenCalledWith("microsoft", scopes, {
@@ -94,7 +94,7 @@ describe("configure", () => {
     vi.mocked(lookupTenant).mockResolvedValue("tenant");
     vi.mocked(vscode.authentication.getSession).mockResolvedValue(session("token"));
 
-    expect(await subject.configure("https://dev.azure.com/", "org")).toEqual({
+    expect(await subject.configure("https://dev.azure.com/", "org", "id-1")).toEqual({
       authentication: { ...microsoftAuthentication, tenantId: "tenant" },
     });
     expect(lookupTenant).toHaveBeenCalledWith("https://dev.azure.com/org");
@@ -110,7 +110,7 @@ describe("configure", () => {
     vi.mocked(promptForTenant).mockResolvedValue("typed");
     vi.mocked(vscode.authentication.getSession).mockResolvedValue(session("token"));
 
-    expect(await subject.configure("https://dev.azure.com/", "org")).toEqual({
+    expect(await subject.configure("https://dev.azure.com/", "org", "id-1")).toEqual({
       authentication: { ...microsoftAuthentication, tenantId: "typed" },
     });
     expect(vscode.authentication.getSession).toHaveBeenCalledWith(
@@ -123,14 +123,14 @@ describe("configure", () => {
   test("returns undefined if the user cancels the tenant input", async () => {
     vi.mocked(promptForTenant).mockResolvedValue(undefined);
 
-    expect(await subject.configure("https://dev.azure.com/", "org")).toBeUndefined();
+    expect(await subject.configure("https://dev.azure.com/", "org", "id-1")).toBeUndefined();
     expect(vscode.authentication.getSession).not.toHaveBeenCalled();
   });
 
   test("returns undefined if the user cancels the sign-in", async () => {
     vi.mocked(vscode.authentication.getSession).mockRejectedValue(new Error("User did not consent to login."));
 
-    expect(await subject.configure("https://dev.azure.com/", "org")).toBeUndefined();
+    expect(await subject.configure("https://dev.azure.com/", "org", "id-1")).toBeUndefined();
   });
 });
 
@@ -326,6 +326,7 @@ describe("signInStatus", () => {
   test.each([
     ["a new token", () => fireDidChangeSessions({ provider: { id: "microsoft", label: "Microsoft" } })],
     ["signing in again", () => subject.updateCredentials(account)],
+    ["changing the sign-in method", () => subject.configure(account.url, account.organization, account.accountId)],
   ])("tries again after %s", async (_, retry) => {
     vi.mocked(vscode.authentication.getSession).mockResolvedValue(session("token"));
     const handler = await subject.createRequestHandler(account);
@@ -336,5 +337,16 @@ describe("signInStatus", () => {
     await retry();
 
     await vi.waitFor(() => expect(values).toEqual(["signedIn", "signedOut", "signedIn"]));
+  });
+
+  test("tries the same token again after changing the sign-in method to the same account", async () => {
+    vi.mocked(vscode.authentication.getSession).mockResolvedValue(session("token"));
+    const handler = await subject.createRequestHandler(account);
+    const values = statuses(subject, account);
+    await retryAfterUnauthorized(handler, 401);
+
+    await subject.configure(account.url, account.organization, account.accountId);
+
+    expect(values).toEqual(["signedIn", "signedOut", "signedIn"]);
   });
 });

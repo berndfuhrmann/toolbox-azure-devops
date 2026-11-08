@@ -21,8 +21,11 @@ export interface AuthenticationMethod {
   isAvailableFor(url: string): boolean;
   /** Whether this method should be preselected for the given host URL. */
   isSuggestedFor(url: string): boolean;
-  /** Asks the user for everything the method needs. Returns undefined if the user cancelled. */
-  configure(url: string, organization: string): Promise<AuthenticationConfiguration | undefined>;
+  /**
+   * Asks the user for everything the method needs. Returns undefined if the user cancelled.
+   * @param accountId the account to configure; when adding an organization, the id it will be saved with
+   */
+  configure(url: string, organization: string, accountId: string): Promise<AuthenticationConfiguration | undefined>;
   /** Asks the user for new credentials of an existing account. Returns undefined if the user cancelled. */
   updateCredentials(account: Account): Promise<AuthenticationConfiguration | undefined>;
   /**

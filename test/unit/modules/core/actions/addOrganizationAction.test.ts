@@ -76,6 +76,18 @@ describe("addOrganizationAction", () => {
     expect(connect).toHaveBeenCalledWith("https://dev.azure.com/my-org", { token: "pat" });
   });
 
+  test("configures the method with the id the account is saved with", async () => {
+    const personalAccessTokenMethod = new PersonalAccessTokenAuthenticationMethod();
+    const configure = vi.spyOn(personalAccessTokenMethod, "configure");
+    useAuthenticationMethods(personalAccessTokenMethod);
+    mockInputs("https://dev.azure.com/my-org", "pat");
+
+    await addOrganizationAction(container)();
+
+    const [account] = await getAccounts();
+    expect(configure).toHaveBeenCalledWith("https://dev.azure.com/", "my-org", account.accountId);
+  });
+
   test("asks for the organization if the URL does not contain one", async () => {
     mockInputs("https://tfs.example.com/tfs/", "collection", "pat");
 

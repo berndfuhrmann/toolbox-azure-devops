@@ -26,7 +26,7 @@ describe("configure", () => {
   test("returns the entered token as secrets, trimmed", async () => {
     vi.mocked(vscode.window.showInputBox).mockResolvedValue("  new-pat  ");
 
-    expect(await subject.configure("https://dev.azure.com/", "org")).toEqual({
+    expect(await subject.configure("https://dev.azure.com/", "org", "id-1")).toEqual({
       authentication: { type: "personalAccessToken" },
       secrets: { personalAccessToken: "new-pat" },
     });
@@ -36,12 +36,12 @@ describe("configure", () => {
   test("returns undefined if the user cancels", async () => {
     vi.mocked(vscode.window.showInputBox).mockResolvedValue(undefined);
 
-    expect(await subject.configure("https://dev.azure.com/", "org")).toBeUndefined();
+    expect(await subject.configure("https://dev.azure.com/", "org", "id-1")).toBeUndefined();
   });
 
   test("rejects empty input", async () => {
     vi.mocked(vscode.window.showInputBox).mockResolvedValue(undefined);
-    await subject.configure("https://dev.azure.com/", "org");
+    await subject.configure("https://dev.azure.com/", "org", "id-1");
 
     const { validateInput } = vi.mocked(vscode.window.showInputBox).mock.calls[0][0]!;
     expect(validateInput!("  ")).toBeTruthy();

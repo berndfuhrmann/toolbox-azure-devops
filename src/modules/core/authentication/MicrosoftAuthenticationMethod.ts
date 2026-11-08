@@ -62,19 +62,23 @@ export class MicrosoftAuthenticationMethod implements AuthenticationMethod {
     return isMicrosoftAuthenticationUrl(url);
   }
 
-  async configure(url: string, organization: string) {
+  async configure(url: string, organization: string, accountId: string) {
     const tenantId = await this.#resolveTenant(url, organization, undefined);
     if (tenantId === undefined) {
       return undefined;
     }
     // lets the user pick one of the signed-in accounts or sign in with another one
-    return this.#signIn(tenantId, { createIfNone: true, clearSessionPreference: true });
+    const configuration = await this.#signIn(tenantId, { createIfNone: true, clearSessionPreference: true });
+    if (configuration) {
+      this.#acceptAgain(accountId);
+    }
+    return configuration;
   }
 
   async updateCredentials(account: Account) {
     const authentication = asMicrosoftAuthentication(account.authentication);
     if (!authentication) {
-      return this.configure(account.url, account.organization);
+      return this.configure(account.url, account.organization, account.accountId);
     }
     const tenantId = await this.#resolveTenant(account.url, account.organization, authentication.tenantId);
     if (tenantId === undefined) {
@@ -85,11 +89,15 @@ export class MicrosoftAuthenticationMethod implements AuthenticationMethod {
       account: toAccountInformation(authentication),
     });
     if (configuration) {
-      // the user explicitly signed in, so the token is worth another try
-      this.#rejectedTokens.delete(account.accountId);
-      this.#changes.next();
+      this.#acceptAgain(account.accountId);
     }
     return configuration;
+  }
+
+  /** The user explicitly signed in, so a rejected token of the account is worth another try. */
+  #acceptAgain(accountId: string) {
+    this.#rejectedTokens.delete(accountId);
+    this.#changes.next();
   }
 
   async createRequestHandler(account: Account) {

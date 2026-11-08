@@ -15,6 +15,11 @@ describe("isMicrosoftAuthenticationHost", () => {
     ["evil-dev.azure.com", false],
     ["dev.azure.com.example.com", false],
     ["visualstudio.com.example.com", false],
+    // lookalikes: a trailing dot, a port or a missing dot before the domain must not match either
+    ["dev.azure.com.", false],
+    ["dev.azure.com:8443", false],
+    ["xdev.azure.com", false],
+    ["myvisualstudio.com", false],
     ["tfs.example.com", false],
     [undefined, false],
   ])("%s", (host, expected) => {
@@ -88,11 +93,11 @@ describe("MicrosoftRequestHandler", () => {
     expect(rejectToken).not.toHaveBeenCalled();
   });
 
-  const handleUnauthorizedRetry = async (token: string | undefined) => {
+  const handleUnauthorizedRetry = async (token: string | undefined, host = "dev.azure.com") => {
     const httpClient = {
       requestRaw: vi.fn().mockResolvedValue({ message: { statusCode: 401 } }),
     } as unknown as IHttpClient;
-    const requestInfo = { options: { host: "dev.azure.com", headers: {} } } as unknown as IRequestInfo;
+    const requestInfo = { options: { host, headers: {} } } as unknown as IRequestInfo;
     const rejectToken = vi.fn();
     const handler = new MicrosoftRequestHandler(
       () => token,
@@ -109,5 +114,9 @@ describe("MicrosoftRequestHandler", () => {
 
   test("reports nothing if there is no token, as the user is signed out anyway", async () => {
     expect(await handleUnauthorizedRetry(undefined)).not.toHaveBeenCalled();
+  });
+
+  test("reports nothing if the host did not get the token", async () => {
+    expect(await handleUnauthorizedRetry("token", "example.com")).not.toHaveBeenCalled();
   });
 });

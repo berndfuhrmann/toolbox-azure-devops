@@ -11,11 +11,17 @@ The Azure DevOps Helper extension provides an intuitive way to access Microsoft 
 ### Organization Management
 
 - **Add Organization**: Connect to Azure DevOps organizations by providing:
-  - Organization URL (e.g., `https://dev.azure.com/`)
+  - Organization URL (e.g., `https://dev.azure.com/`); a full organization URL also fills in the organization name
   - Organization name
-  - Personal Access Token (PAT) for authentication
-- **Remove Organization**: Disconnect organizations from the extension with confirmation dialog
-- **Update Credentials**: Update the credentials (e.g. the PAT) of existing organizations, also offered on authentication errors
+  - Sign-in method, then the method's own steps; the connection is tested before saving
+- **Sign-in methods** (per organization):
+  - Microsoft account (Entra ID) via VS Code's built-in `microsoft` authentication provider, only for `dev.azure.com` and `*.visualstudio.com`; tenant detected automatically or entered
+  - Personal Access Token (PAT), for all servers
+- **Signed-out state**: Organizations whose Microsoft session is missing show "Signed out", cannot be expanded and sign in when clicked
+- **Sign In**: Sign in again for a signed-out organization
+- **Remove Organization**: Disconnect organizations from the extension with confirmation dialog; removes their credentials and account data such as pinned items
+- **Update Credentials**: Update the credentials of existing organizations (a new PAT, or signing in again), also offered on authentication errors
+- **Change Sign-in Method**: Switch an existing organization between Microsoft account and PAT
 
 ### Configuration
 
