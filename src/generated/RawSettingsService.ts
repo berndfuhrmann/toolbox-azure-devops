@@ -1,4 +1,3 @@
-
 import { Disposable, workspace, ExtensionContext } from "vscode";
 import { extensionName } from "../config";
 import { map, Observable, ReplaySubject } from "rxjs";
@@ -34,16 +33,10 @@ export class RawSettingsService {
         dispose: () => {},
       }),
     );
-    
-    this.#autoRefreshInterval = this.#configSettingsData.pipe(
-      map((data) => data.autoRefreshInterval),
-    );
-    this.#unwrapAccounts = this.#configSettingsData.pipe(
-      map((data) => data.unwrapAccounts),
-    );
-    this.#unwrapProjects = this.#configSettingsData.pipe(
-      map((data) => data.unwrapProjects),
-    );
+
+    this.#autoRefreshInterval = this.#configSettingsData.pipe(map((data) => data.autoRefreshInterval));
+    this.#unwrapAccounts = this.#configSettingsData.pipe(map((data) => data.unwrapAccounts));
+    this.#unwrapProjects = this.#configSettingsData.pipe(map((data) => data.unwrapProjects));
   }
 
   public autoRefreshInterval(): Observable<number | null> {
@@ -71,24 +64,17 @@ export class RawSettingsService {
   }
 
   #getAutoRefreshInterval(): number | null {
-    const value = this.#getSettings().get<number | null>(
-      RawSettingsService.settingAutoRefreshInterval
-    );
+    const value = this.#getSettings().get<number | null>(RawSettingsService.settingAutoRefreshInterval);
     return value ?? null;
   }
 
   #getUnwrapAccounts(): boolean {
-    const value = this.#getSettings().get<boolean>(
-      RawSettingsService.settingUnwrapAccounts
-    );
+    const value = this.#getSettings().get<boolean>(RawSettingsService.settingUnwrapAccounts);
     return value ?? true;
   }
 
   #getUnwrapProjects(): boolean {
-    const value = this.#getSettings().get<boolean>(
-      RawSettingsService.settingUnwrapProjects
-    );
+    const value = this.#getSettings().get<boolean>(RawSettingsService.settingUnwrapProjects);
     return value ?? true;
   }
-
 }

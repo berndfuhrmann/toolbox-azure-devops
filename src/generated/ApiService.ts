@@ -30,16 +30,7 @@ import { IWorkItemTrackingApi } from "azure-devops-node-api/WorkItemTrackingApi"
 import { IWorkItemTrackingProcessApi } from "azure-devops-node-api/WorkItemTrackingProcessApi";
 import { IWorkItemTrackingProcessDefinitionsApi } from "azure-devops-node-api/WorkItemTrackingProcessDefinitionsApi";
 import { injectable } from "inversify";
-import {
-  catchError,
-  distinctUntilChanged,
-  from,
-  map,
-  Observable,
-  of,
-  shareReplay,
-  switchMap,
-} from "rxjs";
+import { catchError, distinctUntilChanged, from, map, Observable, of, shareReplay, switchMap } from "rxjs";
 import { isException, Exception, createException } from "../common/Exception";
 import { Account, buildAccountUrl, compareAccount } from "../modules/core/account";
 import { AuthenticationMethodRegistry } from "../modules/core/authentication/AuthenticationMethodRegistry";
@@ -48,40 +39,37 @@ import { AuthenticationMethodRegistry } from "../modules/core/authentication/Aut
 export class ApiService {
   #authenticationMethodRegistry: AuthenticationMethodRegistry;
   #webApi: Observable<WebApi | Exception>;
-	#alertApi: Observable<IAlertApi | Exception>;
-	#buildApi: Observable<IBuildApi | Exception>;
-	#cixApi: Observable<ICixApi | Exception>;
-	#coreApi: Observable<ICoreApi | Exception>;
-	#dashboardApi: Observable<IDashboardApi | Exception>;
-	#extensionManagementApi: Observable<IExtensionManagementApi | Exception>;
-	#featureManagementApi: Observable<IFeatureManagementApi | Exception>;
-	#fileContainerApi: Observable<IFileContainerApi | Exception>;
-	#galleryApi: Observable<IGalleryApi | Exception>;
-	#gitApi: Observable<IGitApi | Exception>;
-	#locationsApi: Observable<ILocationsApi | Exception>;
-	#managementApi: Observable<IManagementApi | Exception>;
-	#notificationApi: Observable<INotificationApi | Exception>;
-	#pipelinesApi: Observable<IPipelinesApi | Exception>;
-	#policyApi: Observable<IPolicyApi | Exception>;
-	#profileApi: Observable<IProfileApi | Exception>;
-	#projectAnalysisApi: Observable<IProjectAnalysisApi | Exception>;
-	#releaseApi: Observable<IReleaseApi | Exception>;
-	#securityRolesApi: Observable<ISecurityRolesApi | Exception>;
-	#taskAgentApi: Observable<ITaskAgentApi | Exception>;
-	#taskApi: Observable<ITaskApi | Exception>;
-	#testApi: Observable<ITestApi | Exception>;
-	#testPlanApi: Observable<ITestPlanApi | Exception>;
-	#testResultsApi: Observable<ITestResultsApi | Exception>;
-	#wikiApi: Observable<IWikiApi | Exception>;
-	#workApi: Observable<IWorkApi | Exception>;
-	#workItemTrackingApi: Observable<IWorkItemTrackingApi | Exception>;
-	#workItemTrackingProcessApi: Observable<IWorkItemTrackingProcessApi | Exception>;
-	#workItemTrackingProcessDefinitionApi: Observable<IWorkItemTrackingProcessDefinitionsApi | Exception>;
+  #alertApi: Observable<IAlertApi | Exception>;
+  #buildApi: Observable<IBuildApi | Exception>;
+  #cixApi: Observable<ICixApi | Exception>;
+  #coreApi: Observable<ICoreApi | Exception>;
+  #dashboardApi: Observable<IDashboardApi | Exception>;
+  #extensionManagementApi: Observable<IExtensionManagementApi | Exception>;
+  #featureManagementApi: Observable<IFeatureManagementApi | Exception>;
+  #fileContainerApi: Observable<IFileContainerApi | Exception>;
+  #galleryApi: Observable<IGalleryApi | Exception>;
+  #gitApi: Observable<IGitApi | Exception>;
+  #locationsApi: Observable<ILocationsApi | Exception>;
+  #managementApi: Observable<IManagementApi | Exception>;
+  #notificationApi: Observable<INotificationApi | Exception>;
+  #pipelinesApi: Observable<IPipelinesApi | Exception>;
+  #policyApi: Observable<IPolicyApi | Exception>;
+  #profileApi: Observable<IProfileApi | Exception>;
+  #projectAnalysisApi: Observable<IProjectAnalysisApi | Exception>;
+  #releaseApi: Observable<IReleaseApi | Exception>;
+  #securityRolesApi: Observable<ISecurityRolesApi | Exception>;
+  #taskAgentApi: Observable<ITaskAgentApi | Exception>;
+  #taskApi: Observable<ITaskApi | Exception>;
+  #testApi: Observable<ITestApi | Exception>;
+  #testPlanApi: Observable<ITestPlanApi | Exception>;
+  #testResultsApi: Observable<ITestResultsApi | Exception>;
+  #wikiApi: Observable<IWikiApi | Exception>;
+  #workApi: Observable<IWorkApi | Exception>;
+  #workItemTrackingApi: Observable<IWorkItemTrackingApi | Exception>;
+  #workItemTrackingProcessApi: Observable<IWorkItemTrackingProcessApi | Exception>;
+  #workItemTrackingProcessDefinitionApi: Observable<IWorkItemTrackingProcessDefinitionsApi | Exception>;
 
-  constructor(
-    accountObservable: Observable<Account>,
-    authenticationMethodRegistry: AuthenticationMethodRegistry,
-  ) {
+  constructor(accountObservable: Observable<Account>, authenticationMethodRegistry: AuthenticationMethodRegistry) {
     this.#authenticationMethodRegistry = authenticationMethodRegistry;
     this.#webApi = accountObservable.pipe(
       // only reconnect if something changed that is needed for the connection
@@ -130,93 +118,95 @@ export class ApiService {
     this.#workApi = this.#makeApi((webApi) => webApi?.getWorkApi());
     this.#workItemTrackingApi = this.#makeApi((webApi) => webApi?.getWorkItemTrackingApi());
     this.#workItemTrackingProcessApi = this.#makeApi((webApi) => webApi?.getWorkItemTrackingProcessApi());
-    this.#workItemTrackingProcessDefinitionApi = this.#makeApi((webApi) => webApi?.getWorkItemTrackingProcessDefinitionApi());
+    this.#workItemTrackingProcessDefinitionApi = this.#makeApi((webApi) =>
+      webApi?.getWorkItemTrackingProcessDefinitionApi(),
+    );
   }
-	public alertApi() {
+  public alertApi() {
     return this.#alertApi;
   }
-	public buildApi() {
+  public buildApi() {
     return this.#buildApi;
   }
-	public cixApi() {
+  public cixApi() {
     return this.#cixApi;
   }
-	public coreApi() {
+  public coreApi() {
     return this.#coreApi;
   }
-	public dashboardApi() {
+  public dashboardApi() {
     return this.#dashboardApi;
   }
-	public extensionManagementApi() {
+  public extensionManagementApi() {
     return this.#extensionManagementApi;
   }
-	public featureManagementApi() {
+  public featureManagementApi() {
     return this.#featureManagementApi;
   }
-	public fileContainerApi() {
+  public fileContainerApi() {
     return this.#fileContainerApi;
   }
-	public galleryApi() {
+  public galleryApi() {
     return this.#galleryApi;
   }
-	public gitApi() {
+  public gitApi() {
     return this.#gitApi;
   }
-	public locationsApi() {
+  public locationsApi() {
     return this.#locationsApi;
   }
-	public managementApi() {
+  public managementApi() {
     return this.#managementApi;
   }
-	public notificationApi() {
+  public notificationApi() {
     return this.#notificationApi;
   }
-	public pipelinesApi() {
+  public pipelinesApi() {
     return this.#pipelinesApi;
   }
-	public policyApi() {
+  public policyApi() {
     return this.#policyApi;
   }
-	public profileApi() {
+  public profileApi() {
     return this.#profileApi;
   }
-	public projectAnalysisApi() {
+  public projectAnalysisApi() {
     return this.#projectAnalysisApi;
   }
-	public releaseApi() {
+  public releaseApi() {
     return this.#releaseApi;
   }
-	public securityRolesApi() {
+  public securityRolesApi() {
     return this.#securityRolesApi;
   }
-	public taskAgentApi() {
+  public taskAgentApi() {
     return this.#taskAgentApi;
   }
-	public taskApi() {
+  public taskApi() {
     return this.#taskApi;
   }
-	public testApi() {
+  public testApi() {
     return this.#testApi;
   }
-	public testPlanApi() {
+  public testPlanApi() {
     return this.#testPlanApi;
   }
-	public testResultsApi() {
+  public testResultsApi() {
     return this.#testResultsApi;
   }
-	public wikiApi() {
+  public wikiApi() {
     return this.#wikiApi;
   }
-	public workApi() {
+  public workApi() {
     return this.#workApi;
   }
-	public workItemTrackingApi() {
+  public workItemTrackingApi() {
     return this.#workItemTrackingApi;
   }
-	public workItemTrackingProcessApi() {
+  public workItemTrackingProcessApi() {
     return this.#workItemTrackingProcessApi;
   }
-	public workItemTrackingProcessDefinitionApi() {
+  public workItemTrackingProcessDefinitionApi() {
     return this.#workItemTrackingProcessDefinitionApi;
   }
   #makeApi<T>(getter: (webApi: WebApi) => Promise<T>) {

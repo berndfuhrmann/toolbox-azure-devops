@@ -124,49 +124,49 @@
                   <!-- Transform -->
                 <epsilon.egl src="../services.egl" target="../../src/generated/services.ts">
                   <model ref="Source" />
-                    <!-- <defaultFormatter implementation="de.netzquantum.publictalk.MyFormatter"/> -->
+                    <defaultFormatter implementation="de.netzquantum.toolboxazuredevopsbybf.PrettierFormatter" />
                 </epsilon.egl>
 
                   <!-- Transform -->
                 <epsilon.egl src="../ApiService.egl" target="../../src/generated/ApiService.ts">
                   <model ref="Source" />
-                    <!-- <defaultFormatter implementation="de.netzquantum.publictalk.MyFormatter"/> -->
+                    <defaultFormatter implementation="de.netzquantum.toolboxazuredevopsbybf.PrettierFormatter" />
                 </epsilon.egl>
 
                   <!-- Transform -->
                 <epsilon.egl src="../types.egl" target="../../src/generated/types.ts">
                   <model ref="Source" />
-                    <!-- <defaultFormatter implementation="de.netzquantum.publictalk.MyFormatter"/> -->
+                    <defaultFormatter implementation="de.netzquantum.toolboxazuredevopsbybf.PrettierFormatter" />
                 </epsilon.egl>
 
                   <!-- Transform -->
                 <epsilon.egl src="../register.egl" target="../../src/generated/register.ts">
                   <model ref="Source" />
-                    <!-- <defaultFormatter implementation="de.netzquantum.publictalk.MyFormatter"/> -->
+                    <defaultFormatter implementation="de.netzquantum.toolboxazuredevopsbybf.PrettierFormatter" />
                 </epsilon.egl>
 
                   <!-- Transform -->
                 <epsilon.egl src="../registerCommands.egl" target="../../src/generated/registerCommands.ts">
                   <model ref="Source" />
-                    <!-- <defaultFormatter implementation="de.netzquantum.publictalk.MyFormatter"/> -->
+                    <defaultFormatter implementation="de.netzquantum.toolboxazuredevopsbybf.PrettierFormatter" />
                 </epsilon.egl>
 
                   <!-- Transform -->
                 <epsilon.egl src="../registerViews.egl" target="../../src/generated/registerViews.ts">
                   <model ref="Source" />
-                    <!-- <defaultFormatter implementation="de.netzquantum.publictalk.MyFormatter"/> -->
+                    <defaultFormatter implementation="de.netzquantum.toolboxazuredevopsbybf.PrettierFormatter" />
                 </epsilon.egl>
 
                   <!-- Transform -->
                 <epsilon.egl src="../RawSettingsService.egl" target="../../src/generated/RawSettingsService.ts">
                   <model ref="Source" />
-                  <!-- <defaultFormatter implementation="de.netzquantum.publictalk.MyFormatter"/> -->
+                  <defaultFormatter implementation="de.netzquantum.toolboxazuredevopsbybf.PrettierFormatter" />
                 </epsilon.egl>
 
                   <!-- Transform -->
                 <epsilon.egl src="../treeProviderResolvers.egl" target="../../src/generated/treeProviderResolvers.ts">
                   <model ref="Source" />
-                    <!-- <defaultFormatter implementation="de.netzquantum.publictalk.MyFormatter"/> -->
+                    <defaultFormatter implementation="de.netzquantum.toolboxazuredevopsbybf.PrettierFormatter" />
                 </epsilon.egl>
 
                   <!-- Transform -->
@@ -233,12 +233,11 @@
             <artifactId>org.eclipse.emfatic.core</artifactId>
             <version>1.1.0</version>
           </dependency>
-            <!--dependency>
-            <groupId>de.netzquantum.publictalk</groupId>
+          <dependency>
+            <groupId>de.netzquantum.toolboxazuredevopsbybf</groupId>
             <artifactId>formatter</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-          </dependency-->
+          </dependency>
         </dependencies>
       </plugin>
     </plugins>

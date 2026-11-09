@@ -1,179 +1,116 @@
 import * as vscode from "vscode";
 import { Container } from "inversify";
 import { extensionName } from "../config";
-import { workItemSetAssignedToAction, workItemCopyIdAction, workItemSetStateAction, workItemSetEffortAction, workItemSetTitleAction } from "../modules/workItem/actions/workItemActions";
+import {
+  workItemSetAssignedToAction,
+  workItemCopyIdAction,
+  workItemSetStateAction,
+  workItemSetEffortAction,
+  workItemSetTitleAction,
+} from "../modules/workItem/actions/workItemActions";
 import { handleRefreshAction } from "../common/items/RefreshableTreeItemMixin";
 import { removeOrganizationAction } from "../modules/core/actions/removeOrganizationAction";
 import { gitRepositoryPullRequestSetTitleAction } from "../modules/repository/actions/gitRepositoryPullRequestActions";
 import { updateCredentialsAction, signInAction } from "../modules/core/actions/updateCredentialsAction";
 import { handleUnpinAction, handlePinAction } from "../common/items/PinnedTreeItemMixin";
-import { pipelineDeleteFolderAction, pipelineCreateFolderAction, pipelineRenameFolderAction } from "../modules/pipeline/actions/folderActions";
+import {
+  pipelineDeleteFolderAction,
+  pipelineCreateFolderAction,
+  pipelineRenameFolderAction,
+} from "../modules/pipeline/actions/folderActions";
 import { pipelineCancelRunAction, pipelineRerunRunAction } from "../modules/pipeline/actions/pipelineRunActions";
 import { handleOpenInWebAction } from "../common/items/OpenInWebTreeItemMixin";
 import { openTextFileAction } from "../common/openTextFileAction";
-import { pipelineRevealRepositoryAction, pipelineRunPipelineAction, pipelineRenamePipelineAction, pipelineDeletePipelineAction } from "../modules/pipeline/actions/pipelineActions";
+import {
+  pipelineRevealRepositoryAction,
+  pipelineRunPipelineAction,
+  pipelineRenamePipelineAction,
+  pipelineDeletePipelineAction,
+} from "../modules/pipeline/actions/pipelineActions";
 import { addOrganizationAction } from "../modules/core/actions/addOrganizationAction";
 import { downloadAttachmentAction } from "../modules/workItem/actions/attachmentActions";
 import { changeSignInMethodAction } from "../modules/core/actions/changeSignInMethodAction";
 
-export function registerCommands(
-  context: vscode.ExtensionContext,
-  container: Container,
-) {
+export function registerCommands(context: vscode.ExtensionContext, container: Container) {
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".addOrganization",
-addOrganizationAction(container),
-    ),
+    vscode.commands.registerCommand(extensionName + ".addOrganization", addOrganizationAction(container)),
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".removeOrganization",
-removeOrganizationAction(container),
-    ),
+    vscode.commands.registerCommand(extensionName + ".removeOrganization", removeOrganizationAction(container)),
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".updateCredentials",
-updateCredentialsAction(container),
-    ),
+    vscode.commands.registerCommand(extensionName + ".updateCredentials", updateCredentialsAction(container)),
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".changeSignInMethod",
-changeSignInMethodAction(container),
-    ),
+    vscode.commands.registerCommand(extensionName + ".changeSignInMethod", changeSignInMethodAction(container)),
   );
-  context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".signIn",
-signInAction(container),
-    ),
-  );
-  context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".openInWeb",
-handleOpenInWebAction,
-    ),
-  );
-  context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".pin",
-handlePinAction,
-    ),
-  );
-  context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".unpin",
-handleUnpinAction,
-    ),
-  );
-  context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".refresh",
-handleRefreshAction,
-    ),
-  );
+  context.subscriptions.push(vscode.commands.registerCommand(extensionName + ".signIn", signInAction(container)));
+  context.subscriptions.push(vscode.commands.registerCommand(extensionName + ".openInWeb", handleOpenInWebAction));
+  context.subscriptions.push(vscode.commands.registerCommand(extensionName + ".pin", handlePinAction));
+  context.subscriptions.push(vscode.commands.registerCommand(extensionName + ".unpin", handleUnpinAction));
+  context.subscriptions.push(vscode.commands.registerCommand(extensionName + ".refresh", handleRefreshAction));
   context.subscriptions.push(
     vscode.commands.registerCommand(
       extensionName + ".workItem.downloadAttachment",
-downloadAttachmentAction(container),
+      downloadAttachmentAction(container),
     ),
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".workItem.setState",
-workItemSetStateAction(container),
-    ),
+    vscode.commands.registerCommand(extensionName + ".workItem.setState", workItemSetStateAction(container)),
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".workItem.setTitle",
-workItemSetTitleAction(container),
-    ),
+    vscode.commands.registerCommand(extensionName + ".workItem.setTitle", workItemSetTitleAction(container)),
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".workItem.setEffort",
-workItemSetEffortAction(container),
-    ),
+    vscode.commands.registerCommand(extensionName + ".workItem.setEffort", workItemSetEffortAction(container)),
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".workItem.setAssignedTo",
-workItemSetAssignedToAction(container),
-    ),
+    vscode.commands.registerCommand(extensionName + ".workItem.setAssignedTo", workItemSetAssignedToAction(container)),
   );
+  context.subscriptions.push(vscode.commands.registerCommand(extensionName + ".workItem.copyId", workItemCopyIdAction));
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".workItem.copyId",
-workItemCopyIdAction,
-    ),
-  );
-  context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".openTextFile",
-openTextFileAction(container),
-    ),
+    vscode.commands.registerCommand(extensionName + ".openTextFile", openTextFileAction(container)),
   );
   context.subscriptions.push(
     vscode.commands.registerCommand(
       extensionName + ".gitRepository.pullRequest.setTitle",
-gitRepositoryPullRequestSetTitleAction(container),
+      gitRepositoryPullRequestSetTitleAction(container),
     ),
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".pipeline.renameFolder",
-pipelineRenameFolderAction(container),
-    ),
+    vscode.commands.registerCommand(extensionName + ".pipeline.renameFolder", pipelineRenameFolderAction(container)),
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".pipeline.createFolder",
-pipelineCreateFolderAction(container),
-    ),
+    vscode.commands.registerCommand(extensionName + ".pipeline.createFolder", pipelineCreateFolderAction(container)),
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".pipeline.deleteFolder",
-pipelineDeleteFolderAction(container),
-    ),
+    vscode.commands.registerCommand(extensionName + ".pipeline.deleteFolder", pipelineDeleteFolderAction(container)),
   );
   context.subscriptions.push(
     vscode.commands.registerCommand(
       extensionName + ".pipeline.revealRepository",
-pipelineRevealRepositoryAction(container),
+      pipelineRevealRepositoryAction(container),
     ),
   );
   context.subscriptions.push(
     vscode.commands.registerCommand(
       extensionName + ".pipeline.renamePipeline",
-pipelineRenamePipelineAction(container),
+      pipelineRenamePipelineAction(container),
     ),
   );
   context.subscriptions.push(
     vscode.commands.registerCommand(
       extensionName + ".pipeline.deletePipeline",
-pipelineDeletePipelineAction(container),
+      pipelineDeletePipelineAction(container),
     ),
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".pipeline.runPipeline",
-pipelineRunPipelineAction(container),
-    ),
+    vscode.commands.registerCommand(extensionName + ".pipeline.runPipeline", pipelineRunPipelineAction(container)),
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".pipeline.cancelRun",
-pipelineCancelRunAction(container),
-    ),
+    vscode.commands.registerCommand(extensionName + ".pipeline.cancelRun", pipelineCancelRunAction(container)),
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      extensionName + ".pipeline.rerunRun",
-pipelineRerunRunAction(container),
-    ),
+    vscode.commands.registerCommand(extensionName + ".pipeline.rerunRun", pipelineRerunRunAction(container)),
   );
 }

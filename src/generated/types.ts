@@ -71,7 +71,9 @@ export const types = {
   GitRepositoryPullRequestReviewerTreePartProvider: Symbol("GitRepositoryPullRequestReviewerTreePartProvider"),
   GitRepositoryPullRequestWorkItemTreePartProvider: Symbol("GitRepositoryPullRequestWorkItemTreePartProvider"),
   GitRepositoryPullRequestStatusTreePartProvider: Symbol("GitRepositoryPullRequestStatusTreePartProvider"),
-  GitRepositoryPullRequestCommentThreadTreePartProvider: Symbol("GitRepositoryPullRequestCommentThreadTreePartProvider"),
+  GitRepositoryPullRequestCommentThreadTreePartProvider: Symbol(
+    "GitRepositoryPullRequestCommentThreadTreePartProvider",
+  ),
   PinnedGitRepositoryTreePartProvider: Symbol("PinnedGitRepositoryTreePartProvider"),
   PinnedGitRepositoryPullRequestTreePartProvider: Symbol("PinnedGitRepositoryPullRequestTreePartProvider"),
   PipelineFolderTreePartProvider: Symbol("PipelineFolderTreePartProvider"),
