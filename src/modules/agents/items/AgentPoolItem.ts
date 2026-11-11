@@ -21,6 +21,10 @@ export function compareAgentPoolItem(a: AgentPoolItem, b: AgentPoolItem) {
   return isDeepStrictEqual(a.agentPool, b.agentPool);
 }
 
+export function getAgentPoolItemKey(item: AgentPoolContext): string {
+  return item.account.accountId + "/" + item.agentPoolId;
+}
+
 export interface AgentPoolContext extends ProjectContext {
   agentPoolId: number;
 }

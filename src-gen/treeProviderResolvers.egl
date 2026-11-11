@@ -78,6 +78,9 @@ if (DeduplicatingTreePartProvider.all.select(d | d.dedupePredicate == "dedupePin
 if (DeduplicatingTreePartProvider.all.select(d | d.dedupePredicate == "dedupePinnedPipelines").size() > 0) {
   allImports.put("../modules/pipeline/dedupePinnedPipelines", Set{"dedupePinnedPipelines"});
 }
+if (DeduplicatingTreePartProvider.all.select(d | d.dedupePredicate == "dedupePinnedAgentPools").size() > 0) {
+  allImports.put("../modules/agents/dedupePinnedAgentPools", Set{"dedupePinnedAgentPools"});
+}
 
 var needsOf = UnwrappingTreePartProvider.all.select(u | u.unwrapPredicate.isDefined() and u.unwrapPredicate.contains("of(")).size() > 0
   or DeduplicatingTreePartProvider.all.select(d | d.dedupePredicate.isDefined() and d.dedupePredicate.contains("of(")).size() > 0;

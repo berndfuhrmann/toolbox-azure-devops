@@ -113,7 +113,7 @@ export class PinnedWorkItemAreaPathTreePartProvider extends PinnedItemTreePartPr
             { account, container: accountContainer, projectId: parsed.projectId, refreshObservables: {} },
             node,
             leafTypeNames,
-            {},
+            { areaPath: refreshObservable },
           ),
         );
       }),

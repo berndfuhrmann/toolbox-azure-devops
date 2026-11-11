@@ -70,7 +70,7 @@ export class PinnedWorkItemTeamTreePartProvider extends PinnedItemTreePartProvid
           createWorkItemTeamItem(
             { account, container: accountContainer, projectId: parsed.projectId, refreshObservables: {} },
             team,
-            {},
+            { team: refreshObservable },
           ),
         );
       }),

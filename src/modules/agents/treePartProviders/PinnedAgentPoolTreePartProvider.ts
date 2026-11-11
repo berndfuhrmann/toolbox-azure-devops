@@ -66,7 +66,7 @@ export class PinnedAgentPoolTreePartProvider extends PinnedItemTreePartProvider<
           createAgentPoolItem(
             { account, container: accountContainer, projectId: parsed.projectId, refreshObservables: {} },
             agentPool,
-            {},
+            { agentPool: refreshObservable },
           ),
         );
       }),

@@ -83,7 +83,7 @@ export class PinnedWorkItemQueryLeafTreePartProvider extends PinnedItemTreePartP
           createWorkItemQueryItem(
             { account, container: accountContainer, projectId: parsed.projectId, refreshObservables: {} },
             queryItem,
-            {},
+            { query: refreshObservable },
           ),
         );
       }),

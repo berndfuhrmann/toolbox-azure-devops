@@ -74,7 +74,7 @@ export class PinnedAgentTreePartProvider extends PinnedItemTreePartProvider<Agen
               refreshObservables: {},
             },
             agent,
-            {},
+            { agent: refreshObservable },
           ),
         );
       }),

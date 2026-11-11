@@ -779,9 +779,9 @@
   <treeProvider
     name="AgentsTreeProvider"
     module="agents"
-    treePartProvider="AgentsRootCombiningTreePartProvider,AccountRootUnwrappingTreePartProvider,ProjectUnwrappingTreePartProvider,AgentPoolChildrenStaticTreePartProvider,AgentChildrenStaticTreePartProvider,AgentPoolTreePartProvider,AgentTreePartProvider,AgentJobTreePartProvider,PinnedAgentPoolTreePartProvider,PinnedAgentTreePartProvider"
+    treePartProvider="AgentsRootDeduplicatingTreePartProvider,AgentsRootCombiningTreePartProvider,AccountRootUnwrappingTreePartProvider,ProjectUnwrappingTreePartProvider,AgentPoolChildrenStaticTreePartProvider,AgentChildrenStaticTreePartProvider,AgentPoolTreePartProvider,AgentTreePartProvider,AgentJobTreePartProvider,PinnedAgentPoolTreePartProvider,PinnedAgentTreePartProvider"
   >
-    <treeProviderRule treePartProvider="AgentsRootCombiningTreePartProvider" />
+    <treeProviderRule treePartProvider="AgentsRootDeduplicatingTreePartProvider" />
     <treeProviderRule treeitem="AccountTreeItem" treePartProvider="ProjectUnwrappingTreePartProvider" />
     <treeProviderRule treeitem="ProjectTreeItem" treePartProvider="AgentPoolTreePartProvider" />
     <treeProviderRule treeitem="AgentPoolTreeItem" treePartProvider="AgentPoolChildrenStaticTreePartProvider" />
@@ -1484,6 +1484,11 @@
     <entry key="pinnedAgents" childTreePartProvider="PinnedAgentTreePartProvider" />
     <entry key="accounts" childTreePartProvider="AccountRootUnwrappingTreePartProvider" />
   </combiningTreePartProvider>
+  <deduplicatingTreePartProvider
+    name="AgentsRootDeduplicatingTreePartProvider"
+    innerTreePartProvider="AgentsRootCombiningTreePartProvider"
+    dedupePredicate="dedupePinnedAgentPools"
+  />
   <staticTreePartProvider name="AgentPoolChildrenStaticTreePartProvider">
     <entry key="jobs" treeItem="JobsContainerTreeItem" />
     <entry key="agents" treeItem="AgentsContainerTreeItem" />
