@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased] - Sign In with a Microsoft Account
+## [0.1.0] - Sign In with a Microsoft Account
 
 ### Microsoft Account
 
@@ -21,6 +21,9 @@ Organizations on Azure DevOps Cloud can now sign in with a Microsoft (Entra ID) 
 
 - Removing an organization now also removes its pinned items.
 - Stored organizations that cannot be read are kept instead of being deleted.
+- **Refresh** now works on pinned agent pools, agents, area paths, queries and teams.
+- A pinned agent pool is no longer shown twice in the Agents view.
+- Projects are no longer shown twice when the organization list changes.
 
 ## [0.0.5] - Fixed Bug When Expanding Work Items
 
@@ -41,17 +44,20 @@ Authentication to Azure DevOps Cloud, Azure DevOps Server, and TFS is handled vi
 The extension provides four tree views, each displaying specific items from your Azure DevOps organization:
 
 **Work Items**
+
 - Work items assigned to you and your teams
 - Saved queries, area paths, and work item hierarchy
 - Work item details including comments, history, and attachments
 - Linked items: commits, pull requests, branches, builds, and related work items
 
 **Repositories**
+
 - Repositories with files, commits, branches, and tags
 - Pull requests with reviewers, statuses, comments, and linked work items
 - Open items directly in the editor or in the web browser
 
 **Pipelines**
+
 - Pipeline folders, pipelines, and runs
 - Run artifacts and timeline records
 - Create, rename, and delete folders
@@ -59,22 +65,26 @@ The extension provides four tree views, each displaying specific items from your
 - Rename and delete pipelines
 
 **Agents**
+
 - Agent pools and individual agents
 - Jobs running on agents
 
 ### Available Actions
 
 All tree items support:
+
 - **Pin/Unpin**: Keep frequently accessed items visible at the top
 - **Open in Web**: View items in the Azure DevOps web portal
 - **Refresh**: Manually refresh tree data (also supports configurable auto-refresh)
 
 Work item actions:
+
 - Set state, title, effort (story points), and assignee
 - Download attachments
 - Copy work item ID
 
 Pipeline actions:
+
 - Create, rename, and delete pipeline folders
 - Rename and delete pipelines
 - Run, cancel, and re-run pipelines
@@ -82,6 +92,7 @@ Pipeline actions:
 ### Configuration
 
 The extension offers these settings:
+
 - **Auto-refresh interval**: Configure how often data is automatically refreshed
 - **Unwrap accounts**: Display account items directly when only one account exists
 - **Unwrap projects**: Display project items directly when only one project exists per account
@@ -89,6 +100,7 @@ The extension offers these settings:
 ### Technical Details
 
 The extension is built with TypeScript and uses:
+
 - **RxJS** for reactive data streams with caching and pagination
 - **Inversify** for dependency injection
 - **@sinclair/typebox** for runtime type checking
