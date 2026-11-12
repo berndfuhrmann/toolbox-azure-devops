@@ -4,10 +4,9 @@
 
 ### Microsoft Account
 
-Organizations on Azure DevOps Cloud can now sign in with a Microsoft (Entra ID) account instead of a Personal Access Token. The extension uses VS Code's built-in Microsoft authentication, so no token needs to be created or renewed. PAT stays available for every organization, and each organization picks its own method.
+Organizations on Azure DevOps Cloud can now sign in with a Microsoft (Entra ID) account.
 
 - The tenant of an organization is detected automatically; if that fails, a tenant ID can be entered.
-- The extension never asks for a sign-in on startup. Organizations without a session are shown as "Signed out" and sign in when clicked.
 - A Microsoft token is only ever sent to `dev.azure.com` and `visualstudio.com`.
 
 ### Organization Management
