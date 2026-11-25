@@ -1,6 +1,7 @@
 import vscode from "vscode";
 import { TaskResult } from "azure-devops-node-api/interfaces/TaskAgentInterfaces";
 import { getStatus } from "../../../common/fileDecorator/StatusFileDecorationProvider";
+import { formatDateTime } from "../../../common/date/dateFormat";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
 import { AgentJobItem } from "../items/AgentJobItem";
 
@@ -72,13 +73,13 @@ export class AgentJobTreeItem<Data extends AgentJobItem = AgentJobItem> extends 
       lines.push(`Pipeline: ${request.definition.name}`);
     }
     if (request.queueTime) {
-      lines.push(`Queued: ${new Date(request.queueTime).toLocaleString()}`);
+      lines.push(`Queued: ${formatDateTime(request.queueTime)}`);
     }
     if (request.assignTime) {
-      lines.push(`Started: ${new Date(request.assignTime).toLocaleString()}`);
+      lines.push(`Started: ${formatDateTime(request.assignTime)}`);
     }
     if (request.finishTime) {
-      lines.push(`Finished: ${new Date(request.finishTime).toLocaleString()}`);
+      lines.push(`Finished: ${formatDateTime(request.finishTime)}`);
     }
 
     return lines.join("\n");

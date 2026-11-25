@@ -1,5 +1,11 @@
 # Change Log
 
+## [Unreleased]
+
+### Dates
+
+Dates are easier to read, e.g. `Nov 25, 2026` instead of `11/25/2026`.
+
 ## [0.1.0] - Sign In with a Microsoft Account
 
 ### Microsoft Account

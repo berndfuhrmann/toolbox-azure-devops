@@ -2,6 +2,7 @@ import { TaskResult, TimelineRecordState } from "azure-devops-node-api/interface
 import { MarkdownString, TreeItemCollapsibleState } from "vscode";
 import { getStatus } from "../../../common/fileDecorator/StatusFileDecorationProvider";
 import { formatDuration } from "../../../common/stringUtils";
+import { formatDateTime } from "../../../common/date/dateFormat";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
 import { extensionName } from "../../../config";
 import { PipelineRunTimelineItem } from "../items/PipelineRunTimelineItem";
@@ -42,11 +43,11 @@ export class PipelineRunTimelineTreeItem<
     }
     if (timelineRecord?.startTime) {
       tooltip.appendMarkdown("  \nStarted ");
-      tooltip.appendText(new Date(timelineRecord.startTime).toLocaleString());
+      tooltip.appendText(formatDateTime(timelineRecord.startTime));
     }
     if (timelineRecord?.finishTime) {
       tooltip.appendMarkdown("  \nFinished ");
-      tooltip.appendText(new Date(timelineRecord.finishTime).toLocaleString());
+      tooltip.appendText(formatDateTime(timelineRecord.finishTime));
     }
     if (timelineRecord?.startTime && timelineRecord?.finishTime) {
       tooltip.appendMarkdown("  \nDuration: ");

@@ -1,6 +1,7 @@
 import { BuildReason } from "azure-devops-node-api/interfaces/BuildInterfaces";
 import vscode, { MarkdownString } from "vscode";
 import { formatDuration } from "../../../common/stringUtils";
+import { formatDateTime } from "../../../common/date/dateFormat";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
 import { extensionName } from "../../../config";
 import { PipelineRunItem } from "../items/PipelineRunItem";
@@ -37,11 +38,11 @@ export class PipelineRunTreeItem<Data extends PipelineRunItem = PipelineRunItem>
     }
     if (data.build.startTime) {
       tooltip.appendMarkdown("  \nStarted ");
-      tooltip.appendText(new Date(data.build.startTime).toLocaleString());
+      tooltip.appendText(formatDateTime(data.build.startTime));
     }
     if (data.build.finishTime) {
       tooltip.appendMarkdown("  \nFinished ");
-      tooltip.appendText(new Date(data.build.finishTime).toLocaleString());
+      tooltip.appendText(formatDateTime(data.build.finishTime));
     }
     if (data.build.startTime && data.build.finishTime) {
       tooltip.appendMarkdown("  \nDuration: ");

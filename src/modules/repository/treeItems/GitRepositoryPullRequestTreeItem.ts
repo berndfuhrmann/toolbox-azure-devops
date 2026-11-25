@@ -1,6 +1,7 @@
 import { GitStatusState } from "azure-devops-node-api/interfaces/GitInterfaces";
 import { MarkdownString, TreeItemCollapsibleState } from "vscode";
 import { getStatus } from "../../../common/fileDecorator/StatusFileDecorationProvider";
+import { formatDate } from "../../../common/date/dateFormat";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
 import { GitRepositoryPullRequestItem } from "../items/GitRepositoryPullRequestItem";
 import { refToDisplayString } from "../items/GitRepositoryItem";
@@ -24,7 +25,7 @@ export class GitRepositoryPullRequestTreeItem<
     }
     if (data.pullRequest.creationDate) {
       tooltip.appendMarkdown("  \nCreated ");
-      tooltip.appendText(new Date(data.pullRequest.creationDate).toLocaleDateString());
+      tooltip.appendText(formatDate(data.pullRequest.creationDate));
     }
     tooltip.appendMarkdown("  \n`");
     tooltip.appendText(refToDisplayString(data.pullRequest.sourceRefName));

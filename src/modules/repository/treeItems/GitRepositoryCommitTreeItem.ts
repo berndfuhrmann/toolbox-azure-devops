@@ -1,4 +1,5 @@
 import { MarkdownString, TreeItemCollapsibleState } from "vscode";
+import { formatDate } from "../../../common/date/dateFormat";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
 import { GitRepositoryCommitItem } from "../items/GitRepositoryCommitItem";
 
@@ -25,7 +26,7 @@ export class GitRepositoryCommitTreeItem<
       tooltip.appendText(data.commit.author.name);
       if (data.commit.author.date) {
         tooltip.appendMarkdown(" · ");
-        tooltip.appendText(new Date(data.commit.author.date).toLocaleDateString());
+        tooltip.appendText(formatDate(data.commit.author.date));
       }
     }
     return [

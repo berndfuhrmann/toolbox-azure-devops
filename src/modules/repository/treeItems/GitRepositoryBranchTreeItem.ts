@@ -1,4 +1,5 @@
 import { MarkdownString, TreeItemCollapsibleState } from "vscode";
+import { formatDate } from "../../../common/date/dateFormat";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
 import { GitRepositoryBranchItem } from "../items/GitRepositoryBranchItem";
 import { refToDisplayString } from "../items/GitRepositoryItem";
@@ -22,7 +23,7 @@ export class GitRepositoryBranchTreeItem<
       tooltip.appendText(data.branch.commit.author.name);
       if (data.branch.commit.author.date) {
         tooltip.appendMarkdown(" on ");
-        tooltip.appendText(new Date(data.branch.commit.author.date).toLocaleDateString());
+        tooltip.appendText(formatDate(data.branch.commit.author.date));
       }
     }
     return [

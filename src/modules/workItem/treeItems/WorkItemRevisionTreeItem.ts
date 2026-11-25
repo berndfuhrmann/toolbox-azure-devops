@@ -1,4 +1,5 @@
 import vscode from "vscode";
+import { formatDate } from "../../../common/date/dateFormat";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
 import { WorkItemRevisionItem } from "../items/WorkItemRevisionItem";
 
@@ -25,7 +26,7 @@ export class WorkItemRevisionTreeItem<
     const update = data.update;
     const rev = update.rev ?? 0;
     const author = update.revisedBy?.displayName ?? "Unknown";
-    const date = update.revisedDate ? new Date(update.revisedDate).toLocaleDateString() : "";
+    const date = update.revisedDate ? formatDate(update.revisedDate) : "";
     const displayableFields = Object.entries(update.fields ?? {}).filter(([fieldName]) => !noiseFields.has(fieldName));
 
     const tooltip = new vscode.MarkdownString();

@@ -1,4 +1,5 @@
 import { MarkdownString, TreeItemCollapsibleState } from "vscode";
+import { formatDate } from "../../../common/date/dateFormat";
 import { AbstractTreeItem } from "../../../common/treeItems/AbstractTreeItem";
 import { PipelineFolderItem } from "../items/PipelineFolderItem";
 import { createCodeSpan } from "../../../common/stringUtils";
@@ -30,7 +31,7 @@ export class PipelineFolderTreeItem<
       tooltip.appendText(data.folder.lastChangedBy.displayName);
       if (data.folder.lastChangedDate) {
         tooltip.appendMarkdown(" on ");
-        tooltip.appendText(new Date(data.folder.lastChangedDate).toLocaleDateString());
+        tooltip.appendText(formatDate(data.folder.lastChangedDate));
       }
     }
     return [super.updateFrom(data), this.updateLabel(getFolderName(data)), this.updateTooltip(tooltip)].includes(true);
