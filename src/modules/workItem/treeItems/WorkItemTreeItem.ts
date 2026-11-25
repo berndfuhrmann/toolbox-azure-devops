@@ -58,7 +58,8 @@ export class WorkItemTreeItem<Data extends WorkItemItem = WorkItemItem> extends 
   public override updateFrom(data: Data) {
     return [
       super.updateFrom(data),
-      this.updateIconSVG(data.iconSvg),
+      // the icon of the work item type is loaded later, and might not be available at all
+      data.iconSvg ? this.updateIconSVG(data.iconSvg) : this.updateIcon("work-item"),
       this.updateLabel(
         (data.workItem &&
           `${data.workItemId}: ${getTitle(data.workItem)} [${getWorkItemType(data.workItem)}] ${getState(data.workItem)}`) ||

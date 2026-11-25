@@ -6,6 +6,10 @@
 
 Dates are easier to read, e.g. `Nov 25, 2026` instead of `11/25/2026`.
 
+### Work Items
+
+Work items have a generic icon until the icon of their type is loaded.
+
 ## [0.1.0] - Sign In with a Microsoft Account
 
 ### Microsoft Account

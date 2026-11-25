@@ -1,5 +1,5 @@
 import { inject } from "inversify";
-import { finalize, map, Observable, of, pipe, shareReplay, Subject, switchMap } from "rxjs";
+import { finalize, map, Observable, of, pipe, shareReplay, startWith, Subject, switchMap } from "rxjs";
 import { isException } from "../../../common/Exception";
 import { mapX, switchMapX } from "../../../common/exceptionOperators";
 import { WorkItemTrackingService } from "../../../generated/services";
@@ -25,6 +25,8 @@ export function loadWorkItemIcon<Data extends WorkItemItem>(
         .get<WorkItemTypeIconService>(types.WorkItemTypeIconService)
         .workItemIconByType(item.projectId, getWorkItemType(workItem), refreshObservable)
         .pipe(
+          // show work items without waiting for their icons
+          startWith(undefined),
           map((svg) => ({
             ...item,
             iconSvg: svg,
