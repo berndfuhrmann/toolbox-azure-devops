@@ -2,6 +2,7 @@ import { GitRepository } from "azure-devops-node-api/interfaces/GitInterfaces";
 import { randomUUID } from "crypto";
 import { BehaviorSubject, ReplaySubject, Subject } from "rxjs";
 import { setTimeout } from "timers/promises";
+import { isException } from "../../../src/common/Exception";
 import { ApiService } from "../../../src/generated/ApiService";
 import { createTestAuthenticationMethodRegistry } from "../helper/authentication";
 import { GitService } from "../../../src/generated/services";
@@ -117,6 +118,28 @@ describe("GitService - getRepositories", () => {
 
     expect(observer.combined).toHaveBeenCalledTimes(2);
     expect(observer.combined.mock.calls).toMatchObject([[[]], [sampleGitRepositories]]);
+  });
+
+  test("failed request is emitted as Exception and does not end the stream", async () => {
+    const { observer, refresher } = createTestSetup();
+    const { subject } = createGitServiceWithAccount(createTestAccount());
+    const controller1 = configureMockOnce<GitRepository[]>(MockGitApi.getRepositories);
+    const controller2 = configureMockOnce<GitRepository[]>(MockGitApi.getRepositories);
+
+    subject.repositories(projectId, refresher).subscribe(observer);
+    refresher.next(new Date().getTime());
+    await waitForNextTick();
+    const failure = new Error("request failed");
+    controller1.reject(failure);
+    controller2.resolve(sampleGitRepositories);
+    await waitForNextTick();
+    refresher.next(new Date().getTime());
+    await waitForNextTick();
+
+    expect(observer.combined).toHaveBeenCalledTimes(2);
+    const [[first], [second]] = observer.combined.mock.calls;
+    expect(isException(first) && first.error).toBe(failure);
+    expect(second).toBe(sampleGitRepositories);
   });
 
   // FIXME

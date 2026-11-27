@@ -113,6 +113,7 @@ import { GitRepositoryPullRequestTreeItem } from "../modules/repository/treeItem
 import { ProjectRootTreePartProvider } from "../modules/workItem/treePartProviders/ProjectRootTreePartProvider";
 import { WorkItemRevisionTreeItem } from "../modules/workItem/treeItems/WorkItemRevisionTreeItem";
 import { DashboardTreeProvider } from "../modules/dashboard/DashboardTreeProvider";
+import { GitRepositoryPullRequestCommentTreePartProvider } from "../modules/repository/treePartProviders/GitRepositoryPullRequestCommentTreePartProvider";
 import { GitRepositoryCommitTreeItem } from "../modules/repository/treeItems/GitRepositoryCommitTreeItem";
 import { GitRepositoryPullRequestReviewerTreePartProvider } from "../modules/repository/treePartProviders/GitRepositoryPullRequestReviewerTreePartProvider";
 import { GitRepositoryTagItem } from "../modules/repository/items/GitRepositoryTagItem";
@@ -152,6 +153,10 @@ import { RecentlyModifiedByMeTreeItem } from "../modules/workItem/treeItems/Rece
 import { WorkItemCurrentSprintTreeItem } from "../modules/workItem/treeItems/WorkItemCurrentSprintTreeItem";
 import { GitRepositoryTreeItem } from "../modules/repository/treeItems/GitRepositoryTreeItem";
 import { WorkItemCommentItem } from "../modules/workItem/items/WorkItemCommentItem";
+import {
+  openInWebGetUrl as openInWebGetUrlGitRepositoryPullRequestComment,
+  GitRepositoryPullRequestCommentItem,
+} from "../modules/repository/items/GitRepositoryPullRequestCommentItem";
 import { WorkItemLinkedCommitsTreeItem } from "../modules/workItem/treeItems/WorkItemLinkedCommitsTreeItem";
 import { GitRepositoryPullRequestStatusItem } from "../modules/repository/items/GitRepositoryPullRequestStatusItem";
 import { GitRepositoryBranchTreePartProvider } from "../modules/repository/treePartProviders/GitRepositoryBranchTreePartProvider";
@@ -190,8 +195,8 @@ import { WorkItemLinkedPullRequestsTreeItem } from "../modules/workItem/treeItem
 import { QueryFolderChildrenTreePartProvider } from "../modules/workItem/treePartProviders/QueryFolderChildrenTreePartProvider";
 import { GitRepositoryBranchItem } from "../modules/repository/items/GitRepositoryBranchItem";
 import { PipelineRunArtifactTreeItem } from "../modules/pipeline/treeItems/PipelineRunArtifactTreeItem";
-import { AccountTreePartProvider } from "../modules/core/treePartProviders/AccountTreePartProvider";
 import { AgentsTreeProvider } from "../modules/agents/AgentsTreeProvider";
+import { AccountTreePartProvider } from "../modules/core/treePartProviders/AccountTreePartProvider";
 import { GitRepositoryItemTreePartProvider } from "../modules/repository/treePartProviders/GitRepositoryItemTreePartProvider";
 import { QueriesContentTreePartProvider } from "../modules/workItem/treePartProviders/QueriesContentTreePartProvider";
 import { LoadingTreeItem } from "../common/treeItems/LoadingTreeItem";
@@ -228,12 +233,16 @@ import { GitRepositoryItemItem } from "../modules/repository/items/GitRepository
 import { GitRepositoryCommitTreePartProvider } from "../modules/repository/treePartProviders/GitRepositoryCommitTreePartProvider";
 import { WorkItemLinkedBuildsTreePartProvider } from "../modules/workItem/treePartProviders/WorkItemLinkedBuildsTreePartProvider";
 import { RecentlyModifiedByMeTreePartProvider } from "../modules/workItem/treePartProviders/RecentlyModifiedByMeTreePartProvider";
+import { GitRepositoryPullRequestCommentTreeItem } from "../modules/repository/treeItems/GitRepositoryPullRequestCommentTreeItem";
 import { WorkItemRevisionFieldsTreePartProvider } from "../modules/workItem/treePartProviders/WorkItemRevisionFieldsTreePartProvider";
 import { PinnedAgentTreePartProvider } from "../modules/agents/treePartProviders/PinnedAgentTreePartProvider";
 import { DashboardsContainerTreeItem } from "../modules/dashboard/treeItems/DashboardsContainerTreeItem";
 import { WorkItemLinkedPullRequestsTreePartProvider } from "../modules/workItem/treePartProviders/WorkItemLinkedPullRequestsTreePartProvider";
 import { AreaPathsTreeItem } from "../modules/workItem/treeItems/AreaPathsTreeItem";
-import { GitRepositoryPullRequestCommentThreadItem } from "../modules/repository/items/GitRepositoryPullRequestCommentThreadItem";
+import {
+  GitRepositoryPullRequestCommentThreadItem,
+  openInWebGetUrl as openInWebGetUrlGitRepositoryPullRequestCommentThread,
+} from "../modules/repository/items/GitRepositoryPullRequestCommentThreadItem";
 import { PipelineArtifactsTreeItem } from "../modules/pipeline/treeItems/PipelineArtifactsTreeItem";
 import { WorkItemCurrentSprintByStateScopeTreeItem } from "../modules/workItem/treeItems/WorkItemCurrentSprintByStateScopeTreeItem";
 import { WorkItemRelationGroupItem } from "../modules/workItem/items/WorkItemRelationGroupItem";
@@ -388,6 +397,10 @@ export function registerTreePartProvider(container: Container) {
       types.GitRepositoryPullRequestCommentThreadTreePartProvider,
     )
     .to(GitRepositoryPullRequestCommentThreadTreePartProvider)
+    .inSingletonScope();
+  container
+    .bind<GitRepositoryPullRequestCommentTreePartProvider>(types.GitRepositoryPullRequestCommentTreePartProvider)
+    .to(GitRepositoryPullRequestCommentTreePartProvider)
     .inSingletonScope();
   container
     .bind<PinnedGitRepositoryTreePartProvider>(types.PinnedGitRepositoryTreePartProvider)
@@ -813,7 +826,20 @@ export function registerTreeItem(container: Container) {
     .toConstantValue(GitRepositoryPullRequestCommentThreadTreeItem)
     .onActivation((context, injectable) => {
       return ExtensionContextTreeItemMixin(
-        RefreshableTreeItemMixin(injectable),
+        RefreshableTreeItemMixin(
+          OpenInWebTreeItemMixin(injectable, openInWebGetUrlGitRepositoryPullRequestCommentThread),
+        ),
+        context.get<IconService>(types.IconService),
+      );
+    });
+  container
+    .bind<Constructor<GitRepositoryPullRequestCommentTreeItem<GitRepositoryPullRequestCommentItem>>>(
+      types.GitRepositoryPullRequestCommentTreeItem,
+    )
+    .toConstantValue(GitRepositoryPullRequestCommentTreeItem)
+    .onActivation((context, injectable) => {
+      return ExtensionContextTreeItemMixin(
+        RefreshableTreeItemMixin(OpenInWebTreeItemMixin(injectable, openInWebGetUrlGitRepositoryPullRequestComment)),
         context.get<IconService>(types.IconService),
       );
     });

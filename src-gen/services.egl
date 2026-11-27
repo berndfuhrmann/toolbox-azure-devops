@@ -9,7 +9,7 @@ var hasBatchMethods = DelegateToBatchServiceMethod.all.size() > 0;
 import { inject, optional } from "inversify";
 import { [%if (hasBatchMethods) {%]combineLatest, firstValueFrom, map, of, [%}%]Observable } from "rxjs";
 [%if (hasBatchMethods) {%]
-import { isException, Exception } from "../common/Exception";
+import { isException, Exception, createException } from "../common/Exception";
 import { BatchCoordinator } from "../common/BatchCoordinator";
 [%}%]
 import { ApiService } from "./ApiService";

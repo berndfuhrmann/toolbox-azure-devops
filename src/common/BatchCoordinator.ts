@@ -1,7 +1,7 @@
 import { Observable } from "rxjs";
 import { DeepMap } from "deep-equality-data-structures";
 import { createInformationStream, InformationStream } from "./informationStream";
-import { Exception } from "./Exception";
+import { createException, Exception } from "./Exception";
 
 const DefaultBatchSize = 30;
 
@@ -55,7 +55,13 @@ export class BatchCoordinator<Params, ItemParams, GroupParams, Result> {
   get(params: Params, refreshTrigger: Observable<number>): Observable<Result | Exception> {
     let entry = this.#cache.get(params)?.deref();
     if (!entry) {
-      entry = createInformationStream<Result, unknown>(async (_) => this.#fetch(params), this.#parameterObservable);
+      entry = createInformationStream<Result, unknown>(async (_) => {
+        try {
+          return await this.#fetch(params);
+        } catch (error) {
+          return createException(error);
+        }
+      }, this.#parameterObservable);
       const weakRef = new WeakRef(entry);
       this.#cacheFinalizationRegistry.register(weakRef, params);
       this.#cache.set(params, weakRef);

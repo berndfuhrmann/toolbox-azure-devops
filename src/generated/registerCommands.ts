@@ -18,6 +18,11 @@ import {
   pipelineCreateFolderAction,
   pipelineRenameFolderAction,
 } from "../modules/pipeline/actions/folderActions";
+import {
+  gitRepositoryPullRequestCommentThreadSetStatusAction,
+  gitRepositoryPullRequestCommentLikeAction,
+  gitRepositoryPullRequestCommentRemoveLikeAction,
+} from "../modules/repository/actions/gitRepositoryPullRequestCommentActions";
 import { pipelineCancelRunAction, pipelineRerunRunAction } from "../modules/pipeline/actions/pipelineRunActions";
 import { handleOpenInWebAction } from "../common/items/OpenInWebTreeItemMixin";
 import { openTextFileAction } from "../common/openTextFileAction";
@@ -75,6 +80,24 @@ export function registerCommands(context: vscode.ExtensionContext, container: Co
     vscode.commands.registerCommand(
       extensionName + ".gitRepository.pullRequest.setTitle",
       gitRepositoryPullRequestSetTitleAction(container),
+    ),
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      extensionName + ".gitRepository.pullRequest.commentThread.setStatus",
+      gitRepositoryPullRequestCommentThreadSetStatusAction(container),
+    ),
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      extensionName + ".gitRepository.pullRequest.comment.like",
+      gitRepositoryPullRequestCommentLikeAction(container),
+    ),
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      extensionName + ".gitRepository.pullRequest.comment.removeLike",
+      gitRepositoryPullRequestCommentRemoveLikeAction(container),
     ),
   );
   context.subscriptions.push(

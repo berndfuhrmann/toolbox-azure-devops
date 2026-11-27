@@ -65,7 +65,7 @@ The extension provides a comprehensive view of Git repositories within Azure Dev
 - **Pull Request Details**:
   - View reviewers and their approval status
   - See associated work items
-  - View comment threads and discussions
+  - View comment threads (author, time, status, file and likes), like comments and change the status of threads
   - Check build/validation statuses
 - **Edit Pull Request**:
   - Set/change pull request title

@@ -349,7 +349,9 @@
       <parameter name="filterContains" type="string | undefined" />
     </serviceMethod>
   </service>
-  <service name="Locations" />
+  <service name="Locations">
+    <serviceMethod name="connectionData" outputType="LocationsInterfaces.ConnectionData" implementation="getConnectionData()" />
+  </service>
   <service name="Management" />
   <service name="Notification" />
   <service name="Pipelines">
@@ -613,7 +615,7 @@
   <treeProvider
     name="RepositoryTreeProvider"
     module="repository"
-    treePartProvider="RepositoryRootDeduplicatingTreePartProvider,GitRepositoryDetailStaticTreePartProvider,GitRepositoryBranchDetailStaticTreePartProvider,GitRepositoryCommitDetailStaticTreePartProvider,GitRepositoryPullRequestContentCombiningTreePartProvider,GitRepositoryTreePartProvider,GitRepositoryBranchTreePartProvider,GitRepositoryCommitTreePartProvider,GitRepositoryTagTreePartProvider,GitRepositoryPullRequestTreePartProvider,GitRepositoryPullRequestReviewerTreePartProvider,GitRepositoryPullRequestStatusTreePartProvider,GitRepositoryPullRequestCommentThreadTreePartProvider,GitRepositoryPullRequestWorkItemTreePartProvider,GitRepositoryItemTreePartProvider,PinnedGitRepositoryTreePartProvider,PinnedGitRepositoryPullRequestTreePartProvider,WorkItemContentsCombiningTreePartProvider,WorkItemDetailStaticTreePartProvider,HierarchyChildrenTreePartProvider,WorkItemLinkedWorkItemGroupsTreePartProvider,WorkItemCommentsTreePartProvider,WorkItemHistoryTreePartProvider,WorkItemRevisionFieldsTreePartProvider,AttachmentTreePartProvider,WorkItemLinkedCommitsTreePartProvider,WorkItemLinkedPullRequestsTreePartProvider,WorkItemLinkedBranchesTreePartProvider,WorkItemLinkedBuildsTreePartProvider,WorkItemLinkedWorkItemsTreePartProvider"
+    treePartProvider="RepositoryRootDeduplicatingTreePartProvider,GitRepositoryDetailStaticTreePartProvider,GitRepositoryBranchDetailStaticTreePartProvider,GitRepositoryCommitDetailStaticTreePartProvider,GitRepositoryPullRequestContentCombiningTreePartProvider,GitRepositoryTreePartProvider,GitRepositoryBranchTreePartProvider,GitRepositoryCommitTreePartProvider,GitRepositoryTagTreePartProvider,GitRepositoryPullRequestTreePartProvider,GitRepositoryPullRequestReviewerTreePartProvider,GitRepositoryPullRequestStatusTreePartProvider,GitRepositoryPullRequestCommentThreadTreePartProvider,GitRepositoryPullRequestCommentTreePartProvider,GitRepositoryPullRequestWorkItemTreePartProvider,GitRepositoryItemTreePartProvider,PinnedGitRepositoryTreePartProvider,PinnedGitRepositoryPullRequestTreePartProvider,WorkItemContentsCombiningTreePartProvider,WorkItemDetailStaticTreePartProvider,HierarchyChildrenTreePartProvider,WorkItemLinkedWorkItemGroupsTreePartProvider,WorkItemCommentsTreePartProvider,WorkItemHistoryTreePartProvider,WorkItemRevisionFieldsTreePartProvider,AttachmentTreePartProvider,WorkItemLinkedCommitsTreePartProvider,WorkItemLinkedPullRequestsTreePartProvider,WorkItemLinkedBranchesTreePartProvider,WorkItemLinkedBuildsTreePartProvider,WorkItemLinkedWorkItemsTreePartProvider"
   >
     <treeProviderRule treePartProvider="RepositoryRootDeduplicatingTreePartProvider" />
     <treeProviderRule treeitem="AccountTreeItem" treePartProvider="ProjectUnwrappingTreePartProvider" />
@@ -643,6 +645,10 @@
     <treeProviderRule
       treeitem="GitRepositoryPullRequestReviewersTreeItem"
       treePartProvider="GitRepositoryPullRequestReviewerTreePartProvider"
+    />
+    <treeProviderRule
+      treeitem="GitRepositoryPullRequestCommentThreadTreeItem"
+      treePartProvider="GitRepositoryPullRequestCommentTreePartProvider"
     />
     <treeProviderRule treeitem="WorkItemTreeItem" treePartProvider="WorkItemContentsCombiningTreePartProvider" />
     <treeProviderRule treeitem="WorkItemCommentsTreeItem" treePartProvider="WorkItemCommentsTreePartProvider" />
@@ -873,6 +879,11 @@
     module="repository"
     produces="GitRepositoryPullRequestCommentThreadTreeItem"
   />
+  <treepartprovider
+    name="GitRepositoryPullRequestCommentTreePartProvider"
+    module="repository"
+    produces="GitRepositoryPullRequestCommentTreeItem"
+  />
   <treepartprovider name="PinnedGitRepositoryTreePartProvider" module="repository" produces="GitRepositoryTreeItem" />
   <treepartprovider
     name="PinnedGitRepositoryPullRequestTreePartProvider"
@@ -904,7 +915,8 @@
     item="GitRepositoryPullRequestItem"
   />
   <treeItem name="GitRepositoryPullRequestStatusTreeItem" module="repository" refreshable="true" />
-  <treeItem name="GitRepositoryPullRequestCommentThreadTreeItem" module="repository" refreshable="true" />
+  <treeItem name="GitRepositoryPullRequestCommentThreadTreeItem" module="repository" inWeb="true" refreshable="true" />
+  <treeItem name="GitRepositoryPullRequestCommentTreeItem" module="repository" inWeb="true" refreshable="true" />
 
   <treepartprovider
     name="PipelineFolderTreePartProvider"
@@ -1378,8 +1390,8 @@
   <combiningTreePartProvider name="GitRepositoryPullRequestContentCombiningTreePartProvider">
     <entry key="reviewers" childTreePartProvider="GitRepositoryPullRequestReviewersStaticTreePartProvider" />
     <entry key="status" childTreePartProvider="GitRepositoryPullRequestStatusTreePartProvider" />
-    <entry key="commentThread" childTreePartProvider="GitRepositoryPullRequestCommentThreadTreePartProvider" />
     <entry key="workItems" childTreePartProvider="GitRepositoryPullRequestWorkItemTreePartProvider" />
+    <entry key="commentThreads" childTreePartProvider="GitRepositoryPullRequestCommentThreadTreePartProvider" />
   </combiningTreePartProvider>
 
   <!-- Pipeline -->
@@ -1571,6 +1583,7 @@
     icon="link"
   >
     <menuLocation location="view/item/context" when="viewItem =~ /,inWeb,/" group="inline@3" />
+    <menuLocation location="view/item/context" when="viewItem =~ /,inWebContextMenu,/" group="navigation" />
   </command>
   <command
     name="pin"
@@ -1697,6 +1710,45 @@
     icon="edit"
   >
     <menuLocation location="view/item/context" when="viewItem =~ /,gitRepository.pullRequest,/" group="navigation" />
+  </command>
+  <command
+    name="gitRepository.pullRequest.commentThread.setStatus"
+    handler="gitRepositoryPullRequestCommentThreadSetStatusAction"
+    importPath="/modules/repository/actions/gitRepositoryPullRequestCommentActions"
+    needsContainer="true"
+    title="Set Status"
+  >
+    <menuLocation
+      location="view/item/context"
+      when="viewItem =~ /,gitRepository.pullRequest.commentThread,/"
+      group="navigation"
+    />
+  </command>
+  <command
+    name="gitRepository.pullRequest.comment.like"
+    handler="gitRepositoryPullRequestCommentLikeAction"
+    importPath="/modules/repository/actions/gitRepositoryPullRequestCommentActions"
+    needsContainer="true"
+    title="Like"
+  >
+    <menuLocation
+      location="view/item/context"
+      when="viewItem =~ /,gitRepository.pullRequest.likeableComment,/"
+      group="navigation"
+    />
+  </command>
+  <command
+    name="gitRepository.pullRequest.comment.removeLike"
+    handler="gitRepositoryPullRequestCommentRemoveLikeAction"
+    importPath="/modules/repository/actions/gitRepositoryPullRequestCommentActions"
+    needsContainer="true"
+    title="Remove Like"
+  >
+    <menuLocation
+      location="view/item/context"
+      when="viewItem =~ /,gitRepository.pullRequest.likedComment,/"
+      group="navigation"
+    />
   </command>
   <command
     name="pipeline.renameFolder"

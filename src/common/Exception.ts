@@ -4,10 +4,10 @@ export interface Exception {
   error: Error;
 }
 
-export function createException(error: Error) {
+export function createException(error: unknown): Exception {
   return {
     [exceptionType]: true,
-    error,
+    error: error instanceof Error ? error : new Error(String(error)),
   };
 }
 

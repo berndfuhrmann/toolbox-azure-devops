@@ -1,6 +1,7 @@
 import { firstValueFrom, of, ReplaySubject, Subject } from "rxjs";
 import { skip, take } from "rxjs/operators";
 import { BatchCoordinator } from "../../../src/common/BatchCoordinator";
+import { isException } from "../../../src/common/Exception";
 
 type Params = [id: number, group: string];
 type Item = { id: number; group: string; value: string };
@@ -121,22 +122,24 @@ describe("BatchCoordinator", () => {
   });
 
   describe("error handling", () => {
-    test("propagates batch fetch errors as observable errors", async () => {
+    test("returns batch fetch errors as Exception", async () => {
       const fetch = vi.fn(async () => {
         throw new Error("API failure");
       });
       const { coordinator } = makeCoordinator(fetch);
 
-      await expect(firstValueFrom(getItem(coordinator, 1))).rejects.toThrow("API failure");
+      const result = await firstValueFrom(getItem(coordinator, 1));
+      expect(isException(result) && result.error.message).toBe("API failure");
     });
 
-    test("rejects when item is missing from batch result", async () => {
+    test("returns an Exception when item is missing from batch result", async () => {
       const fetch = vi.fn(async (ids: number[], group: string) =>
         ids.filter((id) => id !== 99).map((id) => ({ id, group, value: `v${id}` })),
       );
       const { coordinator } = makeCoordinator(fetch);
 
-      await expect(firstValueFrom(getItem(coordinator, 99))).rejects.toThrow("Item 99 not found in batch result");
+      const result = await firstValueFrom(getItem(coordinator, 99));
+      expect(isException(result) && result.error.message).toBe("Item 99 not found in batch result");
     });
 
     test("resolves other items when one item is missing", async () => {
@@ -148,8 +151,8 @@ describe("BatchCoordinator", () => {
       const r1 = await firstValueFrom(getItem(coordinator, 1));
       expect(r1).toMatchObject({ id: 1 });
 
-      const rMissingPromise = firstValueFrom(coordinator.get([99, "g"], of(Date.now())));
-      await expect(rMissingPromise).rejects.toThrow("Item 99 not found in batch result");
+      const rMissing = await firstValueFrom(coordinator.get([99, "g"], of(Date.now())));
+      expect(isException(rMissing) && rMissing.error.message).toBe("Item 99 not found in batch result");
     });
   });
 

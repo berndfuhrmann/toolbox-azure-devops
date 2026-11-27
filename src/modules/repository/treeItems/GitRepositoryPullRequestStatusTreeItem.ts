@@ -7,7 +7,7 @@ export class GitRepositoryPullRequestStatusTreeItem<
 > extends AbstractTreeItem<Data> {
   constructor() {
     super();
-    this.setIcon("user");
+    this.setIcon("task");
   }
 
   public updateFrom(data: Data) {

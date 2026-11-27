@@ -64,9 +64,15 @@ These providers use direct IDs from Azure DevOps entities:
 
 **GitRepositoryPullRequestCommentThreadTreePartProvider**
 
-- **Key**: `${item.commentThread.id!}`
+- **Key**: `${item.threadId}`
 - **Pattern**: Comment thread ID as string template
-- **Source**: Pull request comment data
+- **Source**: Azure DevOps Git API
+
+**GitRepositoryPullRequestCommentTreePartProvider**
+
+- **Key**: `${item.comment.id!}`
+- **Pattern**: Comment ID as string template
+- **Source**: Pull request comment thread data
 
 **GitRepositoryItemTreePartProvider**
 

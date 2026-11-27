@@ -36,7 +36,8 @@ operation AbstractServiceMethod constructorInit(service: Service): String {
 // ServiceMethod operations
 // ============================================================
 
-operation ServiceMethod implementationBody(): String {
+// A single request, for paged methods one page
+operation ServiceMethod requestBody(): String {
 	return "{
 					this.#outputChannel?.appendLine("+ self.logMessage("Started", "") + ");
 					const t0 = performance.now();
@@ -45,6 +46,21 @@ operation ServiceMethod implementationBody(): String {
 					this.#outputChannel?.appendLine("+ self.logMessage("Finished", "t1 - t0") + ");
 					return result;
 				}";
+}
+
+// Returns the result or an Exception, never rejects, so that errors end up in the stream as values
+operation ServiceMethod implementationBody(): String {
+	var request = self.paged == true
+		? "{
+					return await pagedLoader(async (continuationToken) => " + self.requestBody() + ");
+				}"
+		: self.requestBody();
+	return "{
+				try " + request + " catch (error) {
+					this.#outputChannel?.appendLine(" + self.logMessage("Failed", "") + " + `: ${error}`);
+					return createException(error);
+				}
+			}";
 }
 
 operation ServiceMethod fieldDeclaration(): String {
@@ -60,9 +76,7 @@ operation ServiceMethod fieldDeclaration(): String {
 
 operation ServiceMethod methodBody(service: Service): String {
 	var keyValue = self.getKeyValue();
-	var fetchExpr = self.paged == true
-		? "pagedLoader(async (continuationToken) => " + self.implementationBody() + ")"
-		: self.implementationBody();
+	var fetchExpr = self.implementationBody();
 	var entryAccess = self.parameters.isEmpty() ? " " : ".get(" + keyValue + ")";
 	var entryAssign = self.parameters.isEmpty() ? " = weakRef" : ".set(" + keyValue + ", weakRef)";
 	return "		let entry = this.#" + self.name + entryAccess + "?.deref();\n" +

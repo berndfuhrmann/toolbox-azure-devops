@@ -42,13 +42,14 @@ import { ProjectRootTreePartProvider } from "../modules/workItem/treePartProvide
 import { WorkItemRevisionTreeItem } from "../modules/workItem/treeItems/WorkItemRevisionTreeItem";
 import { GitRepositoryCommitTreeItem } from "../modules/repository/treeItems/GitRepositoryCommitTreeItem";
 import { GitRepositoryPullRequestReviewerTreePartProvider } from "../modules/repository/treePartProviders/GitRepositoryPullRequestReviewerTreePartProvider";
+import { GitRepositoryPullRequestCommentThreadTreePartProvider } from "../modules/repository/treePartProviders/GitRepositoryPullRequestCommentThreadTreePartProvider";
+import { GitRepositoryPullRequestCommentTreePartProvider } from "../modules/repository/treePartProviders/GitRepositoryPullRequestCommentTreePartProvider";
 import { MentionedTreeItem } from "../modules/workItem/treeItems/MentionedTreeItem";
 import { WorkItemHistoryTreeItem } from "../modules/workItem/treeItems/WorkItemHistoryTreeItem";
 import { WorkItemCommentsTreePartProvider } from "../modules/workItem/treePartProviders/WorkItemCommentsTreePartProvider";
 import { GitRepositoryItemsTreeItem } from "../modules/repository/treeItems/GitRepositoryItemsTreeItem";
 import { PinnedAgentPoolTreePartProvider } from "../modules/agents/treePartProviders/PinnedAgentPoolTreePartProvider";
 import { PipelineRunTimelineTreePartProvider } from "../modules/pipeline/treePartProviders/PipelineRunTimelineTreePartProvider";
-import { GitRepositoryPullRequestCommentThreadTreePartProvider } from "../modules/repository/treePartProviders/GitRepositoryPullRequestCommentThreadTreePartProvider";
 import { GitRepositoryBranchesTreeItem } from "../modules/repository/treeItems/GitRepositoryBranchesTreeItem";
 import { Constructor } from "../common/constructor";
 import { AgentJobsContainerTreeItem } from "../modules/agents/treeItems/AgentJobsContainerTreeItem";
@@ -86,6 +87,7 @@ import { DashboardTreeItem } from "../modules/dashboard/treeItems/DashboardTreeI
 import { AgentPoolTreePartProvider } from "../modules/agents/treePartProviders/AgentPoolTreePartProvider";
 import { dedupePinnedAgentPools } from "../modules/agents/dedupePinnedAgentPools";
 import { GitRepositoryPullRequestReviewersTreeItem } from "../modules/repository/treeItems/GitRepositoryPullRequestReviewersTreeItem";
+import { GitRepositoryPullRequestCommentThreadTreeItem } from "../modules/repository/treeItems/GitRepositoryPullRequestCommentThreadTreeItem";
 import { PipelineTreePartProvider } from "../modules/pipeline/treePartProviders/PipelineTreePartProvider";
 import { GitRepositoryTagTreePartProvider } from "../modules/repository/treePartProviders/GitRepositoryTagTreePartProvider";
 import { HierarchyChildrenTreePartProvider } from "../modules/workItem/treePartProviders/HierarchyChildrenTreePartProvider";
@@ -149,6 +151,8 @@ export class RepositoryTreeProviderResolver {
   #workItemLinkedBuildsTreePartProvider: WorkItemLinkedBuildsTreePartProvider;
   #gitRepositoryItemTreePartProvider: GitRepositoryItemTreePartProvider;
   #gitRepositoryPullRequestReviewerTreePartProvider: GitRepositoryPullRequestReviewerTreePartProvider;
+  #gitRepositoryPullRequestCommentThreadTreePartProvider: GitRepositoryPullRequestCommentThreadTreePartProvider;
+  #gitRepositoryPullRequestCommentTreePartProvider: GitRepositoryPullRequestCommentTreePartProvider;
   #workItemLinkedBranchesTreePartProvider: WorkItemLinkedBranchesTreePartProvider;
   #attachmentTreePartProvider: AttachmentTreePartProvider;
   #workItemRevisionFieldsTreePartProvider: WorkItemRevisionFieldsTreePartProvider;
@@ -157,7 +161,6 @@ export class RepositoryTreeProviderResolver {
   #gitRepositoryTagTreePartProvider: GitRepositoryTagTreePartProvider;
   #workItemHistoryTreePartProvider: WorkItemHistoryTreePartProvider;
   #pinnedGitRepositoryPullRequestTreePartProvider: PinnedGitRepositoryPullRequestTreePartProvider;
-  #gitRepositoryPullRequestCommentThreadTreePartProvider: GitRepositoryPullRequestCommentThreadTreePartProvider;
   #gitRepositoryTreePartProvider: GitRepositoryTreePartProvider;
   #accountTreePartProvider: AccountTreePartProvider;
   #workItemCommentsTreePartProvider: WorkItemCommentsTreePartProvider;
@@ -213,6 +216,10 @@ export class RepositoryTreeProviderResolver {
     gitRepositoryItemTreePartProvider: GitRepositoryItemTreePartProvider,
     @inject(types.GitRepositoryPullRequestReviewerTreePartProvider)
     gitRepositoryPullRequestReviewerTreePartProvider: GitRepositoryPullRequestReviewerTreePartProvider,
+    @inject(types.GitRepositoryPullRequestCommentThreadTreePartProvider)
+    gitRepositoryPullRequestCommentThreadTreePartProvider: GitRepositoryPullRequestCommentThreadTreePartProvider,
+    @inject(types.GitRepositoryPullRequestCommentTreePartProvider)
+    gitRepositoryPullRequestCommentTreePartProvider: GitRepositoryPullRequestCommentTreePartProvider,
     @inject(types.WorkItemLinkedBranchesTreePartProvider)
     workItemLinkedBranchesTreePartProvider: WorkItemLinkedBranchesTreePartProvider,
     @inject(types.AttachmentTreePartProvider) attachmentTreePartProvider: AttachmentTreePartProvider,
@@ -226,8 +233,6 @@ export class RepositoryTreeProviderResolver {
     @inject(types.WorkItemHistoryTreePartProvider) workItemHistoryTreePartProvider: WorkItemHistoryTreePartProvider,
     @inject(types.PinnedGitRepositoryPullRequestTreePartProvider)
     pinnedGitRepositoryPullRequestTreePartProvider: PinnedGitRepositoryPullRequestTreePartProvider,
-    @inject(types.GitRepositoryPullRequestCommentThreadTreePartProvider)
-    gitRepositoryPullRequestCommentThreadTreePartProvider: GitRepositoryPullRequestCommentThreadTreePartProvider,
     @inject(types.GitRepositoryTreePartProvider) gitRepositoryTreePartProvider: GitRepositoryTreePartProvider,
     @inject(types.AccountTreePartProvider) accountTreePartProvider: AccountTreePartProvider,
     @inject(types.WorkItemCommentsTreePartProvider) workItemCommentsTreePartProvider: WorkItemCommentsTreePartProvider,
@@ -266,6 +271,8 @@ export class RepositoryTreeProviderResolver {
     this.#workItemLinkedBuildsTreePartProvider = workItemLinkedBuildsTreePartProvider;
     this.#gitRepositoryItemTreePartProvider = gitRepositoryItemTreePartProvider;
     this.#gitRepositoryPullRequestReviewerTreePartProvider = gitRepositoryPullRequestReviewerTreePartProvider;
+    this.#gitRepositoryPullRequestCommentThreadTreePartProvider = gitRepositoryPullRequestCommentThreadTreePartProvider;
+    this.#gitRepositoryPullRequestCommentTreePartProvider = gitRepositoryPullRequestCommentTreePartProvider;
     this.#workItemLinkedBranchesTreePartProvider = workItemLinkedBranchesTreePartProvider;
     this.#attachmentTreePartProvider = attachmentTreePartProvider;
     this.#workItemRevisionFieldsTreePartProvider = workItemRevisionFieldsTreePartProvider;
@@ -274,7 +281,6 @@ export class RepositoryTreeProviderResolver {
     this.#gitRepositoryTagTreePartProvider = gitRepositoryTagTreePartProvider;
     this.#workItemHistoryTreePartProvider = workItemHistoryTreePartProvider;
     this.#pinnedGitRepositoryPullRequestTreePartProvider = pinnedGitRepositoryPullRequestTreePartProvider;
-    this.#gitRepositoryPullRequestCommentThreadTreePartProvider = gitRepositoryPullRequestCommentThreadTreePartProvider;
     this.#gitRepositoryTreePartProvider = gitRepositoryTreePartProvider;
     this.#accountTreePartProvider = accountTreePartProvider;
     this.#workItemCommentsTreePartProvider = workItemCommentsTreePartProvider;
@@ -409,8 +415,8 @@ export class RepositoryTreeProviderResolver {
     this.gitRepositoryPullRequestContentCombiningTreePartProvider = new CombiningTreePartProvider({
       reviewers: this.gitRepositoryPullRequestReviewersStaticTreePartProvider,
       status: this.#gitRepositoryPullRequestStatusTreePartProvider,
-      commentThread: this.#gitRepositoryPullRequestCommentThreadTreePartProvider,
       workItems: this.#gitRepositoryPullRequestWorkItemTreePartProvider,
+      commentThreads: this.#gitRepositoryPullRequestCommentThreadTreePartProvider,
     });
     this.accountRootUnwrappingTreePartProvider = new UnwrappingTreePartProvider(
       this.#accountTreePartProvider,
@@ -470,6 +476,9 @@ export class RepositoryTreeProviderResolver {
     }
     if (element instanceof GitRepositoryPullRequestReviewersTreeItem) {
       return this.#gitRepositoryPullRequestReviewerTreePartProvider;
+    }
+    if (element instanceof GitRepositoryPullRequestCommentThreadTreeItem) {
+      return this.#gitRepositoryPullRequestCommentTreePartProvider;
     }
     if (element instanceof WorkItemTreeItem) {
       return this.workItemContentsCombiningTreePartProvider;

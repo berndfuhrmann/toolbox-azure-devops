@@ -19,11 +19,15 @@ import { GitRepositoryCommitsTreeItem } from "./treeItems/GitRepositoryCommitsTr
 import { GitRepositoryItemTreeItem } from "./treeItems/GitRepositoryItemTreeItem";
 import { GitRepositoryItemsTreeItem } from "./treeItems/GitRepositoryItemsTreeItem";
 import { GitRepositoryPullRequestCommentThreadTreeItem } from "./treeItems/GitRepositoryPullRequestCommentThreadTreeItem";
+import { GitRepositoryPullRequestCommentTreeItem } from "./treeItems/GitRepositoryPullRequestCommentTreeItem";
 import { GitRepositoryPullRequestReviewerTreeItem } from "./treeItems/GitRepositoryPullRequestReviewerTreeItem";
+import { GitRepositoryPullRequestReviewersTreeItem } from "./treeItems/GitRepositoryPullRequestReviewersTreeItem";
 import { GitRepositoryPullRequestStatusTreeItem } from "./treeItems/GitRepositoryPullRequestStatusTreeItem";
 import { GitRepositoryPullRequestTreeItem } from "./treeItems/GitRepositoryPullRequestTreeItem";
 import { GitRepositoryTagsTreeItem } from "./treeItems/GitRepositoryTagsTreeItem";
 import { GitRepositoryTreeItem } from "./treeItems/GitRepositoryTreeItem";
+import { getCommentTime, isResolved } from "./services/pullRequestComments";
+import { WorkItemTreeItem } from "../workItem/treeItems/WorkItemTreeItem";
 import { RepositoryTreeProviderResolver } from "../../generated/treeProviderResolvers";
 
 @injectable()
@@ -62,9 +66,22 @@ export class RepositoryTreeProvider extends AbstractTreeProvider {
         GitRepositoryPullRequestStatusTreeItem,
         sortByDate((a: GitRepositoryPullRequestStatusTreeItem) => a.data.status.creationDate!),
       ],
+      [GitRepositoryPullRequestReviewersTreeItem, undefined],
+      [WorkItemTreeItem, undefined],
       [
         GitRepositoryPullRequestCommentThreadTreeItem,
-        sortByDate((a: GitRepositoryPullRequestCommentThreadTreeItem) => a.data.commentThread.publishedDate!),
+        sorter(
+          sortByBoolean((a: GitRepositoryPullRequestCommentThreadTreeItem) => isResolved(a.data.commentThread)),
+          // latest comment first
+          sortByNumber(
+            (a: GitRepositoryPullRequestCommentThreadTreeItem) =>
+              -Math.max(...[a.data.firstComment, ...a.data.replies].map(getCommentTime)),
+          ),
+        ),
+      ],
+      [
+        GitRepositoryPullRequestCommentTreeItem,
+        sortByNumber((a: GitRepositoryPullRequestCommentTreeItem) => getCommentTime(a.data.comment)),
       ],
       [GitRepositoryCommitTreeItem, sortByString((a: GitRepositoryCommitTreeItem) => a.data.commit.comment!)],
       [GitRepositoryBranchTreeItem, sortByString((a: GitRepositoryBranchTreeItem) => a.data.branch.name!)],

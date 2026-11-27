@@ -42,11 +42,12 @@
   - Cherry-pick commits
 
 - [ ] **PR Comments & Discussions**
-  - View comment threads in detail
+  - Show the content of comments, which can be rich text (next step)
   - Add new comments
   - Reply to comments
-  - Resolve/unresolve threads
-  - Mark comments as "Won't fix" or "Closed"
+  - Edit and delete comments
+  - Open the file at the commented line
+  - Show comments in the editor, using the comments API of VS Code
 
 - [ ] **PR Policies**
   - View branch policies

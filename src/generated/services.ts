@@ -2,7 +2,7 @@
 
 import { inject, optional } from "inversify";
 import { combineLatest, firstValueFrom, map, of, Observable } from "rxjs";
-import { isException, Exception } from "../common/Exception";
+import { isException, Exception, createException } from "../common/Exception";
 import { BatchCoordinator } from "../common/BatchCoordinator";
 import { ApiService } from "./ApiService";
 import { TupleMap } from "@nfi/tuplemap";
@@ -100,9 +100,9 @@ export class AlertService {
   alerts(project: string, repository: string, refreshTrigger: Observable<number>) {
     let entry = this.#alerts.get([project, repository])?.deref();
     if (!entry) {
-      entry = createInformationStream(
-        async (alertApi: IAlertApi) =>
-          pagedLoader(async (continuationToken) => {
+      entry = createInformationStream(async (alertApi: IAlertApi) => {
+        try {
+          return await pagedLoader(async (continuationToken) => {
             this.#outputChannel?.appendLine(`Started alertApi.alerts ${project} ${repository}`);
             const t0 = performance.now();
             const result = await alertApi.getAlerts(
@@ -117,9 +117,12 @@ export class AlertService {
             const t1 = performance.now();
             this.#outputChannel?.appendLine(`Finished  ${t1 - t0} alertApi.alerts ${project} ${repository}`);
             return result;
-          }),
-        this.#apiService.alertApi(),
-      );
+          });
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed alertApi.alerts ${project} ${repository}` + `: ${error}`);
+          return createException(error);
+        }
+      }, this.#apiService.alertApi());
       const weakRef = new WeakRef(entry);
       this.#alertsFinalizationRegistry.register(weakRef, [project, repository]);
       this.#alerts.set([project, repository], weakRef);
@@ -133,14 +136,21 @@ export class AlertService {
     let entry = this.#alertInstances.get([project, alertId, repository])?.deref();
     if (!entry) {
       entry = createInformationStream(async (alertApi: IAlertApi) => {
-        this.#outputChannel?.appendLine(`Started alertApi.alertInstances ${project} ${alertId} ${repository}`);
-        const t0 = performance.now();
-        const result = await alertApi.getAlertInstances(project, alertId, repository);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} alertApi.alertInstances ${project} ${alertId} ${repository}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started alertApi.alertInstances ${project} ${alertId} ${repository}`);
+          const t0 = performance.now();
+          const result = await alertApi.getAlertInstances(project, alertId, repository);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} alertApi.alertInstances ${project} ${alertId} ${repository}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed alertApi.alertInstances ${project} ${alertId} ${repository}` + `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.alertApi());
       const weakRef = new WeakRef(entry);
       this.#alertInstancesFinalizationRegistry.register(weakRef, [project, alertId, repository]);
@@ -218,12 +228,17 @@ export class BuildService {
     let entry = this.#artifacts.get([project, buildId])?.deref();
     if (!entry) {
       entry = createInformationStream(async (buildApi: IBuildApi) => {
-        this.#outputChannel?.appendLine(`Started buildApi.artifacts ${project} ${buildId}`);
-        const t0 = performance.now();
-        const result = await buildApi.getArtifacts(project, buildId);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} buildApi.artifacts ${project} ${buildId}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started buildApi.artifacts ${project} ${buildId}`);
+          const t0 = performance.now();
+          const result = await buildApi.getArtifacts(project, buildId);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} buildApi.artifacts ${project} ${buildId}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed buildApi.artifacts ${project} ${buildId}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.buildApi());
       const weakRef = new WeakRef(entry);
       this.#artifactsFinalizationRegistry.register(weakRef, [project, buildId]);
@@ -238,12 +253,17 @@ export class BuildService {
     let entry = this.#buildLogs.get([project, buildId])?.deref();
     if (!entry) {
       entry = createInformationStream(async (buildApi: IBuildApi) => {
-        this.#outputChannel?.appendLine(`Started buildApi.buildLogs ${project} ${buildId}`);
-        const t0 = performance.now();
-        const result = await buildApi.getBuildLogs(project, buildId);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} buildApi.buildLogs ${project} ${buildId}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started buildApi.buildLogs ${project} ${buildId}`);
+          const t0 = performance.now();
+          const result = await buildApi.getBuildLogs(project, buildId);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} buildApi.buildLogs ${project} ${buildId}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed buildApi.buildLogs ${project} ${buildId}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.buildApi());
       const weakRef = new WeakRef(entry);
       this.#buildLogsFinalizationRegistry.register(weakRef, [project, buildId]);
@@ -258,12 +278,17 @@ export class BuildService {
     let entry = this.#buildTags.get([project, buildId])?.deref();
     if (!entry) {
       entry = createInformationStream(async (buildApi: IBuildApi) => {
-        this.#outputChannel?.appendLine(`Started buildApi.buildTags ${project} ${buildId}`);
-        const t0 = performance.now();
-        const result = await buildApi.getBuildTags(project, buildId);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} buildApi.buildTags ${project} ${buildId}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started buildApi.buildTags ${project} ${buildId}`);
+          const t0 = performance.now();
+          const result = await buildApi.getBuildTags(project, buildId);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} buildApi.buildTags ${project} ${buildId}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed buildApi.buildTags ${project} ${buildId}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.buildApi());
       const weakRef = new WeakRef(entry);
       this.#buildTagsFinalizationRegistry.register(weakRef, [project, buildId]);
@@ -278,12 +303,17 @@ export class BuildService {
     let entry = this.#definition.get([project, definitionId])?.deref();
     if (!entry) {
       entry = createInformationStream(async (buildApi: IBuildApi) => {
-        this.#outputChannel?.appendLine(`Started buildApi.definition ${project} ${definitionId}`);
-        const t0 = performance.now();
-        const result = await buildApi.getDefinition(project, definitionId);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} buildApi.definition ${project} ${definitionId}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started buildApi.definition ${project} ${definitionId}`);
+          const t0 = performance.now();
+          const result = await buildApi.getDefinition(project, definitionId);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} buildApi.definition ${project} ${definitionId}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed buildApi.definition ${project} ${definitionId}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.buildApi());
       const weakRef = new WeakRef(entry);
       this.#definitionFinalizationRegistry.register(weakRef, [project, definitionId]);
@@ -297,9 +327,9 @@ export class BuildService {
   definitions(project: string, path: string | undefined, refreshTrigger: Observable<number>) {
     let entry = this.#definitions.get([project, path])?.deref();
     if (!entry) {
-      entry = createInformationStream(
-        async (buildApi: IBuildApi) =>
-          pagedLoader(async (continuationToken) => {
+      entry = createInformationStream(async (buildApi: IBuildApi) => {
+        try {
+          return await pagedLoader(async (continuationToken) => {
             this.#outputChannel?.appendLine(`Started buildApi.definitions ${project} ${path}`);
             const t0 = performance.now();
             const result = await buildApi.getDefinitions(
@@ -317,9 +347,12 @@ export class BuildService {
             const t1 = performance.now();
             this.#outputChannel?.appendLine(`Finished  ${t1 - t0} buildApi.definitions ${project} ${path}`);
             return result;
-          }),
-        this.#apiService.buildApi(),
-      );
+          });
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed buildApi.definitions ${project} ${path}` + `: ${error}`);
+          return createException(error);
+        }
+      }, this.#apiService.buildApi());
       const weakRef = new WeakRef(entry);
       this.#definitionsFinalizationRegistry.register(weakRef, [project, path]);
       this.#definitions.set([project, path], weakRef);
@@ -332,18 +365,21 @@ export class BuildService {
   folders(project: string, refreshTrigger: Observable<number>) {
     let entry = this.#folders.get(project)?.deref();
     if (!entry) {
-      entry = createInformationStream(
-        async (buildApi: IBuildApi) =>
-          pagedLoader(async (continuationToken) => {
+      entry = createInformationStream(async (buildApi: IBuildApi) => {
+        try {
+          return await pagedLoader(async (continuationToken) => {
             this.#outputChannel?.appendLine(`Started buildApi.folders ${project}`);
             const t0 = performance.now();
             const result = await buildApi.getFolders(project);
             const t1 = performance.now();
             this.#outputChannel?.appendLine(`Finished  ${t1 - t0} buildApi.folders ${project}`);
             return result;
-          }),
-        this.#apiService.buildApi(),
-      );
+          });
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed buildApi.folders ${project}` + `: ${error}`);
+          return createException(error);
+        }
+      }, this.#apiService.buildApi());
       const weakRef = new WeakRef(entry);
       this.#foldersFinalizationRegistry.register(weakRef, project);
       this.#folders.set(project, weakRef);
@@ -356,9 +392,9 @@ export class BuildService {
   builds(project: string, definitions: number[] | undefined, refreshTrigger: Observable<number>) {
     let entry = this.#builds.get([project, definitions])?.deref();
     if (!entry) {
-      entry = createInformationStream(
-        async (buildApi: IBuildApi) =>
-          pagedLoader(async (continuationToken) => {
+      entry = createInformationStream(async (buildApi: IBuildApi) => {
+        try {
+          return await pagedLoader(async (continuationToken) => {
             this.#outputChannel?.appendLine(`Started buildApi.builds ${project} ${definitions}`);
             const t0 = performance.now();
             const result = await buildApi.getBuilds(
@@ -387,9 +423,12 @@ export class BuildService {
             const t1 = performance.now();
             this.#outputChannel?.appendLine(`Finished  ${t1 - t0} buildApi.builds ${project} ${definitions}`);
             return result;
-          }),
-        this.#apiService.buildApi(),
-      );
+          });
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed buildApi.builds ${project} ${definitions}` + `: ${error}`);
+          return createException(error);
+        }
+      }, this.#apiService.buildApi());
       const weakRef = new WeakRef(entry);
       this.#buildsFinalizationRegistry.register(weakRef, [project, definitions]);
       this.#builds.set([project, definitions], weakRef);
@@ -403,12 +442,17 @@ export class BuildService {
     let entry = this.#buildTimeline.get([project, buildId])?.deref();
     if (!entry) {
       entry = createInformationStream(async (buildApi: IBuildApi) => {
-        this.#outputChannel?.appendLine(`Started buildApi.buildTimeline ${project} ${buildId}`);
-        const t0 = performance.now();
-        const result = await buildApi.getBuildTimeline(project, buildId, undefined, undefined, undefined);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} buildApi.buildTimeline ${project} ${buildId}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started buildApi.buildTimeline ${project} ${buildId}`);
+          const t0 = performance.now();
+          const result = await buildApi.getBuildTimeline(project, buildId, undefined, undefined, undefined);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} buildApi.buildTimeline ${project} ${buildId}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed buildApi.buildTimeline ${project} ${buildId}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.buildApi());
       const weakRef = new WeakRef(entry);
       this.#buildTimelineFinalizationRegistry.register(weakRef, [project, buildId]);
@@ -423,12 +467,17 @@ export class BuildService {
     let entry = this.#build.get([buildId, project])?.deref();
     if (!entry) {
       entry = createInformationStream(async (buildApi: IBuildApi) => {
-        this.#outputChannel?.appendLine(`Started buildApi.build ${buildId} ${project}`);
-        const t0 = performance.now();
-        const result = await buildApi.getBuild(project, buildId);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} buildApi.build ${buildId} ${project}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started buildApi.build ${buildId} ${project}`);
+          const t0 = performance.now();
+          const result = await buildApi.getBuild(project, buildId);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} buildApi.build ${buildId} ${project}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed buildApi.build ${buildId} ${project}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.buildApi());
       const weakRef = new WeakRef(entry);
       this.#buildFinalizationRegistry.register(weakRef, [buildId, project]);
@@ -492,9 +541,9 @@ export class CoreService {
   projects(refreshTrigger: Observable<number>) {
     let entry = this.#projects?.deref();
     if (!entry) {
-      entry = createInformationStream(
-        async (coreApi: ICoreApi) =>
-          pagedLoader(async (continuationToken) => {
+      entry = createInformationStream(async (coreApi: ICoreApi) => {
+        try {
+          return await pagedLoader(async (continuationToken) => {
             this.#outputChannel?.appendLine(`Started coreApi.projects `);
             const t0 = performance.now();
             const result = await coreApi.getProjects(
@@ -506,9 +555,12 @@ export class CoreService {
             const t1 = performance.now();
             this.#outputChannel?.appendLine(`Finished  ${t1 - t0} coreApi.projects `);
             return result;
-          }),
-        this.#apiService.coreApi(),
-      );
+          });
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed coreApi.projects ` + `: ${error}`);
+          return createException(error);
+        }
+      }, this.#apiService.coreApi());
       const weakRef = new WeakRef(entry);
       this.#projectsFinalizationRegistry.register(weakRef, undefined);
       this.#projects = weakRef;
@@ -521,18 +573,21 @@ export class CoreService {
   teams(projectId: string, mine: boolean | undefined, refreshTrigger: Observable<number>) {
     let entry = this.#teams.get([projectId, mine])?.deref();
     if (!entry) {
-      entry = createInformationStream(
-        async (coreApi: ICoreApi) =>
-          pagedLoader(async (continuationToken) => {
+      entry = createInformationStream(async (coreApi: ICoreApi) => {
+        try {
+          return await pagedLoader(async (continuationToken) => {
             this.#outputChannel?.appendLine(`Started coreApi.teams ${projectId} ${mine}`);
             const t0 = performance.now();
             const result = await coreApi.getTeams(projectId, mine, continuationToken as number | undefined, undefined);
             const t1 = performance.now();
             this.#outputChannel?.appendLine(`Finished  ${t1 - t0} coreApi.teams ${projectId} ${mine}`);
             return result;
-          }),
-        this.#apiService.coreApi(),
-      );
+          });
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed coreApi.teams ${projectId} ${mine}` + `: ${error}`);
+          return createException(error);
+        }
+      }, this.#apiService.coreApi());
       const weakRef = new WeakRef(entry);
       this.#teamsFinalizationRegistry.register(weakRef, [projectId, mine]);
       this.#teams.set([projectId, mine], weakRef);
@@ -545,18 +600,21 @@ export class CoreService {
   allTeams(mine: boolean | undefined, refreshTrigger: Observable<number>) {
     let entry = this.#allTeams.get(mine)?.deref();
     if (!entry) {
-      entry = createInformationStream(
-        async (coreApi: ICoreApi) =>
-          pagedLoader(async (continuationToken) => {
+      entry = createInformationStream(async (coreApi: ICoreApi) => {
+        try {
+          return await pagedLoader(async (continuationToken) => {
             this.#outputChannel?.appendLine(`Started coreApi.allTeams ${mine}`);
             const t0 = performance.now();
             const result = await coreApi.getAllTeams(mine, continuationToken as number | undefined, undefined);
             const t1 = performance.now();
             this.#outputChannel?.appendLine(`Finished  ${t1 - t0} coreApi.allTeams ${mine}`);
             return result;
-          }),
-        this.#apiService.coreApi(),
-      );
+          });
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed coreApi.allTeams ${mine}` + `: ${error}`);
+          return createException(error);
+        }
+      }, this.#apiService.coreApi());
       const weakRef = new WeakRef(entry);
       this.#allTeamsFinalizationRegistry.register(weakRef, mine);
       this.#allTeams.set(mine, weakRef);
@@ -569,9 +627,9 @@ export class CoreService {
   teamMembersWithExtendedProperties(projectId: string, teamId: string, refreshTrigger: Observable<number>) {
     let entry = this.#teamMembersWithExtendedProperties.get([projectId, teamId])?.deref();
     if (!entry) {
-      entry = createInformationStream(
-        async (coreApi: ICoreApi) =>
-          pagedLoader(async (continuationToken) => {
+      entry = createInformationStream(async (coreApi: ICoreApi) => {
+        try {
+          return await pagedLoader(async (continuationToken) => {
             this.#outputChannel?.appendLine(`Started coreApi.teamMembersWithExtendedProperties ${projectId} ${teamId}`);
             const t0 = performance.now();
             const result = await coreApi.getTeamMembersWithExtendedProperties(
@@ -585,9 +643,14 @@ export class CoreService {
               `Finished  ${t1 - t0} coreApi.teamMembersWithExtendedProperties ${projectId} ${teamId}`,
             );
             return result;
-          }),
-        this.#apiService.coreApi(),
-      );
+          });
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed coreApi.teamMembersWithExtendedProperties ${projectId} ${teamId}` + `: ${error}`,
+          );
+          return createException(error);
+        }
+      }, this.#apiService.coreApi());
       const weakRef = new WeakRef(entry);
       this.#teamMembersWithExtendedPropertiesFinalizationRegistry.register(weakRef, [projectId, teamId]);
       this.#teamMembersWithExtendedProperties.set([projectId, teamId], weakRef);
@@ -627,12 +690,17 @@ export class DashboardService {
     let entry = this.#dashboards.get(teamContext)?.deref();
     if (!entry) {
       entry = createInformationStream(async (dashboardApi: IDashboardApi) => {
-        this.#outputChannel?.appendLine(`Started dashboardApi.dashboards ${teamContext}`);
-        const t0 = performance.now();
-        const result = await dashboardApi.getDashboardsByProject(teamContext);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} dashboardApi.dashboards ${teamContext}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started dashboardApi.dashboards ${teamContext}`);
+          const t0 = performance.now();
+          const result = await dashboardApi.getDashboardsByProject(teamContext);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} dashboardApi.dashboards ${teamContext}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed dashboardApi.dashboards ${teamContext}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.dashboardApi());
       const weakRef = new WeakRef(entry);
       this.#dashboardsFinalizationRegistry.register(weakRef, teamContext);
@@ -647,12 +715,17 @@ export class DashboardService {
     let entry = this.#dashboard.get([teamContext, dashboardId])?.deref();
     if (!entry) {
       entry = createInformationStream(async (dashboardApi: IDashboardApi) => {
-        this.#outputChannel?.appendLine(`Started dashboardApi.dashboard ${teamContext} ${dashboardId}`);
-        const t0 = performance.now();
-        const result = await dashboardApi.getDashboard(teamContext, dashboardId);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} dashboardApi.dashboard ${teamContext} ${dashboardId}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started dashboardApi.dashboard ${teamContext} ${dashboardId}`);
+          const t0 = performance.now();
+          const result = await dashboardApi.getDashboard(teamContext, dashboardId);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} dashboardApi.dashboard ${teamContext} ${dashboardId}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed dashboardApi.dashboard ${teamContext} ${dashboardId}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.dashboardApi());
       const weakRef = new WeakRef(entry);
       this.#dashboardFinalizationRegistry.register(weakRef, [teamContext, dashboardId]);
@@ -748,12 +821,17 @@ export class FileContainerService {
     let entry = this.#container.get([scope, artifactUris])?.deref();
     if (!entry) {
       entry = createInformationStream(async (fileContainerApi: IFileContainerApi) => {
-        this.#outputChannel?.appendLine(`Started fileContainerApi.container ${scope} ${artifactUris}`);
-        const t0 = performance.now();
-        const result = await fileContainerApi.getContainers(scope, artifactUris);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} fileContainerApi.container ${scope} ${artifactUris}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started fileContainerApi.container ${scope} ${artifactUris}`);
+          const t0 = performance.now();
+          const result = await fileContainerApi.getContainers(scope, artifactUris);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} fileContainerApi.container ${scope} ${artifactUris}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed fileContainerApi.container ${scope} ${artifactUris}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.fileContainerApi());
       const weakRef = new WeakRef(entry);
       this.#containerFinalizationRegistry.register(weakRef, [scope, artifactUris]);
@@ -797,16 +875,24 @@ export class FileContainerService {
       ?.deref();
     if (!entry) {
       entry = createInformationStream(async (fileContainerApi: IFileContainerApi) => {
-        this.#outputChannel?.appendLine(
-          `Started fileContainerApi.items ${containerId} ${scope} ${itemPath} ${metadata} ${format} ${downloadFileName} ${includeDownloadTickets} ${isShallow} ${ignoreRequestedMediaType} ${includeBlobMetadata} ${saveAbsolutePath} ${preferRedirect}`,
-        );
-        const t0 = performance.now();
-        const result = await fileContainerApi.getItems(containerId);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} fileContainerApi.items ${containerId} ${scope} ${itemPath} ${metadata} ${format} ${downloadFileName} ${includeDownloadTickets} ${isShallow} ${ignoreRequestedMediaType} ${includeBlobMetadata} ${saveAbsolutePath} ${preferRedirect}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(
+            `Started fileContainerApi.items ${containerId} ${scope} ${itemPath} ${metadata} ${format} ${downloadFileName} ${includeDownloadTickets} ${isShallow} ${ignoreRequestedMediaType} ${includeBlobMetadata} ${saveAbsolutePath} ${preferRedirect}`,
+          );
+          const t0 = performance.now();
+          const result = await fileContainerApi.getItems(containerId);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} fileContainerApi.items ${containerId} ${scope} ${itemPath} ${metadata} ${format} ${downloadFileName} ${includeDownloadTickets} ${isShallow} ${ignoreRequestedMediaType} ${includeBlobMetadata} ${saveAbsolutePath} ${preferRedirect}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed fileContainerApi.items ${containerId} ${scope} ${itemPath} ${metadata} ${format} ${downloadFileName} ${includeDownloadTickets} ${isShallow} ${ignoreRequestedMediaType} ${includeBlobMetadata} ${saveAbsolutePath} ${preferRedirect}` +
+              `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.fileContainerApi());
       const weakRef = new WeakRef(entry);
       this.#itemsFinalizationRegistry.register(weakRef, [
@@ -1007,12 +1093,17 @@ export class GitService {
     let entry = this.#repositories.get(project)?.deref();
     if (!entry) {
       entry = createInformationStream(async (gitApi: IGitApi) => {
-        this.#outputChannel?.appendLine(`Started gitApi.repositories ${project}`);
-        const t0 = performance.now();
-        const result = await gitApi.getRepositories(project);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} gitApi.repositories ${project}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started gitApi.repositories ${project}`);
+          const t0 = performance.now();
+          const result = await gitApi.getRepositories(project);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} gitApi.repositories ${project}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed gitApi.repositories ${project}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.gitApi());
       const weakRef = new WeakRef(entry);
       this.#repositoriesFinalizationRegistry.register(weakRef, project);
@@ -1027,12 +1118,17 @@ export class GitService {
     let entry = this.#repository.get([repositoryId, project])?.deref();
     if (!entry) {
       entry = createInformationStream(async (gitApi: IGitApi) => {
-        this.#outputChannel?.appendLine(`Started gitApi.repository ${repositoryId} ${project}`);
-        const t0 = performance.now();
-        const result = await gitApi.getRepository(repositoryId, project);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} gitApi.repository ${repositoryId} ${project}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started gitApi.repository ${repositoryId} ${project}`);
+          const t0 = performance.now();
+          const result = await gitApi.getRepository(repositoryId, project);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} gitApi.repository ${repositoryId} ${project}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed gitApi.repository ${repositoryId} ${project}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.gitApi());
       const weakRef = new WeakRef(entry);
       this.#repositoryFinalizationRegistry.register(weakRef, [repositoryId, project]);
@@ -1047,12 +1143,17 @@ export class GitService {
     let entry = this.#branches.get(repositoryId)?.deref();
     if (!entry) {
       entry = createInformationStream(async (gitApi: IGitApi) => {
-        this.#outputChannel?.appendLine(`Started gitApi.branches ${repositoryId}`);
-        const t0 = performance.now();
-        const result = await gitApi.getBranches(repositoryId);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} gitApi.branches ${repositoryId}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started gitApi.branches ${repositoryId}`);
+          const t0 = performance.now();
+          const result = await gitApi.getBranches(repositoryId);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} gitApi.branches ${repositoryId}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed gitApi.branches ${repositoryId}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.gitApi());
       const weakRef = new WeakRef(entry);
       this.#branchesFinalizationRegistry.register(weakRef, repositoryId);
@@ -1072,14 +1173,21 @@ export class GitService {
     let entry = this.#commits.get([repositoryId, searchCriteria, project])?.deref();
     if (!entry) {
       entry = createInformationStream(async (gitApi: IGitApi) => {
-        this.#outputChannel?.appendLine(`Started gitApi.commits ${repositoryId} ${searchCriteria} ${project}`);
-        const t0 = performance.now();
-        const result = await gitApi.getCommits(repositoryId, searchCriteria, project);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} gitApi.commits ${repositoryId} ${searchCriteria} ${project}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started gitApi.commits ${repositoryId} ${searchCriteria} ${project}`);
+          const t0 = performance.now();
+          const result = await gitApi.getCommits(repositoryId, searchCriteria, project);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} gitApi.commits ${repositoryId} ${searchCriteria} ${project}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed gitApi.commits ${repositoryId} ${searchCriteria} ${project}` + `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.gitApi());
       const weakRef = new WeakRef(entry);
       this.#commitsFinalizationRegistry.register(weakRef, [repositoryId, searchCriteria, project]);
@@ -1094,12 +1202,17 @@ export class GitService {
     let entry = this.#commit.get([commitId, repositoryId, project])?.deref();
     if (!entry) {
       entry = createInformationStream(async (gitApi: IGitApi) => {
-        this.#outputChannel?.appendLine(`Started gitApi.commit ${commitId} ${repositoryId} ${project}`);
-        const t0 = performance.now();
-        const result = await gitApi.getCommit(commitId, repositoryId, project);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} gitApi.commit ${commitId} ${repositoryId} ${project}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started gitApi.commit ${commitId} ${repositoryId} ${project}`);
+          const t0 = performance.now();
+          const result = await gitApi.getCommit(commitId, repositoryId, project);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} gitApi.commit ${commitId} ${repositoryId} ${project}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed gitApi.commit ${commitId} ${repositoryId} ${project}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.gitApi());
       const weakRef = new WeakRef(entry);
       this.#commitFinalizationRegistry.register(weakRef, [commitId, repositoryId, project]);
@@ -1114,12 +1227,17 @@ export class GitService {
     let entry = this.#pullRequests.get([repositoryId, status])?.deref();
     if (!entry) {
       entry = createInformationStream(async (gitApi: IGitApi) => {
-        this.#outputChannel?.appendLine(`Started gitApi.pullRequests ${repositoryId} ${status}`);
-        const t0 = performance.now();
-        const result = await gitApi.getPullRequests(repositoryId, {});
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} gitApi.pullRequests ${repositoryId} ${status}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started gitApi.pullRequests ${repositoryId} ${status}`);
+          const t0 = performance.now();
+          const result = await gitApi.getPullRequests(repositoryId, {});
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} gitApi.pullRequests ${repositoryId} ${status}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed gitApi.pullRequests ${repositoryId} ${status}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.gitApi());
       const weakRef = new WeakRef(entry);
       this.#pullRequestsFinalizationRegistry.register(weakRef, [repositoryId, status]);
@@ -1134,12 +1252,17 @@ export class GitService {
     let entry = this.#pullRequestById.get([pullRequestId, project])?.deref();
     if (!entry) {
       entry = createInformationStream(async (gitApi: IGitApi) => {
-        this.#outputChannel?.appendLine(`Started gitApi.pullRequestById ${pullRequestId} ${project}`);
-        const t0 = performance.now();
-        const result = await gitApi.getPullRequestById(pullRequestId, project);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} gitApi.pullRequestById ${pullRequestId} ${project}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started gitApi.pullRequestById ${pullRequestId} ${project}`);
+          const t0 = performance.now();
+          const result = await gitApi.getPullRequestById(pullRequestId, project);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} gitApi.pullRequestById ${pullRequestId} ${project}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed gitApi.pullRequestById ${pullRequestId} ${project}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.gitApi());
       const weakRef = new WeakRef(entry);
       this.#pullRequestByIdFinalizationRegistry.register(weakRef, [pullRequestId, project]);
@@ -1159,14 +1282,21 @@ export class GitService {
     let entry = this.#threads.get([repositoryId, pullRequestId, project])?.deref();
     if (!entry) {
       entry = createInformationStream(async (gitApi: IGitApi) => {
-        this.#outputChannel?.appendLine(`Started gitApi.threads ${repositoryId} ${pullRequestId} ${project}`);
-        const t0 = performance.now();
-        const result = await gitApi.getThreads(repositoryId, pullRequestId, project);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} gitApi.threads ${repositoryId} ${pullRequestId} ${project}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started gitApi.threads ${repositoryId} ${pullRequestId} ${project}`);
+          const t0 = performance.now();
+          const result = await gitApi.getThreads(repositoryId, pullRequestId, project);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} gitApi.threads ${repositoryId} ${pullRequestId} ${project}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed gitApi.threads ${repositoryId} ${pullRequestId} ${project}` + `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.gitApi());
       const weakRef = new WeakRef(entry);
       this.#threadsFinalizationRegistry.register(weakRef, [repositoryId, pullRequestId, project]);
@@ -1187,16 +1317,23 @@ export class GitService {
     let entry = this.#comments.get([repositoryId, pullRequestId, threadId, project])?.deref();
     if (!entry) {
       entry = createInformationStream(async (gitApi: IGitApi) => {
-        this.#outputChannel?.appendLine(
-          `Started gitApi.comments ${repositoryId} ${pullRequestId} ${threadId} ${project}`,
-        );
-        const t0 = performance.now();
-        const result = await gitApi.getComments(repositoryId, pullRequestId, threadId, project);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} gitApi.comments ${repositoryId} ${pullRequestId} ${threadId} ${project}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(
+            `Started gitApi.comments ${repositoryId} ${pullRequestId} ${threadId} ${project}`,
+          );
+          const t0 = performance.now();
+          const result = await gitApi.getComments(repositoryId, pullRequestId, threadId, project);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} gitApi.comments ${repositoryId} ${pullRequestId} ${threadId} ${project}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed gitApi.comments ${repositoryId} ${pullRequestId} ${threadId} ${project}` + `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.gitApi());
       const weakRef = new WeakRef(entry);
       this.#commentsFinalizationRegistry.register(weakRef, [repositoryId, pullRequestId, threadId, project]);
@@ -1217,16 +1354,23 @@ export class GitService {
     let entry = this.#pullRequestStatuses.get([commitId, repositoryId, project, latestOnly ?? false])?.deref();
     if (!entry) {
       entry = createInformationStream(async (gitApi: IGitApi) => {
-        this.#outputChannel?.appendLine(
-          `Started gitApi.pullRequestStatuses ${commitId} ${repositoryId} ${project} ${latestOnly}`,
-        );
-        const t0 = performance.now();
-        const result = await gitApi.getStatuses(commitId, repositoryId, project, undefined, undefined, latestOnly);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} gitApi.pullRequestStatuses ${commitId} ${repositoryId} ${project} ${latestOnly}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(
+            `Started gitApi.pullRequestStatuses ${commitId} ${repositoryId} ${project} ${latestOnly}`,
+          );
+          const t0 = performance.now();
+          const result = await gitApi.getStatuses(commitId, repositoryId, project, undefined, undefined, latestOnly);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} gitApi.pullRequestStatuses ${commitId} ${repositoryId} ${project} ${latestOnly}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed gitApi.pullRequestStatuses ${commitId} ${repositoryId} ${project} ${latestOnly}` + `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.gitApi());
       const weakRef = new WeakRef(entry);
       this.#pullRequestStatusesFinalizationRegistry.register(weakRef, [
@@ -1251,16 +1395,23 @@ export class GitService {
     let entry = this.#pullRequestWorkItemRefs.get([repositoryId, pullRequestId, project])?.deref();
     if (!entry) {
       entry = createInformationStream(async (gitApi: IGitApi) => {
-        this.#outputChannel?.appendLine(
-          `Started gitApi.pullRequestWorkItemRefs ${repositoryId} ${pullRequestId} ${project}`,
-        );
-        const t0 = performance.now();
-        const result = await gitApi.getPullRequestWorkItemRefs(repositoryId, pullRequestId, project);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} gitApi.pullRequestWorkItemRefs ${repositoryId} ${pullRequestId} ${project}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(
+            `Started gitApi.pullRequestWorkItemRefs ${repositoryId} ${pullRequestId} ${project}`,
+          );
+          const t0 = performance.now();
+          const result = await gitApi.getPullRequestWorkItemRefs(repositoryId, pullRequestId, project);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} gitApi.pullRequestWorkItemRefs ${repositoryId} ${pullRequestId} ${project}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed gitApi.pullRequestWorkItemRefs ${repositoryId} ${pullRequestId} ${project}` + `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.gitApi());
       const weakRef = new WeakRef(entry);
       this.#pullRequestWorkItemRefsFinalizationRegistry.register(weakRef, [repositoryId, pullRequestId, project]);
@@ -1300,27 +1451,35 @@ export class GitService {
       ?.deref();
     if (!entry) {
       entry = createInformationStream(async (gitApi: IGitApi) => {
-        this.#outputChannel?.appendLine(
-          `Started gitApi.items ${repositoryId} ${project} ${scopePath} ${recursionLevel} ${includeContentMetadata} ${latestProcessedChange} ${download} ${includeLinks} ${versionDescriptor} ${zipForUnix}`,
-        );
-        const t0 = performance.now();
-        const result = await gitApi.getItems(
-          repositoryId,
-          project,
-          scopePath,
-          recursionLevel,
-          includeContentMetadata,
-          latestProcessedChange,
-          download,
-          includeLinks,
-          versionDescriptor,
-          zipForUnix,
-        );
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} gitApi.items ${repositoryId} ${project} ${scopePath} ${recursionLevel} ${includeContentMetadata} ${latestProcessedChange} ${download} ${includeLinks} ${versionDescriptor} ${zipForUnix}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(
+            `Started gitApi.items ${repositoryId} ${project} ${scopePath} ${recursionLevel} ${includeContentMetadata} ${latestProcessedChange} ${download} ${includeLinks} ${versionDescriptor} ${zipForUnix}`,
+          );
+          const t0 = performance.now();
+          const result = await gitApi.getItems(
+            repositoryId,
+            project,
+            scopePath,
+            recursionLevel,
+            includeContentMetadata,
+            latestProcessedChange,
+            download,
+            includeLinks,
+            versionDescriptor,
+            zipForUnix,
+          );
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} gitApi.items ${repositoryId} ${project} ${scopePath} ${recursionLevel} ${includeContentMetadata} ${latestProcessedChange} ${download} ${includeLinks} ${versionDescriptor} ${zipForUnix}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed gitApi.items ${repositoryId} ${project} ${scopePath} ${recursionLevel} ${includeContentMetadata} ${latestProcessedChange} ${download} ${includeLinks} ${versionDescriptor} ${zipForUnix}` +
+              `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.gitApi());
       const weakRef = new WeakRef(entry);
       this.#itemsFinalizationRegistry.register(weakRef, [
@@ -1383,26 +1542,34 @@ export class GitService {
       ?.deref();
     if (!entry) {
       entry = createInformationStream(async (gitApi: IGitApi) => {
-        this.#outputChannel?.appendLine(
-          `Started gitApi.refs ${repositoryId} ${project} ${filter} ${includeLinks} ${includeStatuses} ${includeMyBranches} ${latestStatusesOnly} ${peelTags} ${filterContains}`,
-        );
-        const t0 = performance.now();
-        const result = await gitApi.getRefs(
-          repositoryId,
-          project,
-          filter,
-          includeLinks,
-          includeStatuses,
-          includeMyBranches,
-          latestStatusesOnly,
-          peelTags,
-          filterContains,
-        );
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} gitApi.refs ${repositoryId} ${project} ${filter} ${includeLinks} ${includeStatuses} ${includeMyBranches} ${latestStatusesOnly} ${peelTags} ${filterContains}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(
+            `Started gitApi.refs ${repositoryId} ${project} ${filter} ${includeLinks} ${includeStatuses} ${includeMyBranches} ${latestStatusesOnly} ${peelTags} ${filterContains}`,
+          );
+          const t0 = performance.now();
+          const result = await gitApi.getRefs(
+            repositoryId,
+            project,
+            filter,
+            includeLinks,
+            includeStatuses,
+            includeMyBranches,
+            latestStatusesOnly,
+            peelTags,
+            filterContains,
+          );
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} gitApi.refs ${repositoryId} ${project} ${filter} ${includeLinks} ${includeStatuses} ${includeMyBranches} ${latestStatusesOnly} ${peelTags} ${filterContains}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed gitApi.refs ${repositoryId} ${project} ${filter} ${includeLinks} ${includeStatuses} ${includeMyBranches} ${latestStatusesOnly} ${peelTags} ${filterContains}` +
+              `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.gitApi());
       const weakRef = new WeakRef(entry);
       this.#refsFinalizationRegistry.register(weakRef, [
@@ -1441,12 +1608,43 @@ export class LocationsService {
   #apiService: ApiService;
   #outputChannel: OutputChannel;
 
+  #connectionData: WeakRef<InformationStream<LocationsInterfaces.ConnectionData>> | undefined;
+
+  #connectionDataFinalizationRegistry: FinalizationRegistry<undefined> = new FinalizationRegistry(
+    (key) => (this.#connectionData = undefined),
+  );
+
   constructor(
     @inject(types.ApiService) apiService: ApiService,
     @inject(types.outputChannel) @optional() outputChannel: OutputChannel,
   ) {
     this.#apiService = apiService;
     this.#outputChannel = outputChannel;
+  }
+
+  connectionData(refreshTrigger: Observable<number>) {
+    let entry = this.#connectionData?.deref();
+    if (!entry) {
+      entry = createInformationStream(async (locationsApi: ILocationsApi) => {
+        try {
+          this.#outputChannel?.appendLine(`Started locationsApi.connectionData `);
+          const t0 = performance.now();
+          const result = await locationsApi.getConnectionData();
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} locationsApi.connectionData `);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed locationsApi.connectionData ` + `: ${error}`);
+          return createException(error);
+        }
+      }, this.#apiService.locationsApi());
+      const weakRef = new WeakRef(entry);
+      this.#connectionDataFinalizationRegistry.register(weakRef, undefined);
+      this.#connectionData = weakRef;
+    }
+
+    entry.refreshTriggers.next(refreshTrigger);
+    return entry.values;
   }
 }
 
@@ -1498,12 +1696,17 @@ export class PipelinesService {
     let entry = this.#runs.get([project, pipelineId])?.deref();
     if (!entry) {
       entry = createInformationStream(async (pipelinesApi: IPipelinesApi) => {
-        this.#outputChannel?.appendLine(`Started pipelinesApi.runs ${project} ${pipelineId}`);
-        const t0 = performance.now();
-        const result = await pipelinesApi.listRuns(project, pipelineId);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} pipelinesApi.runs ${project} ${pipelineId}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started pipelinesApi.runs ${project} ${pipelineId}`);
+          const t0 = performance.now();
+          const result = await pipelinesApi.listRuns(project, pipelineId);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} pipelinesApi.runs ${project} ${pipelineId}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed pipelinesApi.runs ${project} ${pipelineId}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.pipelinesApi());
       const weakRef = new WeakRef(entry);
       this.#runsFinalizationRegistry.register(weakRef, [project, pipelineId]);
@@ -1624,12 +1827,17 @@ export class TaskAgentService {
     let entry = this.#agentPools?.deref();
     if (!entry) {
       entry = createInformationStream(async (taskAgentApi: ITaskAgentApi) => {
-        this.#outputChannel?.appendLine(`Started taskAgentApi.agentPools `);
-        const t0 = performance.now();
-        const result = await taskAgentApi.getAgentPools();
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} taskAgentApi.agentPools `);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started taskAgentApi.agentPools `);
+          const t0 = performance.now();
+          const result = await taskAgentApi.getAgentPools();
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} taskAgentApi.agentPools `);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed taskAgentApi.agentPools ` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.taskAgentApi());
       const weakRef = new WeakRef(entry);
       this.#agentPoolsFinalizationRegistry.register(weakRef, undefined);
@@ -1649,16 +1857,23 @@ export class TaskAgentService {
     let entry = this.#agents.get([poolId, includeCapabilities, includeAssignedRequest])?.deref();
     if (!entry) {
       entry = createInformationStream(async (taskAgentApi: ITaskAgentApi) => {
-        this.#outputChannel?.appendLine(
-          `Started taskAgentApi.agents ${poolId} ${includeCapabilities} ${includeAssignedRequest}`,
-        );
-        const t0 = performance.now();
-        const result = await taskAgentApi.getAgents(poolId, undefined, includeCapabilities, includeAssignedRequest);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} taskAgentApi.agents ${poolId} ${includeCapabilities} ${includeAssignedRequest}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(
+            `Started taskAgentApi.agents ${poolId} ${includeCapabilities} ${includeAssignedRequest}`,
+          );
+          const t0 = performance.now();
+          const result = await taskAgentApi.getAgents(poolId, undefined, includeCapabilities, includeAssignedRequest);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} taskAgentApi.agents ${poolId} ${includeCapabilities} ${includeAssignedRequest}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed taskAgentApi.agents ${poolId} ${includeCapabilities} ${includeAssignedRequest}` + `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.taskAgentApi());
       const weakRef = new WeakRef(entry);
       this.#agentsFinalizationRegistry.register(weakRef, [poolId, includeCapabilities, includeAssignedRequest]);
@@ -1678,14 +1893,21 @@ export class TaskAgentService {
     let entry = this.#agentPoolJobs.get([poolId, top, continuationToken])?.deref();
     if (!entry) {
       entry = createInformationStream(async (taskAgentApi: ITaskAgentApi) => {
-        this.#outputChannel?.appendLine(`Started taskAgentApi.agentPoolJobs ${poolId} ${top} ${continuationToken}`);
-        const t0 = performance.now();
-        const result = await taskAgentApi.getAgentRequests(poolId, top, continuationToken);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} taskAgentApi.agentPoolJobs ${poolId} ${top} ${continuationToken}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started taskAgentApi.agentPoolJobs ${poolId} ${top} ${continuationToken}`);
+          const t0 = performance.now();
+          const result = await taskAgentApi.getAgentRequests(poolId, top, continuationToken);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} taskAgentApi.agentPoolJobs ${poolId} ${top} ${continuationToken}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed taskAgentApi.agentPoolJobs ${poolId} ${top} ${continuationToken}` + `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.taskAgentApi());
       const weakRef = new WeakRef(entry);
       this.#agentPoolJobsFinalizationRegistry.register(weakRef, [poolId, top, continuationToken]);
@@ -1705,14 +1927,23 @@ export class TaskAgentService {
     let entry = this.#agentJobs.get([poolId, agentId, completedRequestCount])?.deref();
     if (!entry) {
       entry = createInformationStream(async (taskAgentApi: ITaskAgentApi) => {
-        this.#outputChannel?.appendLine(`Started taskAgentApi.agentJobs ${poolId} ${agentId} ${completedRequestCount}`);
-        const t0 = performance.now();
-        const result = await taskAgentApi.getAgentRequestsForAgent(poolId, agentId, completedRequestCount);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} taskAgentApi.agentJobs ${poolId} ${agentId} ${completedRequestCount}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(
+            `Started taskAgentApi.agentJobs ${poolId} ${agentId} ${completedRequestCount}`,
+          );
+          const t0 = performance.now();
+          const result = await taskAgentApi.getAgentRequestsForAgent(poolId, agentId, completedRequestCount);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} taskAgentApi.agentJobs ${poolId} ${agentId} ${completedRequestCount}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed taskAgentApi.agentJobs ${poolId} ${agentId} ${completedRequestCount}` + `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.taskAgentApi());
       const weakRef = new WeakRef(entry);
       this.#agentJobsFinalizationRegistry.register(weakRef, [poolId, agentId, completedRequestCount]);
@@ -1847,12 +2078,17 @@ export class WorkService {
     let entry = this.#teamSettings.get(teamContext)?.deref();
     if (!entry) {
       entry = createInformationStream(async (workApi: IWorkApi) => {
-        this.#outputChannel?.appendLine(`Started workApi.teamSettings ${teamContext}`);
-        const t0 = performance.now();
-        const result = await workApi.getTeamSettings(teamContext);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} workApi.teamSettings ${teamContext}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started workApi.teamSettings ${teamContext}`);
+          const t0 = performance.now();
+          const result = await workApi.getTeamSettings(teamContext);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} workApi.teamSettings ${teamContext}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed workApi.teamSettings ${teamContext}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.workApi());
       const weakRef = new WeakRef(entry);
       this.#teamSettingsFinalizationRegistry.register(weakRef, teamContext);
@@ -1867,12 +2103,17 @@ export class WorkService {
     let entry = this.#teamFieldValues.get(teamContext)?.deref();
     if (!entry) {
       entry = createInformationStream(async (workApi: IWorkApi) => {
-        this.#outputChannel?.appendLine(`Started workApi.teamFieldValues ${teamContext}`);
-        const t0 = performance.now();
-        const result = await workApi.getTeamFieldValues(teamContext);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} workApi.teamFieldValues ${teamContext}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started workApi.teamFieldValues ${teamContext}`);
+          const t0 = performance.now();
+          const result = await workApi.getTeamFieldValues(teamContext);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} workApi.teamFieldValues ${teamContext}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed workApi.teamFieldValues ${teamContext}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.workApi());
       const weakRef = new WeakRef(entry);
       this.#teamFieldValuesFinalizationRegistry.register(weakRef, teamContext);
@@ -1887,12 +2128,17 @@ export class WorkService {
     let entry = this.#backlogs.get(teamContext)?.deref();
     if (!entry) {
       entry = createInformationStream(async (workApi: IWorkApi) => {
-        this.#outputChannel?.appendLine(`Started workApi.backlogs ${teamContext}`);
-        const t0 = performance.now();
-        const result = await workApi.getBacklogs(teamContext);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} workApi.backlogs ${teamContext}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started workApi.backlogs ${teamContext}`);
+          const t0 = performance.now();
+          const result = await workApi.getBacklogs(teamContext);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} workApi.backlogs ${teamContext}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed workApi.backlogs ${teamContext}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.workApi());
       const weakRef = new WeakRef(entry);
       this.#backlogsFinalizationRegistry.register(weakRef, teamContext);
@@ -1911,12 +2157,17 @@ export class WorkService {
     let entry = this.#teamIterations.get([teamContext, timeframe])?.deref();
     if (!entry) {
       entry = createInformationStream(async (workApi: IWorkApi) => {
-        this.#outputChannel?.appendLine(`Started workApi.teamIterations ${teamContext} ${timeframe}`);
-        const t0 = performance.now();
-        const result = await workApi.getTeamIterations(teamContext, timeframe);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} workApi.teamIterations ${teamContext} ${timeframe}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started workApi.teamIterations ${teamContext} ${timeframe}`);
+          const t0 = performance.now();
+          const result = await workApi.getTeamIterations(teamContext, timeframe);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} workApi.teamIterations ${teamContext} ${timeframe}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed workApi.teamIterations ${teamContext} ${timeframe}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.workApi());
       const weakRef = new WeakRef(entry);
       this.#teamIterationsFinalizationRegistry.register(weakRef, [teamContext, timeframe]);
@@ -1931,12 +2182,17 @@ export class WorkService {
     let entry = this.#teamIteration.get([teamContext, id])?.deref();
     if (!entry) {
       entry = createInformationStream(async (workApi: IWorkApi) => {
-        this.#outputChannel?.appendLine(`Started workApi.teamIteration ${teamContext} ${id}`);
-        const t0 = performance.now();
-        const result = await workApi.getTeamIteration(teamContext, id);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} workApi.teamIteration ${teamContext} ${id}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started workApi.teamIteration ${teamContext} ${id}`);
+          const t0 = performance.now();
+          const result = await workApi.getTeamIteration(teamContext, id);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} workApi.teamIteration ${teamContext} ${id}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed workApi.teamIteration ${teamContext} ${id}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.workApi());
       const weakRef = new WeakRef(entry);
       this.#teamIterationFinalizationRegistry.register(weakRef, [teamContext, id]);
@@ -1955,16 +2211,23 @@ export class WorkService {
     let entry = this.#capacitiesWithIdentityRefAndTotals.get([teamContext, iterationId])?.deref();
     if (!entry) {
       entry = createInformationStream(async (workApi: IWorkApi) => {
-        this.#outputChannel?.appendLine(
-          `Started workApi.capacitiesWithIdentityRefAndTotals ${teamContext} ${iterationId}`,
-        );
-        const t0 = performance.now();
-        const result = await workApi.getCapacitiesWithIdentityRefAndTotals(teamContext, iterationId);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} workApi.capacitiesWithIdentityRefAndTotals ${teamContext} ${iterationId}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(
+            `Started workApi.capacitiesWithIdentityRefAndTotals ${teamContext} ${iterationId}`,
+          );
+          const t0 = performance.now();
+          const result = await workApi.getCapacitiesWithIdentityRefAndTotals(teamContext, iterationId);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} workApi.capacitiesWithIdentityRefAndTotals ${teamContext} ${iterationId}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed workApi.capacitiesWithIdentityRefAndTotals ${teamContext} ${iterationId}` + `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.workApi());
       const weakRef = new WeakRef(entry);
       this.#capacitiesWithIdentityRefAndTotalsFinalizationRegistry.register(weakRef, [teamContext, iterationId]);
@@ -2183,16 +2446,23 @@ export class WorkItemTrackingService {
     let entry = this.#queryByWiql.get([query, teamContext, timePrecision, top])?.deref();
     if (!entry) {
       entry = createInformationStream(async (workItemTrackingApi: IWorkItemTrackingApi) => {
-        this.#outputChannel?.appendLine(
-          `Started workItemTrackingApi.queryByWiql ${query} ${teamContext} ${timePrecision} ${top}`,
-        );
-        const t0 = performance.now();
-        const result = await workItemTrackingApi.queryByWiql(query, teamContext, timePrecision, top);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} workItemTrackingApi.queryByWiql ${query} ${teamContext} ${timePrecision} ${top}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(
+            `Started workItemTrackingApi.queryByWiql ${query} ${teamContext} ${timePrecision} ${top}`,
+          );
+          const t0 = performance.now();
+          const result = await workItemTrackingApi.queryByWiql(query, teamContext, timePrecision, top);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} workItemTrackingApi.queryByWiql ${query} ${teamContext} ${timePrecision} ${top}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed workItemTrackingApi.queryByWiql ${query} ${teamContext} ${timePrecision} ${top}` + `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.workItemTrackingApi());
       const weakRef = new WeakRef(entry);
       this.#queryByWiqlFinalizationRegistry.register(weakRef, [query, teamContext, timePrecision, top]);
@@ -2213,16 +2483,23 @@ export class WorkItemTrackingService {
     let entry = this.#queries.get([project, expand, depth, includeDeleted])?.deref();
     if (!entry) {
       entry = createInformationStream(async (workItemTrackingApi: IWorkItemTrackingApi) => {
-        this.#outputChannel?.appendLine(
-          `Started workItemTrackingApi.queries ${project} ${expand} ${depth} ${includeDeleted}`,
-        );
-        const t0 = performance.now();
-        const result = await workItemTrackingApi.getQueries(project, expand, depth, includeDeleted);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} workItemTrackingApi.queries ${project} ${expand} ${depth} ${includeDeleted}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(
+            `Started workItemTrackingApi.queries ${project} ${expand} ${depth} ${includeDeleted}`,
+          );
+          const t0 = performance.now();
+          const result = await workItemTrackingApi.getQueries(project, expand, depth, includeDeleted);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} workItemTrackingApi.queries ${project} ${expand} ${depth} ${includeDeleted}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed workItemTrackingApi.queries ${project} ${expand} ${depth} ${includeDeleted}` + `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.workItemTrackingApi());
       const weakRef = new WeakRef(entry);
       this.#queriesFinalizationRegistry.register(weakRef, [project, expand, depth, includeDeleted]);
@@ -2245,23 +2522,31 @@ export class WorkItemTrackingService {
     let entry = this.#query.get([project, query, expand, depth, includeDeleted, useIsoDateFormat])?.deref();
     if (!entry) {
       entry = createInformationStream(async (workItemTrackingApi: IWorkItemTrackingApi) => {
-        this.#outputChannel?.appendLine(
-          `Started workItemTrackingApi.query ${project} ${query} ${expand} ${depth} ${includeDeleted} ${useIsoDateFormat}`,
-        );
-        const t0 = performance.now();
-        const result = await workItemTrackingApi.getQuery(
-          project,
-          query,
-          expand,
-          depth,
-          includeDeleted,
-          useIsoDateFormat,
-        );
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} workItemTrackingApi.query ${project} ${query} ${expand} ${depth} ${includeDeleted} ${useIsoDateFormat}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(
+            `Started workItemTrackingApi.query ${project} ${query} ${expand} ${depth} ${includeDeleted} ${useIsoDateFormat}`,
+          );
+          const t0 = performance.now();
+          const result = await workItemTrackingApi.getQuery(
+            project,
+            query,
+            expand,
+            depth,
+            includeDeleted,
+            useIsoDateFormat,
+          );
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} workItemTrackingApi.query ${project} ${query} ${expand} ${depth} ${includeDeleted} ${useIsoDateFormat}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed workItemTrackingApi.query ${project} ${query} ${expand} ${depth} ${includeDeleted} ${useIsoDateFormat}` +
+              `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.workItemTrackingApi());
       const weakRef = new WeakRef(entry);
       this.#queryFinalizationRegistry.register(weakRef, [
@@ -2289,16 +2574,24 @@ export class WorkItemTrackingService {
     let entry = this.#classificationNode.get([project, structureGroup, path, depth])?.deref();
     if (!entry) {
       entry = createInformationStream(async (workItemTrackingApi: IWorkItemTrackingApi) => {
-        this.#outputChannel?.appendLine(
-          `Started workItemTrackingApi.classificationNode ${project} ${structureGroup} ${path} ${depth}`,
-        );
-        const t0 = performance.now();
-        const result = await workItemTrackingApi.getClassificationNode(project, structureGroup, path, depth);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} workItemTrackingApi.classificationNode ${project} ${structureGroup} ${path} ${depth}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(
+            `Started workItemTrackingApi.classificationNode ${project} ${structureGroup} ${path} ${depth}`,
+          );
+          const t0 = performance.now();
+          const result = await workItemTrackingApi.getClassificationNode(project, structureGroup, path, depth);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} workItemTrackingApi.classificationNode ${project} ${structureGroup} ${path} ${depth}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed workItemTrackingApi.classificationNode ${project} ${structureGroup} ${path} ${depth}` +
+              `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.workItemTrackingApi());
       const weakRef = new WeakRef(entry);
       this.#classificationNodeFinalizationRegistry.register(weakRef, [project, structureGroup, path, depth]);
@@ -2313,14 +2606,21 @@ export class WorkItemTrackingService {
     let entry = this.#classificationNodes.get([project, ids, depth])?.deref();
     if (!entry) {
       entry = createInformationStream(async (workItemTrackingApi: IWorkItemTrackingApi) => {
-        this.#outputChannel?.appendLine(`Started workItemTrackingApi.classificationNodes ${project} ${ids} ${depth}`);
-        const t0 = performance.now();
-        const result = await workItemTrackingApi.getClassificationNodes(project, ids, depth, undefined);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} workItemTrackingApi.classificationNodes ${project} ${ids} ${depth}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started workItemTrackingApi.classificationNodes ${project} ${ids} ${depth}`);
+          const t0 = performance.now();
+          const result = await workItemTrackingApi.getClassificationNodes(project, ids, depth, undefined);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} workItemTrackingApi.classificationNodes ${project} ${ids} ${depth}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed workItemTrackingApi.classificationNodes ${project} ${ids} ${depth}` + `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.workItemTrackingApi());
       const weakRef = new WeakRef(entry);
       this.#classificationNodesFinalizationRegistry.register(weakRef, [project, ids, depth]);
@@ -2346,24 +2646,32 @@ export class WorkItemTrackingService {
       ?.deref();
     if (!entry) {
       entry = createInformationStream(async (workItemTrackingApi: IWorkItemTrackingApi) => {
-        this.#outputChannel?.appendLine(
-          `Started workItemTrackingApi.comments ${project} ${workItemId} ${top} ${continuationToken} ${includeDeleted} ${expand} ${order}`,
-        );
-        const t0 = performance.now();
-        const result = await workItemTrackingApi.getComments(
-          project,
-          workItemId,
-          top,
-          continuationToken,
-          includeDeleted,
-          expand,
-          order,
-        );
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} workItemTrackingApi.comments ${project} ${workItemId} ${top} ${continuationToken} ${includeDeleted} ${expand} ${order}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(
+            `Started workItemTrackingApi.comments ${project} ${workItemId} ${top} ${continuationToken} ${includeDeleted} ${expand} ${order}`,
+          );
+          const t0 = performance.now();
+          const result = await workItemTrackingApi.getComments(
+            project,
+            workItemId,
+            top,
+            continuationToken,
+            includeDeleted,
+            expand,
+            order,
+          );
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} workItemTrackingApi.comments ${project} ${workItemId} ${top} ${continuationToken} ${includeDeleted} ${expand} ${order}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed workItemTrackingApi.comments ${project} ${workItemId} ${top} ${continuationToken} ${includeDeleted} ${expand} ${order}` +
+              `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.workItemTrackingApi());
       const weakRef = new WeakRef(entry);
       this.#commentsFinalizationRegistry.register(weakRef, [
@@ -2393,16 +2701,24 @@ export class WorkItemTrackingService {
     let entry = this.#comment.get([project, workItemId, commentId, includeDeleted, expand])?.deref();
     if (!entry) {
       entry = createInformationStream(async (workItemTrackingApi: IWorkItemTrackingApi) => {
-        this.#outputChannel?.appendLine(
-          `Started workItemTrackingApi.comment ${project} ${workItemId} ${commentId} ${includeDeleted} ${expand}`,
-        );
-        const t0 = performance.now();
-        const result = await workItemTrackingApi.getComment(project, workItemId, commentId, includeDeleted, expand);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} workItemTrackingApi.comment ${project} ${workItemId} ${commentId} ${includeDeleted} ${expand}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(
+            `Started workItemTrackingApi.comment ${project} ${workItemId} ${commentId} ${includeDeleted} ${expand}`,
+          );
+          const t0 = performance.now();
+          const result = await workItemTrackingApi.getComment(project, workItemId, commentId, includeDeleted, expand);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} workItemTrackingApi.comment ${project} ${workItemId} ${commentId} ${includeDeleted} ${expand}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed workItemTrackingApi.comment ${project} ${workItemId} ${commentId} ${includeDeleted} ${expand}` +
+              `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.workItemTrackingApi());
       const weakRef = new WeakRef(entry);
       this.#commentFinalizationRegistry.register(weakRef, [project, workItemId, commentId, includeDeleted, expand]);
@@ -2417,12 +2733,17 @@ export class WorkItemTrackingService {
     let entry = this.#workItemIcons?.deref();
     if (!entry) {
       entry = createInformationStream(async (workItemTrackingApi: IWorkItemTrackingApi) => {
-        this.#outputChannel?.appendLine(`Started workItemTrackingApi.workItemIcons `);
-        const t0 = performance.now();
-        const result = await workItemTrackingApi.getWorkItemIcons();
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} workItemTrackingApi.workItemIcons `);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started workItemTrackingApi.workItemIcons `);
+          const t0 = performance.now();
+          const result = await workItemTrackingApi.getWorkItemIcons();
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} workItemTrackingApi.workItemIcons `);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed workItemTrackingApi.workItemIcons ` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.workItemTrackingApi());
       const weakRef = new WeakRef(entry);
       this.#workItemIconsFinalizationRegistry.register(weakRef, undefined);
@@ -2437,14 +2758,21 @@ export class WorkItemTrackingService {
     let entry = this.#workItemIconSvg.get([icon, color, v])?.deref();
     if (!entry) {
       entry = createInformationStream(async (workItemTrackingApi: IWorkItemTrackingApi) => {
-        this.#outputChannel?.appendLine(`Started workItemTrackingApi.workItemIconSvg ${icon} ${color} ${v}`);
-        const t0 = performance.now();
-        const result = await workItemTrackingApi.getWorkItemIconSvg(icon, color, v);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} workItemTrackingApi.workItemIconSvg ${icon} ${color} ${v}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started workItemTrackingApi.workItemIconSvg ${icon} ${color} ${v}`);
+          const t0 = performance.now();
+          const result = await workItemTrackingApi.getWorkItemIconSvg(icon, color, v);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} workItemTrackingApi.workItemIconSvg ${icon} ${color} ${v}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed workItemTrackingApi.workItemIconSvg ${icon} ${color} ${v}` + `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.workItemTrackingApi());
       const weakRef = new WeakRef(entry);
       this.#workItemIconSvgFinalizationRegistry.register(weakRef, [icon, color, v]);
@@ -2459,12 +2787,17 @@ export class WorkItemTrackingService {
     let entry = this.#relationTypes?.deref();
     if (!entry) {
       entry = createInformationStream(async (workItemTrackingApi: IWorkItemTrackingApi) => {
-        this.#outputChannel?.appendLine(`Started workItemTrackingApi.relationTypes `);
-        const t0 = performance.now();
-        const result = await workItemTrackingApi.getRelationTypes();
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} workItemTrackingApi.relationTypes `);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started workItemTrackingApi.relationTypes `);
+          const t0 = performance.now();
+          const result = await workItemTrackingApi.getRelationTypes();
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} workItemTrackingApi.relationTypes `);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed workItemTrackingApi.relationTypes ` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.workItemTrackingApi());
       const weakRef = new WeakRef(entry);
       this.#relationTypesFinalizationRegistry.register(weakRef, undefined);
@@ -2479,12 +2812,19 @@ export class WorkItemTrackingService {
     let entry = this.#workItemTypeCategories.get(project)?.deref();
     if (!entry) {
       entry = createInformationStream(async (workItemTrackingApi: IWorkItemTrackingApi) => {
-        this.#outputChannel?.appendLine(`Started workItemTrackingApi.workItemTypeCategories ${project}`);
-        const t0 = performance.now();
-        const result = await workItemTrackingApi.getWorkItemTypeCategories(project);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} workItemTrackingApi.workItemTypeCategories ${project}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started workItemTrackingApi.workItemTypeCategories ${project}`);
+          const t0 = performance.now();
+          const result = await workItemTrackingApi.getWorkItemTypeCategories(project);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} workItemTrackingApi.workItemTypeCategories ${project}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed workItemTrackingApi.workItemTypeCategories ${project}` + `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.workItemTrackingApi());
       const weakRef = new WeakRef(entry);
       this.#workItemTypeCategoriesFinalizationRegistry.register(weakRef, project);
@@ -2499,14 +2839,21 @@ export class WorkItemTrackingService {
     let entry = this.#workItemTypeColorAndIcons.get(projectNames)?.deref();
     if (!entry) {
       entry = createInformationStream(async (workItemTrackingApi: IWorkItemTrackingApi) => {
-        this.#outputChannel?.appendLine(`Started workItemTrackingApi.workItemTypeColorAndIcons ${projectNames}`);
-        const t0 = performance.now();
-        const result = await workItemTrackingApi.getWorkItemTypeColorAndIcons(projectNames);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} workItemTrackingApi.workItemTypeColorAndIcons ${projectNames}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started workItemTrackingApi.workItemTypeColorAndIcons ${projectNames}`);
+          const t0 = performance.now();
+          const result = await workItemTrackingApi.getWorkItemTypeColorAndIcons(projectNames);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} workItemTrackingApi.workItemTypeColorAndIcons ${projectNames}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed workItemTrackingApi.workItemTypeColorAndIcons ${projectNames}` + `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.workItemTrackingApi());
       const weakRef = new WeakRef(entry);
       this.#workItemTypeColorAndIconsFinalizationRegistry.register(weakRef, projectNames);
@@ -2521,12 +2868,17 @@ export class WorkItemTrackingService {
     let entry = this.#workItemTypes.get(project)?.deref();
     if (!entry) {
       entry = createInformationStream(async (workItemTrackingApi: IWorkItemTrackingApi) => {
-        this.#outputChannel?.appendLine(`Started workItemTrackingApi.workItemTypes ${project}`);
-        const t0 = performance.now();
-        const result = await workItemTrackingApi.getWorkItemTypes(project);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(`Finished  ${t1 - t0} workItemTrackingApi.workItemTypes ${project}`);
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started workItemTrackingApi.workItemTypes ${project}`);
+          const t0 = performance.now();
+          const result = await workItemTrackingApi.getWorkItemTypes(project);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(`Finished  ${t1 - t0} workItemTrackingApi.workItemTypes ${project}`);
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(`Failed workItemTrackingApi.workItemTypes ${project}` + `: ${error}`);
+          return createException(error);
+        }
       }, this.#apiService.workItemTrackingApi());
       const weakRef = new WeakRef(entry);
       this.#workItemTypesFinalizationRegistry.register(weakRef, project);
@@ -2546,16 +2898,23 @@ export class WorkItemTrackingService {
     let entry = this.#workItemTypeFieldsWithReferences.get([project, type, expand])?.deref();
     if (!entry) {
       entry = createInformationStream(async (workItemTrackingApi: IWorkItemTrackingApi) => {
-        this.#outputChannel?.appendLine(
-          `Started workItemTrackingApi.workItemTypeFieldsWithReferences ${project} ${type} ${expand}`,
-        );
-        const t0 = performance.now();
-        const result = await workItemTrackingApi.getWorkItemTypeFieldsWithReferences(project, type, expand);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} workItemTrackingApi.workItemTypeFieldsWithReferences ${project} ${type} ${expand}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(
+            `Started workItemTrackingApi.workItemTypeFieldsWithReferences ${project} ${type} ${expand}`,
+          );
+          const t0 = performance.now();
+          const result = await workItemTrackingApi.getWorkItemTypeFieldsWithReferences(project, type, expand);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} workItemTrackingApi.workItemTypeFieldsWithReferences ${project} ${type} ${expand}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed workItemTrackingApi.workItemTypeFieldsWithReferences ${project} ${type} ${expand}` + `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.workItemTrackingApi());
       const weakRef = new WeakRef(entry);
       this.#workItemTypeFieldsWithReferencesFinalizationRegistry.register(weakRef, [project, type, expand]);
@@ -2570,14 +2929,21 @@ export class WorkItemTrackingService {
     let entry = this.#workItemTypeStates.get([project, type])?.deref();
     if (!entry) {
       entry = createInformationStream(async (workItemTrackingApi: IWorkItemTrackingApi) => {
-        this.#outputChannel?.appendLine(`Started workItemTrackingApi.workItemTypeStates ${project} ${type}`);
-        const t0 = performance.now();
-        const result = await workItemTrackingApi.getWorkItemTypeStates(project, type);
-        const t1 = performance.now();
-        this.#outputChannel?.appendLine(
-          `Finished  ${t1 - t0} workItemTrackingApi.workItemTypeStates ${project} ${type}`,
-        );
-        return result;
+        try {
+          this.#outputChannel?.appendLine(`Started workItemTrackingApi.workItemTypeStates ${project} ${type}`);
+          const t0 = performance.now();
+          const result = await workItemTrackingApi.getWorkItemTypeStates(project, type);
+          const t1 = performance.now();
+          this.#outputChannel?.appendLine(
+            `Finished  ${t1 - t0} workItemTrackingApi.workItemTypeStates ${project} ${type}`,
+          );
+          return result;
+        } catch (error) {
+          this.#outputChannel?.appendLine(
+            `Failed workItemTrackingApi.workItemTypeStates ${project} ${type}` + `: ${error}`,
+          );
+          return createException(error);
+        }
       }, this.#apiService.workItemTrackingApi());
       const weakRef = new WeakRef(entry);
       this.#workItemTypeStatesFinalizationRegistry.register(weakRef, [project, type]);

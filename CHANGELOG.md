@@ -10,6 +10,16 @@ Dates are easier to read, e.g. `Nov 25, 2026` instead of `11/25/2026`.
 
 Work items have a generic icon until the icon of their type is loaded.
 
+### Pull Requests
+
+Comments are shown below pull requests. You can like them and change their status.
+
+Status checks are not shown a second time as "unknown" anymore.
+
+### Errors
+
+A failed request is shown as an error in the tree and loaded again with the next refresh. Before, the items stopped updating.
+
 ## [0.1.0] - Sign In with a Microsoft Account
 
 ### Microsoft Account
